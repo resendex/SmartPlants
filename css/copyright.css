@@ -1,0 +1,39 @@
+/* Regras para o footer */
+
+.footer {
+    width: 100%;
+    background-color: rgba(0, 0, 0, 0.7);
+    color: #f4f4f4;
+    text-align: center;
+    padding: 0.5em;
+    font-size: 0.75em;
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    z-index: 100;
+    backdrop-filter: blur(0.3em);
+    font-family: Arial, sans-serif;
+}
+.footer a {
+    color: greenyellow;
+    text-decoration: none;
+    transition: color 0.3s ease;
+}
+.footer a:hover {
+    color: green;
+    text-decoration: underline;
+}
+.copyright-info {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 1em;
+}
+.divider {
+    display: inline-block;
+    width: 0.06em;
+    height: 0.8em;
+    background-color: #f4f4f4;
+    margin: 0 0.5em;
+}
