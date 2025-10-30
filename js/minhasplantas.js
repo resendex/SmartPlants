@@ -93,7 +93,7 @@ function editPlant(id) {
                         </div>
                     </div>
                     <div class="form-buttons">
-                        <button type="submit" class="btn btn-confirm">Salvar</button>
+                        <button type="submit" class="btn btn-confirm">Confirmar</button>
                         <button type="button" class="btn btn-cancel">Cancelar</button>
                     </div>
                 </form>
