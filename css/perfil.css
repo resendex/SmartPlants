@@ -1,0 +1,130 @@
+body {
+    font-family: Arial, sans-serif;
+    background: linear-gradient(135deg, #667eea 0%, green 100%);
+    min-height: 100vh;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+}
+
+.header {
+    background: rgba(255, 255, 255, 0.95);
+    padding: 1em 2em;
+    box-shadow: 0 0.2em 0.5em rgba(0, 0, 0, 0.1);
+}
+
+.header-left {
+    display: flex;
+    align-items: center;
+    gap: 1em;
+}
+
+.header-logo {
+    width: 10em;
+    height: auto;
+    margin-left: -3.5em;
+    margin-bottom: 0.5em;
+    cursor: pointer;
+    transition: transform 0.3s ease, filter 0.3s ease;
+}
+
+.header-logo:hover {
+    transform: scale(1.1);
+    filter: brightness(1.1);
+}
+
+.header-title {
+    font-size: 1.5em;
+    font-weight: 700;
+    color: #333;
+}
+
+.container {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    padding: 2em;
+    max-width: 600px;
+    margin: 2em auto;
+    background: rgba(255, 255, 255, 0.95);
+    border-radius: 1.2em;
+    box-shadow: 0 0.5em 2em rgba(0, 0, 0, 0.3);
+    width: 90%;
+}
+
+.page-title {
+    color: #333;
+    font-size: 2em;
+    font-weight: 700;
+    margin: 0 0 1.5em 0;
+    text-align: center;
+    width: 100%;
+}
+
+.buttons-container {
+    display: flex;
+    flex-direction: row;
+    gap: 1em;
+    margin-top: 2em;
+    width: 100%;
+}
+
+button {
+    padding: 0.2em 0.4em;
+    font-size: 1em;
+    font-weight: 600;
+    border: none;
+    border-radius: 0.6em;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 0.25em 0.5em rgba(0, 0, 0, 0.2);
+    flex: 1;
+}
+
+.user-placeholder {
+    display: none;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    align-items: center;
+    justify-content: center;
+    font-size: 5em;
+    color: white;
+}
+
+.DadosFotografia {
+    display: flex;
+    width: 100%;
+}
+
+.Dados {
+    width: 50%;
+}
+
+.Fotografia {
+    height: 50%;
+    margin-left: 20%;
+    width: 17%;
+}
+
+.AlterarFotografia {
+    margin-top: 0.2em;
+}
+
+.Plantas {
+    margin-top: 2.5em;
+    margin-bottom: 2em;
+}
+
+@media (max-width: 600px) {   
+    
+    .buttons-container {
+        flex-direction: column;
+    }
+    
+    .container {
+        padding: 1.5em;
+    }
+}

@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="pt-pt">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Smart Plants - Lembretes</title>
+    <link rel="icon" href="../multimedia/image/logo.png" type="image/png">
+    <link rel="stylesheet" type="text/css" href="../css/lembretes.css">
+    <link rel="stylesheet" type="text/css" href="../css/copyright.css">
+</head>  
+<body>
+    <header class="header">
+        <div class="header-center">
+            <h1 class="header-title">SMART PLANTS</h1>
+        </div>
+        <div class="header-right">
+            <div class="user-icon">
+                <img src="../multimedia/image/user-icon-placeholder.png" alt="Utilizador" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                <div class="user-placeholder">👤</div>
+            </div>
+        </div>
+    </header>
+
+    <div class="main-container">
+        <aside class="sidebar">
+            <nav class="menu">
+                <a href="inicio.html" class="menu-item">
+                    <div class="menu-icon-placeholder">🏠</div>
+                    <span>Início</span>
+                </a>
+                <a href="add.html" class="menu-item">
+                    <div class="menu-icon-placeholder">➕</div>
+                    <span>Adicionar Planta</span>
+                </a>
+                <a href="notificacoes.html" class="menu-item active">
+                    <div class="menu-icon-placeholder">🔔</div>
+                    <span>Notificações</span>
+                </a>
+                <a href="regar.html" class="menu-item">
+                    <div class="menu-icon-placeholder">💧</div>
+                    <span>Regar</span>
+                </a>
+                <a href="chat.html" class="menu-item">
+                    <div class="menu-icon-placeholder">💬</div>
+                    <span>Chat</span>
+                </a>
+                <a href="minhas_plantas.html" class="menu-item">
+                    <div class="menu-icon-placeholder">🌱</div>
+                    <span>Minhas Plantas</span>
+                </a>
+            </nav>
+        </aside>
+
+        <main class="content">
+            <h2 class="content-title">Notificações</h2>
+            <div class="content-menu"></div>
+            <div id="plantsContainer" class="plants-grid">
+                <h3>Gestão de Lembretes</h3>
+                <div class="TipodeLembrete">
+                    <h3>Tipo</h3>
+                    <div class="opcao">
+                        <label><input type="checkbox" name="TipoLembrete" value="Todos"> Todos</label>
+                    </div>
+                    <div class="opcao">
+                        <label><input type="checkbox" name="TipoLembrete" value="Prestes a murchar"> Prestes a murchar</label>
+                    </div>
+                    <div class="opcao">
+                        <label><input type="checkbox" name="TipoLembrete" value="Hora de regar"> Hora de regar</label>
+                    </div>
+                    <div class="opcao">
+                        <label><input type="checkbox" name="TipoLembrete" value="Analizar foto da planta"> Analizar foto da planta</label>
+                    </div>
+                </div>
+            </div>
+
+            <div class="MetododeLembrete">
+                <h3>Método</h3>
+                <div class="opcao">
+                    <label><input type="checkbox" name="MetodoLembrete" value="Email"> Email</label>
+                </div>
+                <div class="opcao">
+                    <label><input type="checkbox" name="MetodoLembrete" value="Notificacao"> Notificação</label>
+                </div>
+                <div class="opcao">
+                    <label><input type="checkbox" name="MetodoLembrete" value="So na app"> Só na app</label>
+                </div>
+                <br>
+                <br>
+                <button class="ButtonGuardar" value="Guardar">Guardar</button>
+            </div>
+        </main>
+    </div>
+
+    <footer class="footer">
+        <div class="copyright-info">
+            <span>©2025 Smart Plants Project</span>
+            <span class="divider"></span>
+            <span>Criado em contexto académico por estudantes da
+                <a href="https://ciencias.ulisboa.pt/" target="_blank">FCUL</a></span>
+            <span class="divider"></span>
+            Interação com Computadores
+        </div>
+    </footer>
+</body>
