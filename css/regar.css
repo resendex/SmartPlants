@@ -1,0 +1,297 @@
+/* Reset de margens e padding para garantir consistência */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    background: linear-gradient(135deg, #667eea 0%, green 100%);
+}
+
+.header {
+    background: rgba(255, 255, 255, 0.95);
+    padding: 1em 2em;
+    box-shadow: 0 0.2em 0.5em rgba(0, 0, 0, 0.1);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    position: relative;
+}
+
+.header-center {
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+}
+
+.header-title {
+    font-size: 2em;
+    font-weight: 700;
+    color: #333;
+    margin: 0;
+    text-align: center;
+}
+
+.header-right {
+    margin-left: auto;
+}
+
+.user-icon {
+    width: 3em;
+    height: 3em;
+    border-radius: 50%;
+    overflow: hidden;
+    cursor: pointer;
+    transition: transform 0.3s ease;
+    position: relative;
+}
+
+.user-icon:hover {
+    transform: scale(1.1);
+}
+
+.user-icon img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.user-placeholder {
+    display: none;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    align-items: center;
+    justify-content: center;
+    font-size: 1.8em;
+    color: white;
+}
+
+.main-container {
+    display: flex;
+    flex: 1;
+    overflow: hidden;
+}
+
+.sidebar {
+    width: 250px;
+    background: rgba(255, 255, 255, 0.95);
+    box-shadow: 0.2em 0 0.5em rgba(0, 0, 0, 0.1);
+    padding: 2em 0;
+}
+
+.menu {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5em;
+}
+
+.menu-item {
+    display: flex;
+    align-items: center;
+    gap: 1em;
+    padding: 1em 2em;
+    text-decoration: none;
+    color: #333;
+    font-weight: 600;
+    transition: background 0.3s ease, transform 0.2s ease;
+    cursor: pointer;
+}
+
+/* Estilo de hover nos itens do menu */
+.menu-item:hover {
+    background: rgba(102, 126, 234, 0.1);
+    transform: translateX(0.3em);
+}
+
+/* Estilo do item ativo */
+.menu-item.active {
+    background: rgba(102, 126, 234, 0.2);
+    border-left: 0.3em solid #667eea;
+    transform: none; /* Remove a transformação do hover */
+}
+
+/* Evitar que o hover seja aplicado quando o item estiver ativo */
+.menu-item.active:hover {
+    background: rgba(102, 126, 234, 0.2); /* Pode ser uma cor mais clara ou mais forte */
+    transform: none; /* Remove a transformação do hover */
+}
+
+.menu-icon-placeholder {
+    width: 2em;
+    height: 2em;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.5em;
+    background: rgba(102, 126, 234, 0.1);
+    border-radius: 0.5em;
+}
+
+.content {
+    flex: 1;
+    padding: 2em;
+    overflow-y: auto;
+}
+
+.content-title {
+    color: white;
+    font-size: 2em;
+    font-weight: 700;
+    margin: 0 0 0.5em 0;
+    text-shadow: 0.1em 0.1em 0.2em rgba(0, 0, 0, 0.3);
+}
+
+.content-description {
+    color: white;
+    font-size: 1.1em;
+    margin: 0 0 2em 0;
+    text-shadow: 0.05em 0.05em 0.1em rgba(0, 0, 0, 0.3);
+}
+
+.dashboard-placeholder {
+    background: rgba(255, 255, 255, 0.95);
+    padding: 3em;
+    border-radius: 1em;
+    box-shadow: 0 0.5em 2em rgba(0, 0, 0, 0.2);
+    text-align: center;
+    color: #666;
+    font-size: 1.2em;
+    min-height: 400px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.footer {
+    margin-top: auto;
+}
+
+#navegar {
+    margin-top: 2em;
+}
+
+.regar_menu {
+    display: flex;
+    gap: 3em; /* Aumenta o espaço entre os itens */
+    justify-content: center;
+    padding-top: 2em;
+}
+
+.regar_menu a {
+    display: flex;
+    flex-direction: column; /* Organiza o conteúdo de cada link (imagem + texto) em coluna */
+    align-items: center; /* Garante que a imagem e o texto fiquem centralizados */
+    width: 200px; /* Aumenta a largura para garantir espaço para o texto */
+    height: 150px; /* Ajusta a altura do link conforme necessário */
+    text-align: center;
+    color: #333;
+    font-weight: 600;
+    transition: transform 0.3s ease;
+    padding: 0.5em; /* Adiciona um pouco de espaçamento interno */
+}
+
+/* Efeito hover no menu de regar */
+.regar_menu a:hover {
+    transform: scale(1.1); /* Efeito de aumento quando o mouse passa por cima */
+}
+
+/* Estilização das imagens no menu */
+.regar_menu img {
+    width: 50px; /* Tamanho da imagem */
+    height: 50px; /* Tamanho da imagem */
+    margin-bottom: 0.5em; /* Dá um espaço entre a imagem e o texto */
+}
+
+/* Estilização do texto */
+.regar_menu span {
+    font-size: 1em; /* Ajuste o tamanho do texto */
+    margin-top: 0.5em; /* Espaço entre a imagem e o texto */
+    text-align: center;
+    white-space: nowrap; /* Impede que o texto seja quebrado em várias linhas */
+}
+
+/* Responsividade - ajusta os ícones para telas menores */
+@media (max-width: 768px) {
+    .regar_menu {
+        flex-direction: column; /* Empilha os itens na vertical em telas pequenas */
+        gap: 1.5em; /* Reduz o espaço entre os itens na versão mobile */
+    }
+
+    .regar_menu a {
+        width: 100px; /* Ajusta o tamanho do link na versão mobile */
+        height: auto; /* Ajusta a altura do link */
+    }
+
+    .regar_menu img {
+        width: 40px; /* Ajusta o tamanho da imagem para telas pequenas */
+        height: 40px; /* Ajusta o tamanho da imagem */
+    }
+
+    .regar_menu span {
+        font-size: 0.9em; /* Ajuste o tamanho do texto para telas menores */
+    }
+}
+
+/* Estilos específicos para manter o item "regar" ativo */
+.regar_menu a.active {
+    background: rgba(102, 126, 234, 0.2); /* Aplique o estilo de fundo ativo */
+    transform: none; /* Remove a transformação do hover */
+    border-left: 0.3em solid #667eea; /* Adiciona uma borda à esquerda para destacar */
+}
+
+/* Estilo do overlay e popup */
+.popup-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 9999;
+}
+
+.popup-container {
+    background-color: white;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    width: 300px;
+    text-align: center;
+}
+
+.popup-container h2 {
+    margin-bottom: 20px;
+}
+
+.plant-item {
+    margin: 10px 0;
+}
+
+.plant-item label {
+    margin-left: 10px;
+}
+
+.btn {
+    background-color: #4169e1;
+    color: white;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    margin: 10px;
+}
+
+.btn:hover {
+    background-color: #365ac3;
+}
