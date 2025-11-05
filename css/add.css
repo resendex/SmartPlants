@@ -301,7 +301,21 @@ body {
     transition: border-color 0.3s ease;
 }
 
-.form-field input:focus {
+.form-field textarea {
+    width: 100%;
+    padding: 0.8em;
+    border: 0.1em solid #ddd;
+    border-radius: 0.5em;
+    font-size: 1em;
+    box-sizing: border-box;
+    transition: border-color 0.3s ease;
+    font-family: Arial, sans-serif;
+    resize: vertical;
+    min-height: 80px;
+}
+
+.form-field input:focus,
+.form-field textarea:focus {
     outline: none;
     border-color: #667eea;
 }
