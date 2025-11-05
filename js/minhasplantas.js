@@ -1,22 +1,45 @@
+// Utilitário: escapar html em strings
+function escapeHtml(str) {
+    if (!str) return '';
+    return String(str)
+        .replace(/&/g, '&amp;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#39;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;');
+}
+
 // Carregar plantas do localStorage
 function loadPlants() {
+    console.log('loadPlants() chamada');
     const plants = JSON.parse(localStorage.getItem('myPlants') || '[]');
+    console.log('Plantas carregadas do localStorage:', plants);
+    
     const container = document.getElementById('plantsContainer');
     const emptyState = document.getElementById('emptyState');
     
-    if (!container || !emptyState) return;
+    console.log('Container encontrado:', !!container);
+    console.log('EmptyState encontrado:', !!emptyState);
+    
+    if (!container || !emptyState) {
+        console.error('Elementos não encontrados!');
+        return;
+    }
     
     if (plants.length === 0) {
+        console.log('Nenhuma planta encontrada, mostrando estado vazio');
         emptyState.style.display = 'block';
         container.style.display = 'none';
         return;
     }
     
+    console.log(`Carregando ${plants.length} planta(s)`);
     emptyState.style.display = 'none';
     container.style.display = 'grid';
     container.innerHTML = '';
     
-    plants.forEach(plant => {
+    plants.forEach((plant, index) => {
+        console.log(`Criando card para planta ${index}:`, plant.name);
         const card = createPlantCard(plant);
         container.appendChild(card);
     });
@@ -34,7 +57,7 @@ function createPlantCard(plant) {
     const notesInfo = plant.notes ? `<p class="plant-notes">📝 ${plant.notes}</p>` : '';
     
     card.innerHTML = `
-        <img src="${plant.image}" alt="${plant.name}" class="plant-image">
+        <img src="${plant.image}" alt="${plant.name}" class="plant-image" onclick="viewPlantDetails(${plant.id})">
         <div class="plant-info">
             <h3 class="plant-name">${plant.name}</h3>
             <p class="plant-date">🌱 Plantada em: ${formattedDate}</p>
@@ -50,7 +73,228 @@ function createPlantCard(plant) {
     return card;
 }
 
-// Editar planta - abre modal com formulário para editar nome, data, notas, localização e imagem
+// Ver detalhes da planta
+function viewPlantDetails(id) {
+    const plants = JSON.parse(localStorage.getItem('myPlants') || '[]');
+    const plant = plants.find(p => p.id === id);
+    if (!plant) {
+        alert('Planta não encontrada.');
+        return;
+    }
+
+    // Inicializar fotos de progresso se não existir
+    if (!plant.progressPhotos) {
+        plant.progressPhotos = [{
+            image: plant.image,
+            date: plant.addedDate || new Date().toISOString()
+        }];
+        // Salvar a inicialização
+        const plantIndex = plants.findIndex(p => p.id === id);
+        if (plantIndex !== -1) {
+            plants[plantIndex] = plant;
+            localStorage.setItem('myPlants', JSON.stringify(plants));
+        }
+    }
+
+    // Criar modal de detalhes
+    const detailsHTML = `
+        <div class="plant-details-overlay" id="plantDetailsOverlay">
+            <div class="plant-details-container">
+                <button class="close-details" onclick="closePlantDetails()">✕</button>
+                
+                <h1 class="details-title">${escapeHtml(plant.name)}</h1>
+                
+                <div class="details-content">
+                    <!-- Seção de Progresso (Esquerda) -->
+                    <div class="progress-section">
+                        <h2 class="section-header">Progresso</h2>
+                        <div class="progress-photos">
+                            ${plant.progressPhotos.map((photo, index) => `
+                                <div class="progress-photo-item">
+                                    <div class="progress-photo-wrapper">
+                                        <img src="${photo.image}" alt="Progresso ${index + 1}" class="progress-photo">
+                                        <button class="delete-progress-photo" onclick="deleteProgressPhoto(${id}, ${index})" title="Remover foto">✕</button>
+                                    </div>
+                                    <p class="progress-date">${new Date(photo.date).toLocaleDateString('pt-PT')}</p>
+                                </div>
+                            `).join('')}
+                            <div class="progress-photo-item add-photo-item" onclick="addProgressPhoto(${id})">
+                                <div class="add-photo-button">
+                                    <span class="add-icon">+</span>
+                                </div>
+                                <p class="progress-date">Adicionar</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Seção de Verificação (Direita) -->
+                    <div class="verification-section">
+                        <div class="vertical-bar">
+                            <h3 class="bar-title">Verificar estado da Planta</h3>
+                        </div>
+                        
+                        <div class="verification-content">
+                            <button class="camera-button" onclick="checkPlantHealth(${id})">
+                                <span class="camera-icon">📷</span>
+                                <span>Analisar Planta</span>
+                            </button>
+                            
+                            <div class="health-status ${plant.healthStatus || 'healthy'}">
+                                <p class="status-label">Estado da planta:</p>
+                                <p class="status-value">${plant.healthStatusText || 'Saudável'}</p>
+                            </div>
+                            
+                            <div class="diagnosis-section">
+                                <h3 class="diagnosis-header">Diagnóstico:</h3>
+                                <p class="diagnosis-text">
+                                    ${plant.diagnosis || 'A ' + plant.name + ' apresenta sintomas de uma planta com falta de água. É recomendado que defina lembretes na agenda de 4 em 4 dias de forma a que a planta possa receber a quantidade necessária de água.'}
+                                </p>
+                                
+                                <div class="diagnosis-actions">
+                                    <button class="btn-schedule" onclick="location.href='lembretes.html'">Agendar</button>
+                                    <button class="btn-dismiss" onclick="dismissDiagnosis()">Dispensar</button>
+                                </div>
+                            </div>
+                            
+                            <div class="plant-details-info">
+                                <h3 class="info-header">Estado Atual</h3>
+                                <div class="info-grid">
+                                    <div class="info-item">
+                                        <span class="info-icon">🌍</span>
+                                        <span class="info-label">Solo:</span>
+                                        <span class="info-value">${plant.soilType || 'Comum'}</span>
+                                    </div>
+                                    <div class="info-item">
+                                        <span class="info-icon">💧</span>
+                                        <span class="info-label">Rega:</span>
+                                        <span class="info-value">${plant.wateringSchedule || 'Não Agendada'}</span>
+                                    </div>
+                                    <div class="info-item">
+                                        <span class="info-icon">☀️</span>
+                                        <span class="info-label">Luz:</span>
+                                        <span class="info-value">${plant.lightStatus || 'Estável'}</span>
+                                    </div>
+                                    <div class="info-item">
+                                        <span class="info-icon">📍</span>
+                                        <span class="info-label">Local:</span>
+                                        <span class="info-value">${plant.location || 'Escritório'}</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    `;
+
+    document.body.insertAdjacentHTML('beforeend', detailsHTML);
+}
+
+// Fechar detalhes da planta
+function closePlantDetails() {
+    const overlay = document.getElementById('plantDetailsOverlay');
+    if (overlay) {
+        overlay.remove();
+    }
+}
+
+// Adicionar foto de progresso
+function addProgressPhoto(plantId) {
+    const input = document.createElement('input');
+    input.type = 'file';
+    input.accept = 'image/*';
+    input.onchange = (e) => {
+        const file = e.target.files[0];
+        if (!file || !file.type.startsWith('image/')) {
+            alert('Por favor, selecione uma imagem válida.');
+            return;
+        }
+        
+        const reader = new FileReader();
+        reader.onload = (ev) => {
+            let plants = JSON.parse(localStorage.getItem('myPlants') || '[]');
+            const plantIndex = plants.findIndex(p => p.id === plantId);
+            
+            if (plantIndex !== -1) {
+                // Garantir que progressPhotos existe e é um array
+                if (!plants[plantIndex].progressPhotos || !Array.isArray(plants[plantIndex].progressPhotos)) {
+                    plants[plantIndex].progressPhotos = [{
+                        image: plants[plantIndex].image,
+                        date: plants[plantIndex].addedDate || new Date().toISOString()
+                    }];
+                }
+                
+                // Adicionar nova foto ao array (não sobrescrever)
+                plants[plantIndex].progressPhotos.push({
+                    image: ev.target.result,
+                    date: new Date().toISOString()
+                });
+                
+                console.log(`Foto de progresso adicionada. Total: ${plants[plantIndex].progressPhotos.length}`);
+                
+                localStorage.setItem('myPlants', JSON.stringify(plants));
+                closePlantDetails();
+                viewPlantDetails(plantId);
+            }
+        };
+        reader.readAsDataURL(file);
+    };
+    input.click();
+}
+
+// Remover foto de progresso
+function deleteProgressPhoto(plantId, photoIndex) {
+    if (!confirm('Tem certeza que deseja remover esta foto de progresso?')) {
+        return;
+    }
+    
+    let plants = JSON.parse(localStorage.getItem('myPlants') || '[]');
+    const plantIndex = plants.findIndex(p => p.id === plantId);
+    
+    if (plantIndex !== -1 && plants[plantIndex].progressPhotos) {
+        // Não permitir remover se for a última foto
+        if (plants[plantIndex].progressPhotos.length <= 1) {
+            alert('Não é possível remover a última foto de progresso.');
+            return;
+        }
+        
+        // Remover a foto no índice especificado
+        plants[plantIndex].progressPhotos.splice(photoIndex, 1);
+        
+        console.log(`Foto ${photoIndex} removida. Total restante: ${plants[plantIndex].progressPhotos.length}`);
+        
+        localStorage.setItem('myPlants', JSON.stringify(plants));
+        closePlantDetails();
+        viewPlantDetails(plantId);
+    }
+}
+
+// Verificar saúde da planta (simulação)
+function checkPlantHealth(plantId) {
+    alert('Funcionalidade de análise de saúde em desenvolvimento.\nEm breve você poderá tirar uma foto e receber diagnóstico automático!');
+    
+    // Aqui você pode adicionar integração com IA para análise real
+    // Por enquanto, vamos simular um resultado
+    let plants = JSON.parse(localStorage.getItem('myPlants') || '[]');
+    const plantIndex = plants.findIndex(p => p.id === plantId);
+    
+    if (plantIndex !== -1) {
+        plants[plantIndex].healthStatus = 'needs-water';
+        plants[plantIndex].healthStatusText = 'Necessita Água';
+        localStorage.setItem('myPlants', JSON.stringify(plants));
+        closePlantDetails();
+        viewPlantDetails(plantId);
+    }
+}
+
+// Dispensar diagnóstico
+function dismissDiagnosis() {
+    alert('Diagnóstico dispensado.');
+    closePlantDetails();
+}
+
+// Editar planta
 function editPlant(id) {
     let plants = JSON.parse(localStorage.getItem('myPlants') || '[]');
     const plant = plants.find(p => p.id === id);
@@ -71,7 +315,7 @@ function editPlant(id) {
                     </div>
                     <div class="form-field">
                         <label for="editPlantDate">Data de Plantio:</label>
-                        <input type="date" id="editPlantDate" name="editPlantDate" value="${plant.plantDate ? plant.plantDate : ''}">
+                        <input type="date" id="editPlantDate" name="editPlantDate" value="${plant.plantDate || ''}">
                     </div>
                     <div class="form-field">
                         <label for="editPlantLocation">Localização:</label>
@@ -108,7 +352,7 @@ function editPlant(id) {
     const inputImage = document.getElementById('editImageInput');
     const preview = document.getElementById('editImagePreview');
 
-    let newImageData = plant.image; // por padrão mantém imagem existente
+    let newImageData = plant.image;
 
     // quando o utilizador escolhe nova imagem
     inputImage.addEventListener('change', (e) => {
@@ -127,7 +371,7 @@ function editPlant(id) {
     });
 
     // cancelar
-    document.querySelector('.btn-cancel').addEventListener('click', () => {
+    document.querySelector('#editPlantOverlay .btn-cancel').addEventListener('click', () => {
         overlay.remove();
     });
 
@@ -162,17 +406,6 @@ function editPlant(id) {
     });
 }
 
-// Utilitário: escapar html em strings para inserir em value/textarea de forma segura
-function escapeHtml(str) {
-    if (!str) return '';
-    return String(str)
-        .replace(/&/g, '&amp;')
-        .replace(/"/g, '&quot;')
-        .replace(/'/g, '&#39;')
-        .replace(/</g, '&lt;')
-        .replace(/>/g, '&gt;');
-}
-
 // Remover planta
 function deletePlant(id) {
     if (confirm('Tem certeza que deseja remover esta planta?')) {
@@ -184,4 +417,8 @@ function deletePlant(id) {
 }
 
 // Carregar plantas ao iniciar
-document.addEventListener('DOMContentLoaded', loadPlants);
+console.log('Script minhasplantas.js carregado');
+document.addEventListener('DOMContentLoaded', () => {
+    console.log('DOM carregado, chamando loadPlants()');
+    loadPlants();
+});

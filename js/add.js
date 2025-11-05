@@ -82,6 +82,14 @@ if (btnYes) {
                             <label for="plantDate">Data de Plantio:</label>
                             <input type="date" id="plantDate" name="plantDate" required>
                         </div>
+                        <div class="form-field">
+                            <label for="plantLocation">Localização:</label>
+                            <input type="text" id="plantLocation" name="plantLocation" placeholder="Ex: Escritório, Sala, Varanda..." required>
+                        </div>
+                        <div class="form-field">
+                            <label for="plantNotes">Notas (opcional):</label>
+                            <textarea id="plantNotes" name="plantNotes" rows="3" placeholder="Adicione observações sobre a planta..."></textarea>
+                        </div>
                         <div class="form-buttons">
                             <button type="submit" class="btn btn-confirm">Confirmar</button>
                             <button type="button" class="btn btn-cancel">Cancelar</button>
@@ -102,22 +110,32 @@ if (btnYes) {
         document.getElementById('plantForm').addEventListener('submit', (e) => {
             e.preventDefault();
             
-            const plantName = document.getElementById('plantName').value;
+            const plantName = document.getElementById('plantName').value.trim();
             const plantDate = document.getElementById('plantDate').value;
+            const plantLocation = document.getElementById('plantLocation').value.trim();
+            const plantNotes = document.getElementById('plantNotes').value.trim();
             
             // Criar objeto da planta
             const newPlant = {
                 id: Date.now(),
                 name: plantName,
                 plantDate: plantDate,
+                location: plantLocation,
+                notes: plantNotes,
                 image: uploadedImage,
                 addedDate: new Date().toISOString()
             };
             
+            console.log('Nova planta criada:', newPlant);
+            
             // Salvar no localStorage
             let plants = JSON.parse(localStorage.getItem('myPlants') || '[]');
+            console.log('Plantas existentes:', plants);
+            
             plants.push(newPlant);
             localStorage.setItem('myPlants', JSON.stringify(plants));
+            
+            console.log('Plantas após salvar:', JSON.parse(localStorage.getItem('myPlants')));
             
             // Redirecionar para minhas plantas
             alert('Planta adicionada com sucesso!');
