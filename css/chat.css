@@ -136,3 +136,16 @@ body {
 .mensagem1 {
    color: #363639; 
 }
+
+.menuChatForuns {
+    margin-left: 10%;
+}
+
+.linkChat {
+    left: 2%;
+    margin: 0.5%;
+}
+
+.linkForuns {
+    margin: 0.5%;
+}
