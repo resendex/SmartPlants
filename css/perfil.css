@@ -59,7 +59,7 @@ body {
     font-size: 2em;
     font-weight: 700;
     margin: 0 0 1.5em 0;
-    text-align: center;
+    text-align: left;
     width: 100%;
 }
 
@@ -118,6 +118,131 @@ button {
     margin-bottom: 2em;
 }
 
+/* -- NOVAS REGRAS PARA LAYOUT E ESTÉTICA DO PERFIL -- */
+
+.container {
+	/* ...existing code... */
+	/* manter propriedades anteriores, mas garantir padding e largura adequadas */
+}
+
+.page-title {
+	/* ...existing code... */
+	text-align: left;
+}
+
+/* grid para organizar foto e dados */
+.profile-grid {
+	display: grid;
+	grid-template-columns: 220px 1fr;
+	gap: 1.5em;
+	width: 100%;
+	align-items: start;
+}
+
+.profile-left .photo-card {
+	background: #fff;
+	padding: 1em;
+	border-radius: 1em;
+	box-shadow: 0 0.5em 1em rgba(0,0,0,0.08);
+	text-align: center;
+}
+
+.profile-photo {
+	width: 180px;
+	height: 180px;
+	object-fit: cover;
+	border-radius: 50%;
+	border: 6px solid #f6f6f6;
+	box-shadow: 0 0.6em 1em rgba(0,0,0,0.08);
+}
+
+.photo-actions {
+	display: flex;
+	flex-direction: column;
+	gap: 0.5em;
+	margin-top: 0.8em;
+}
+
+.file-label {
+	background: linear-gradient(135deg,#667eea,#764ba2);
+	color: white;
+	padding: 0.5em 0.8em;
+	border-radius: 0.6em;
+	cursor: pointer;
+	display: inline-block;
+	font-weight: 600;
+}
+
+.btn.small {
+	padding: 0.45em 0.8em;
+	font-size: 0.9em;
+}
+
+.profile-right {
+	background: rgba(255,255,255,0.0);
+	padding: 0;
+}
+
+.pf-form {
+	display: flex;
+	flex-direction: column;
+	gap: 0.8em;
+}
+
+.pf-form .form-row {
+	display: flex;
+	gap: 1em;
+	align-items: center;
+}
+
+.pf-form .form-row label {
+	min-width: 120px;
+	color: #333;
+	font-weight: 700;
+}
+
+.pf-form .form-row input,
+.pf-form .form-row select {
+	flex: 1;
+	padding: 0.6em 0.8em;
+	border: 1px solid #e6e6e6;
+	border-radius: 0.6em;
+	font-size: 1em;
+	box-shadow: inset 0 1px 0 rgba(0,0,0,0.02);
+}
+
+.form-actions {
+	display: flex;
+	gap: 0.8em;
+	margin-top: 0.4em;
+}
+
+.btn.ghost {
+	background: transparent;
+	border: 1px solid #ccc;
+	color: #333;
+}
+
+.change-password {
+	margin-top: 1em;
+}
+
+.change-box {
+	background: rgba(255,255,255,0.95);
+	padding: 1em;
+	border-radius: 0.6em;
+	box-shadow: 0 0.4em 0.8em rgba(0,0,0,0.05);
+	margin-top: 0.6em;
+}
+
+.change-box input {
+	width: 100%;
+	padding: 0.6em;
+	border: 1px solid #eee;
+	border-radius: 0.5em;
+	margin-top: 0.5em;
+}
+
 @media (max-width: 600px) {   
     
     .buttons-container {
@@ -127,4 +252,15 @@ button {
     .container {
         padding: 1.5em;
     }
+}
+
+@media (max-width: 760px) {
+	.profile-grid {
+		grid-template-columns: 1fr;
+	}
+	.pf-form .form-row {
+		flex-direction: column;
+		align-items: stretch;
+	}
+	.pf-form .form-row label { min-width: auto; }
 }
