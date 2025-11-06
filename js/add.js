@@ -137,9 +137,17 @@ if (btnYes) {
             
             console.log('Plantas após salvar:', JSON.parse(localStorage.getItem('myPlants')));
             
-            // Redirecionar para minhas plantas
+            // Adicionar notificação
+            notificarNovaPlanta(plantName);
+            
+            // Remover modal
+            document.querySelector('.plant-form-overlay').remove();
+            
+            // Mostrar confirmação e redirecionar
             alert('Planta adicionada com sucesso!');
-            window.location.href = 'minhasplantas.html';
+            setTimeout(() => {
+                window.location.href = 'minhasplantas.html';
+            }, 100);
         });
     });
 }
