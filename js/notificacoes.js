@@ -32,7 +32,7 @@ function adicionarNotificacao(tipo, mensagem) {
 function notificarNovaPlanta(nomePlanta) {
     adicionarNotificacao(
         'planta',
-        `O usuário criou a planta "${nomePlanta}".`
+        `O utilizador criou a planta "${nomePlanta}".`
     );
 }
 
@@ -66,6 +66,8 @@ function excluirNotificacao(id) {
 function atualizarListaNotificacoes() {
     const container = document.getElementById('notificacoesContainer');
     const emptyState = document.getElementById('emptyState');
+    if (!container || !emptyState) return; // Não atualizar se não estiver na página de notificações
+    
     const notificacoes = getNotificacoes();
 
     if (notificacoes.length === 0) {
@@ -101,14 +103,14 @@ function atualizarListaNotificacoes() {
 
 // Verificar horários de rega periodicamente
 function verificarHorariosRega() {
-    const plantas = JSON.parse(localStorage.getItem('plantas') || '[]');
+    const plantas = JSON.parse(localStorage.getItem('myPlants') || '[]');
     const agora = new Date();
     
     plantas.forEach(planta => {
         if (planta.horarioRega) {
             const [hora, minuto] = planta.horarioRega.split(':');
             if (parseInt(hora) === agora.getHours() && parseInt(minuto) === agora.getMinutes()) {
-                notificarHorarioRega(planta.nome);
+                notificarHorarioRega(planta.name);
             }
         }
     });

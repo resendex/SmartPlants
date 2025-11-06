@@ -134,9 +134,9 @@ function viewPlantDetails(id) {
                         </div>
                         
                         <div class="verification-content">
-                            <button class="camera-button" onclick="checkPlantHealth(${id})">
+                            <button class="camera-button" onclick="importPlantPhoto(${id})">
                                 <span class="camera-icon">📷</span>
-                                <span>Analisar Planta</span>
+                                <span>Importar Foto</span>
                             </button>
                             
                             <div class="health-status ${plant.healthStatus || 'healthy'}">
@@ -270,22 +270,48 @@ function deleteProgressPhoto(plantId, photoIndex) {
     }
 }
 
-// Verificar saúde da planta (simulação)
-function checkPlantHealth(plantId) {
-    alert('Funcionalidade de análise de saúde em desenvolvimento.\nEm breve você poderá tirar uma foto e receber diagnóstico automático!');
-    
-    // Aqui você pode adicionar integração com IA para análise real
-    // Por enquanto, vamos simular um resultado
-    let plants = JSON.parse(localStorage.getItem('myPlants') || '[]');
-    const plantIndex = plants.findIndex(p => p.id === plantId);
-    
-    if (plantIndex !== -1) {
-        plants[plantIndex].healthStatus = 'needs-water';
-        plants[plantIndex].healthStatusText = 'Necessita Água';
-        localStorage.setItem('myPlants', JSON.stringify(plants));
-        closePlantDetails();
-        viewPlantDetails(plantId);
-    }
+// Importar foto da planta (adicionar ao progresso)
+function importPlantPhoto(plantId) {
+    const input = document.createElement('input');
+    input.type = 'file';
+    input.accept = 'image/*';
+    input.onchange = (e) => {
+        const file = e.target.files[0];
+        if (!file || !file.type.startsWith('image/')) {
+            alert('Por favor, selecione uma imagem válida.');
+            return;
+        }
+        
+        const reader = new FileReader();
+        reader.onload = (ev) => {
+            let plants = JSON.parse(localStorage.getItem('myPlants') || '[]');
+            const plantIndex = plants.findIndex(p => p.id === plantId);
+            
+            if (plantIndex !== -1) {
+                // Garantir que progressPhotos existe e é um array
+                if (!plants[plantIndex].progressPhotos || !Array.isArray(plants[plantIndex].progressPhotos)) {
+                    plants[plantIndex].progressPhotos = [{
+                        image: plants[plantIndex].image,
+                        date: plants[plantIndex].addedDate || new Date().toISOString()
+                    }];
+                }
+                
+                // Adicionar nova foto ao array
+                plants[plantIndex].progressPhotos.push({
+                    image: ev.target.result,
+                    date: new Date().toISOString()
+                });
+                
+                console.log(`Foto importada. Total: ${plants[plantIndex].progressPhotos.length}`);
+                
+                localStorage.setItem('myPlants', JSON.stringify(plants));
+                closePlantDetails();
+                viewPlantDetails(plantId);
+            }
+        };
+        reader.readAsDataURL(file);
+    };
+    input.click();
 }
 
 // Dispensar diagnóstico
