@@ -4,10 +4,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Smart Plants - Regar</title>
+    <title>Smart Plants - Verificação de Rega</title>
     <link rel="icon" href="../multimedia/image/logo.png" type="image/png">
     <link rel="stylesheet" type="text/css" href="../css/verificar_rega.css">
     <link rel="stylesheet" type="text/css" href="../css/copyright.css">
+    <script src="../js/verificar.js"></script>
 </head>  
 <body>
     <header class="header">
@@ -45,7 +46,7 @@
                     <div class="menu-icon-placeholder">💬</div>
                     <span>Chat</span>
                 </a>
-                <a href="minhas_plantas.html" class="menu-item">
+                <a href="minhasplantas.html" class="menu-item">
                     <div class="menu-icon-placeholder">🌱</div>
                     <span>Minhas Plantas</span>
                 </a>
@@ -53,24 +54,11 @@
         </aside>
 
         <main class="content">
-            <h2 class="content-title">Regar</h2>
-            <div class="content-menu"></div>
+            <h2 class="content-title">Verificação de Rega</h2>
             <div id="plantsContainer" class="plants-grid">
-                <h3>Qual(ais) da(s) planta(s) regou?</h3>
-
-                <div class="opcao">
-                    <label><input type="checkbox" name="plantas" value="Girassol"> Girassol</label>
-                </div>
-                <div class="opcao">
-                    <label><input type="checkbox" name="plantas" value="Bungavília"> Bungavília</label>
-                </div>
-                <div class="opcao">
-                    <label><input type="checkbox" name="plantas" value="Tulipa"> Tulipa</label>
-                </div>
+                <!-- Plantas serão carregadas dinamicamente -->
             </div>
-            <br>
-            <br>
-            <button class="ButtonGuardar" value="Guardar">Guardar</button>
+            <button class="ButtonGuardar">Guardar</button>
         </main>
     </div>
 
@@ -85,3 +73,4 @@
         </div>
     </footer>
 </body>
+</html>

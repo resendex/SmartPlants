@@ -4,11 +4,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Smart Plants - Início</title>
+    <title>Smart Plants - Calendário</title>
     <link rel="icon" href="../multimedia/image/logo.png" type="image/png">
     <link rel="stylesheet" type="text/css" href="../css/inicio.css">
+    <link rel="stylesheet" type="text/css" href="../css/calendario.css">
     <link rel="stylesheet" type="text/css" href="../css/copyright.css">
-    <script src="../calendario.js"></script>
+    <script src="../js/calendario.js"></script>
 </head>
 
 <body>
@@ -17,17 +18,17 @@
             <h1 class="header-title">SMART PLANTS</h1>
         </div>
         <div class="header-right">
-            <a href="login.html" class="user-icon"></a>
+            <a href="login.html" class="user-icon">
                 <img src="../multimedia/image/user-icon-placeholder.png" alt="Utilizador" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
                 <div class="user-placeholder">👤</div>
-            </div>
+            </a>
         </div>
     </header>
 
     <div class="main-container">
         <aside class="sidebar">
             <nav class="menu">
-                <a href="inicio.html" class="menu-item active">
+                <a href="inicio.html" class="menu-item">
                     <div class="menu-icon-placeholder">🏠</div>
                     <span>Início</span>
                 </a>
@@ -47,9 +48,15 @@
                     <div class="menu-icon-placeholder">💬</div>
                     <span>Chat</span>
                 </a>
-                <a href="minhasplantas.html" class="menu-item">
+                <a href="minhasplantas.html" class="menu-item active">
                     <div class="menu-icon-placeholder">🌱</div>
                     <span>Minhas Plantas</span>
                 </a>
             </nav>
         </aside>
+        
+        <!-- O conteúdo será gerado dinamicamente pelo JavaScript -->
+    </div>
+</body>
+
+</html>

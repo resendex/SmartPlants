@@ -151,7 +151,7 @@ function viewPlantDetails(id) {
                                 </p>
                                 
                                 <div class="diagnosis-actions">
-                                    <button class="btn-schedule" onclick="location.href='lembretes.html'">Agendar</button>
+                                    <button class="btn-schedule" onclick="schedulePlant(${plant.id})">Agendar</button>
                                     <button class="btn-dismiss" onclick="dismissDiagnosis()">Dispensar</button>
                                 </div>
                             </div>
@@ -318,6 +318,13 @@ function importPlantPhoto(plantId) {
 function dismissDiagnosis() {
     alert('Diagnóstico dispensado.');
     closePlantDetails();
+}
+
+// Adicionar a lógica para redirecionar para o calendário
+function schedulePlant(plantId) {
+    sessionStorage.setItem('selectedPlant', plantId); // Armazenar o ID da planta
+    const url = `calendario.html?plantId=${plantId}&recurrence=4`;
+    window.location.href = url;
 }
 
 // Editar planta

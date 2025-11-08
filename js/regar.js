@@ -3,18 +3,15 @@ document.addEventListener('DOMContentLoaded', function () {
     const calendarButton = document.getElementById('calendarButton');
     const verifyButton = document.getElementById('verifyButton');
     const managementButton = document.getElementById('managementButton');
-    const addButton = document.getElementById('addButton'); // Novo botão "Adicionar"
+    const addButton = document.getElementById('addButton');
 
     // Função para verificar se uma planta foi selecionada
     function openPlantSelectionPopup(redirectUrl) {
         const plants = JSON.parse(localStorage.getItem('myPlants') || '[]');
-
-        // Cria a janela pop-up de seleção de planta
         const popup = document.createElement('div');
         popup.className = 'popup-overlay';
         
         if (plants.length === 0) {
-            // Caso não haja plantas, exibe uma mensagem de adição
             popup.innerHTML = `
                 <div class="popup-container">
                     <h2>Você ainda não tem plantas registradas!</h2>
@@ -25,12 +22,12 @@ document.addEventListener('DOMContentLoaded', function () {
             `;
             document.body.appendChild(popup);
 
-            // Redireciona para a página de adição de planta
             document.getElementById('goToAddPage').addEventListener('click', function () {
-                window.location.href = 'add.html'; // Redireciona para a página add.html
+                // Salvar a URL de retorno no sessionStorage
+                sessionStorage.setItem('returnTo', redirectUrl);
+                window.location.href = 'add.html';
             });
 
-            // Fechar a janela pop-up se o usuário clicar em "Cancelar"
             document.getElementById('cancelSelection').addEventListener('click', function () {
                 document.body.removeChild(popup);
             });
@@ -50,7 +47,7 @@ document.addEventListener('DOMContentLoaded', function () {
                         `).join('')}
                     </div>
                     <button id="confirmSelection" class="btn">Confirmar Seleção</button>
-                    <button id="goToAddPage" class="btn">Adicionar Planta</button> <!-- Opção de adicionar planta -->
+                    <button id="goToAddPage" class="btn">Adicionar Planta</button>
                     <button id="cancelSelection" class="btn">Cancelar</button>
                 </div>
             `;
@@ -61,15 +58,15 @@ document.addEventListener('DOMContentLoaded', function () {
         // Verifica se os elementos estão no DOM antes de adicionar os eventos
         const confirmButton = document.getElementById('confirmSelection');
         const cancelButton = document.getElementById('cancelSelection');
-        const addButton = document.getElementById('goToAddPage'); // O botão de adicionar planta
+        const addPlantButton = document.getElementById('goToAddPage');
 
-        if (confirmButton && cancelButton && addButton) {
+        if (confirmButton && cancelButton && addPlantButton) {
             // Manipular a confirmação da seleção
             confirmButton.addEventListener('click', function () {
                 const selectedPlantId = document.querySelector('input[name="selectedPlant"]:checked')?.value;
                 if (selectedPlantId) {
                     sessionStorage.setItem('selectedPlant', selectedPlantId);
-                    window.location.href = redirectUrl; // Redireciona para a página desejada após confirmação
+                    window.location.href = redirectUrl;
                 } else {
                     alert('Por favor, selecione uma planta.');
                 }
@@ -80,47 +77,38 @@ document.addEventListener('DOMContentLoaded', function () {
                 document.body.removeChild(popup);
             });
 
-            // Redirecionar para a página de adicionar planta
-            addButton.addEventListener('click', function () {
-                window.location.href = 'add.html'; // Redireciona para a página add.html
+            // Redirecionar para a página de adicionar planta com retorno
+            addPlantButton.addEventListener('click', function () {
+                // Salvar a URL de retorno no sessionStorage
+                sessionStorage.setItem('returnTo', redirectUrl);
+                window.location.href = 'add.html';
             });
         } else {
             console.error('Botões de confirmação ou cancelamento não encontrados.');
         }
     }
 
-    // Função para determinar o redirecionamento baseado no botão clicado
-    function getRedirectUrl(buttonId) {
-        switch (buttonId) {
-            case 'calendarButton':
-                return 'Calendario.html';
-            case 'verifyButton':
-                return 'Verificacao_rega.html';
-            case 'managementButton':
-                return 'Gestao_sistema.html';
-            default:
-                return 'index.html'; // Página padrão
-        }
-    }
-
     // Adicionar ouvintes de eventos para cada botão
+    
+    // Calendário: Abre pop-up para selecionar planta
     calendarButton.addEventListener('click', function () {
-        const redirectUrl = getRedirectUrl('calendarButton');
-        openPlantSelectionPopup(redirectUrl);
+        openPlantSelectionPopup('calendario.html');
     });
 
+    // Verificação de Rega: Redireciona DIRETAMENTE sem pop-up
     verifyButton.addEventListener('click', function () {
-        const redirectUrl = getRedirectUrl('verifyButton');
-        openPlantSelectionPopup(redirectUrl);
+        window.location.href = 'verificar_rega.html';
     });
 
+    // Gestão de Sistema: Redireciona DIRETAMENTE sem pop-up
     managementButton.addEventListener('click', function () {
-        const redirectUrl = getRedirectUrl('managementButton');
-        openPlantSelectionPopup(redirectUrl);
+        window.location.href = 'sistema_rega.html';
     });
 
-    // Botão Adicionar agora redireciona diretamente para a página add.html
-    addButton.addEventListener('click', function () {
-        window.location.href = 'add.html'; // Redireciona diretamente para a página de adicionar planta
-    });
+    // Botão Adicionar redireciona diretamente para a página add.html (se existir)
+    if (addButton) {
+        addButton.addEventListener('click', function () {
+            window.location.href = 'add.html';
+        });
+    }
 });

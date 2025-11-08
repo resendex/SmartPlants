@@ -94,6 +94,7 @@ body {
 }
 
 .menu-item {
+    background-color: transparent;
     display: flex;
     align-items: center;
     gap: 1em;
@@ -196,6 +197,7 @@ body {
     font-weight: 600;
     transition: transform 0.3s ease;
     padding: 0.5em; /* Adiciona um pouco de espaçamento interno */
+    background-color: transparent; /* Garante que o fundo do link seja transparente */
 }
 
 /* Efeito hover no menu de regar */
@@ -205,6 +207,7 @@ body {
 
 /* Estilização das imagens no menu */
 .regar_menu img {
+    background-color: transparent;  /* Garantir que a imagem não tenha fundo */
     width: 50px; /* Tamanho da imagem */
     height: 50px; /* Tamanho da imagem */
     margin-bottom: 0.5em; /* Dá um espaço entre a imagem e o texto */
@@ -295,3 +298,24 @@ body {
 .btn:hover {
     background-color: #365ac3;
 }
+
+.regar_menu .menu-item img {
+    width: 96px;
+    height: 96px;
+    object-fit: contain;
+    display: block;
+    user-select: none;
+    -webkit-user-drag: none;
+}
+
+.regar_menu .menu-item {
+    gap: 0.7rem;
+    padding: 2.6rem 2.8rem;
+}
+
+.regar_menu .menu-item span {
+    font-size: 1.05rem;
+    line-height: 1.2;
+}
+
+

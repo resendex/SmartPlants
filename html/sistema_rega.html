@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="pt-pt">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Smart Plants - Gestão de Sistema</title>
+    <link rel="icon" href="../multimedia/image/logo.png" type="image/png">
+    <link rel="stylesheet" type="text/css" href="../css/sistema_rega.css">
+    <link rel="stylesheet" type="text/css" href="../css/copyright.css">
+    <script src="../js/sistema_rega.js"></script>
+</head>
+
+<body>
+    <header class="header">
+        <div class="header-center">
+            <h1 class="header-title">SMART PLANTS</h1>
+        </div>
+        <div class="header-right">
+            <a href="login.html" class="user-icon">
+                <img src="../multimedia/image/user-icon-placeholder.png" alt="Utilizador" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                <div class="user-placeholder">👤</div>
+            </a>
+        </div>
+    </header>
+
+    <div class="main-container">
+        <aside class="sidebar">
+            <nav class="menu">
+                <a href="inicio.html" class="menu-item">
+                    <div class="menu-icon-placeholder">🏠</div>
+                    <span>Início</span>
+                </a>
+                <a href="add.html" class="menu-item">
+                    <div class="menu-icon-placeholder">➕</div>
+                    <span>Adicionar Planta</span>
+                </a>
+                <a href="notificacoes.html" class="menu-item">
+                    <div class="menu-icon-placeholder">🔔</div>
+                    <span>Notificações</span>
+                </a>
+                <a href="regar.html" class="menu-item active">
+                    <div class="menu-icon-placeholder">💧</div>
+                    <span>Regar</span>
+                </a>
+                <a href="chat.html" class="menu-item">
+                    <div class="menu-icon-placeholder">💬</div>
+                    <span>Chat</span>
+                </a>
+                <a href="minhasplantas.html" class="menu-item">
+                    <div class="menu-icon-placeholder">🌱</div>
+                    <span>Minhas Plantas</span>
+                </a>
+            </nav>
+        </aside>
+
+        <main class="content">
+            <h2 class="content-title">Gestão de Sistema de Rega</h2>
+
+            <div class="system-container">
+                <!-- Seletor de Planta -->
+                <div class="plant-selector-section">
+                    <label for="plantSelect">Selecionar Planta:</label>
+                    <select id="plantSelect" class="plant-select">
+                        <option value="">-- Escolha uma planta --</option>
+                    </select>
+                </div>
+
+                <!-- Configurações de Rega Automática -->
+                <div class="config-section" id="configSection">
+                    <h3>⚙️ Rega Automática</h3>
+                    
+                    <div class="config-grid">
+                        <!-- Número de Regas por Semana -->
+                        <div class="config-item">
+                            <label for="weeklyWatering">Nº de regas por semana:</label>
+                            <div class="input-group">
+                                <input type="number" id="weeklyWatering" min="1" max="7" value="3" disabled>
+                                <span class="unit">regas/semana</span>
+                            </div>
+                        </div>
+
+                        <!-- Hora da Rega -->
+                        <div class="config-item">
+                            <label for="wateringTime">Hora do dia (rega):</label>
+                            <div class="input-group">
+                                <input type="time" id="wateringTime" value="08:00" disabled>
+                                <span class="unit">📅</span>
+                            </div>
+                        </div>
+
+                        <!-- Estado dos Sensores - SOMENTE LEITURA -->
+                        <div class="config-item sensor-status">
+                            <label>Estado dos sensores:</label>
+                            <div class="sensor-display">
+                                <div class="sensor-status-box ok">
+                                    <span class="sensor-icon">✓</span>
+                                    <span class="sensor-label">Sensores OK</span>
+                                </div>
+                            </div>
+                            <p class="sensor-info">
+                                <small>⚙️ Status detectado automaticamente pelo sistema</small>
+                            </p>
+                        </div>
+                    </div>
+
+                    <!-- Indicador Visual do Status -->
+                    <div class="status-indicator" id="statusIndicator">
+                        <div class="status-badge ok">
+                            <span class="status-icon">✓</span>
+                            <span class="status-text">Sistema Operacional - Sensores Funcionando Corretamente</span>
+                        </div>
+                    </div>
+
+                    <!-- Botão de Salvar -->
+                    <button class="btn-save" id="saveButton" disabled>Guardar Configurações</button>
+                </div>
+
+                <!-- Mensagem quando nenhuma planta está selecionada -->
+                <div class="no-plant-message" id="noPlantMessage">
+                    <div class="warning-icon">⚠️</div>
+                    <p>Selecione uma planta para configurar o sistema de rega automática.</p>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <footer class="footer">
+        <div class="copyright-info">
+            <span>©2025 Smart Plants Project</span>
+            <span class="divider"></span>
+            <span>Criado em contexto académico por estudantes da
+                <a href="https://ciencias.ulisboa.pt/" target="_blank">FCUL</a></span>
+            <span class="divider"></span>
+            Interação com Computadores
+        </div>
+    </footer>
+</body>
+
+</html>

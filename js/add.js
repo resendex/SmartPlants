@@ -138,16 +138,35 @@ if (btnYes) {
             console.log('Plantas após salvar:', JSON.parse(localStorage.getItem('myPlants')));
             
             // Adicionar notificação
-            notificarNovaPlanta(plantName);
+            if (typeof notificarNovaPlanta === 'function') {
+                notificarNovaPlanta(plantName);
+            }
             
             // Remover modal
             document.querySelector('.plant-form-overlay').remove();
             
-            // Mostrar confirmação e redirecionar
-            alert('Planta adicionada com sucesso!');
-            setTimeout(() => {
-                window.location.href = 'minhasplantas.html';
-            }, 100);
+            // Verificar se deve retornar para calendário
+            const returnTo = sessionStorage.getItem('returnTo');
+            
+            if (returnTo) {
+                // Salvar a planta recém-criada como selecionada
+                sessionStorage.setItem('selectedPlant', newPlant.id);
+                
+                // Limpar o returnTo
+                sessionStorage.removeItem('returnTo');
+                
+                // Mostrar confirmação e redirecionar para calendário
+                alert('Planta adicionada com sucesso! Redirecionando para o calendário...');
+                setTimeout(() => {
+                    window.location.href = returnTo;
+                }, 500);
+            } else {
+                // Comportamento padrão: ir para minhasplantas.html
+                alert('Planta adicionada com sucesso!');
+                setTimeout(() => {
+                    window.location.href = 'minhasplantas.html';
+                }, 100);
+            }
         });
     });
 }
