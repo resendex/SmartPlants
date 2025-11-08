@@ -69,7 +69,7 @@
                 <!-- Configurações de Rega Automática -->
                 <div class="config-section" id="configSection">
                     <h3>⚙️ Rega Automática</h3>
-                    
+
                     <div class="config-grid">
                         <!-- Número de Regas por Semana -->
                         <div class="config-item">
@@ -89,7 +89,7 @@
                             </div>
                         </div>
 
-                        <!-- Estado dos Sensores - SOMENTE LEITURA -->
+                        <!-- Estado dos Sensores -->
                         <div class="config-item sensor-status">
                             <label>Estado dos sensores:</label>
                             <div class="sensor-display">
@@ -104,7 +104,6 @@
                         </div>
                     </div>
 
-                    <!-- Indicador Visual do Status -->
                     <div class="status-indicator" id="statusIndicator">
                         <div class="status-badge ok">
                             <span class="status-icon">✓</span>
@@ -112,8 +111,11 @@
                         </div>
                     </div>
 
-                    <!-- Botão de Salvar -->
                     <button class="btn-save" id="saveButton" disabled>Guardar Configurações</button>
+
+                    <!-- Botões de controle -->
+                    <button class="btn-save" id="cancelSystemBtn" style="margin-top:.75rem;background:#bbb;">Desativar sistema</button>
+                    <button class="btn-save" id="reactivateSystemBtn" style="margin-top:.75rem;background:#4caf50;display:none;">Reativar sistema</button>
                 </div>
 
                 <!-- Mensagem quando nenhuma planta está selecionada -->

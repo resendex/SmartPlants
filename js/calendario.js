@@ -188,6 +188,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     chk.className = 'check-badge';
                     chk.textContent = '✓';
                     dayEl.appendChild(chk);
+                    dayEl.addEventListener('click', () => openDayModal(dateStr, wateringInfo));
                 } else {
                     dayEl.classList.add('marked');
                     const t = document.createElement('span');
@@ -200,13 +201,52 @@ document.addEventListener('DOMContentLoaded', () => {
                         recIcon.textContent = '↻';
                         dayEl.appendChild(recIcon);
                     }
+                    dayEl.addEventListener('click', () => openDayModal(dateStr, wateringInfo));
                 }
+            } else {
+                // Dia vazio: abre modal rápida de agendamento
+                dayEl.addEventListener('click', () => openQuickAddModal(dateStr));
             }
-            dayEl.addEventListener('click', () => openDayModal(dateStr, wateringInfo));
         } else {
             dayEl.classList.add('disabled');
         }
         return dayEl;
+    }
+
+    // Modal rápida para marcar uma rega num dia vazio
+    function openQuickAddModal(dateStr) {
+        const modal = document.createElement('div');
+        modal.className = 'modal-overlay';
+        const date = new Date(dateStr + 'T00:00:00');
+        modal.innerHTML = `
+            <div class="modal-content small">
+                <div class="modal-header">
+                    <h3>Marcar rega (${formatDateShort(date)})</h3>
+                    <button class="close-btn" aria-label="Fechar">&times;</button>
+                </div>
+                <div class="modal-body">
+                    <label for="quickTime">Hora:</label>
+                    <input type="time" id="quickTime" value="${new Date().toTimeString().slice(0,5)}">
+                    <div style="display:flex;gap:.5rem;margin-top:.75rem;">
+                        <button class="btn btn-primary" id="quickConfirm">Confirmar</button>
+                        <button class="btn" id="quickCancel">Cancelar</button>
+                    </div>
+                </div>
+            </div>`;
+        document.body.appendChild(modal);
+
+        const removeModal = () => modal.remove();
+        modal.querySelector('.close-btn').addEventListener('click', removeModal);
+        modal.addEventListener('click', e => { if (e.target === modal) removeModal(); });
+        modal.querySelector('#quickCancel').addEventListener('click', removeModal);
+        modal.querySelector('#quickConfirm').addEventListener('click', () => {
+            const time = document.getElementById('quickTime').value;
+            if (!time) { alert('Selecione uma hora.'); return; }
+            addWatering(selectedPlantId, dateStr, time);
+            removeModal();
+            renderCalendar();
+            updateInfoPanel();
+        });
     }
 
     function openDayModal(dateStr, existingWatering) {
@@ -216,17 +256,20 @@ document.addEventListener('DOMContentLoaded', () => {
         const formattedDate = formatDateLong(date);
         const plant = plants.find(p => p.id == selectedPlantId);
 
-        const contentSingle = existingWatering ? (existingWatering.completed ? `
-            <p><strong>Status:</strong> <span style="color:#4caf50;font-weight:600;">✓ Rega Realizada</span></p>
+        const contentSingle = existingWatering ? `
             <p><strong>Hora da rega:</strong> ${existingWatering.time}</p>
-            <button class="btn btn-danger" id="removeWatering">Remover Registro</button>
+            <div style="display:flex;gap:.5rem;flex-wrap:wrap;">
+                <button class="btn btn-primary" id="editWatering">Editar hora</button>
+                <button class="btn btn-danger" id="removeWatering">${existingWatering.completed ? 'Remover Registro' : 'Desmarcar Rega'}</button>
+            </div>
+            <div id="editForm" style="display:none;margin-top:.5rem;">
+                <label for="editTime">Nova hora:</label>
+                <input type="time" id="editTime" value="${existingWatering.time}">
+                <button class="btn btn-primary" id="saveEdit">Guardar</button>
+                <button class="btn" id="cancelEdit">Cancelar</button>
+            </div>
         ` : `
-            <p><strong>Hora da rega:</strong> ${existingWatering.time}</p>
-            <button class="btn btn-danger" id="removeWatering">Desmarcar Rega</button>
-        `) : `
-            <label for="wateringTime">Hora da rega:</label>
-            <input type="time" id="wateringTime" value="${new Date().toTimeString().slice(0,5)}">
-            <button class="btn btn-primary" id="addWatering">Marcar Rega</button>
+            <p>Este modal completo agora só aparece para dias já marcados.</p>
         `;
 
         const contentRecurrence = existingWatering && existingWatering.source === 'recurrence' ? `
@@ -260,20 +303,21 @@ document.addEventListener('DOMContentLoaded', () => {
             if (rm) rm.addEventListener('click', () => {
                 removeWatering(selectedPlantId, dateStr);
                 modal.remove();
-                renderCalendar(); 
+                renderCalendar();
                 updateInfoPanel();
             });
-        } else if (!existingWatering) {
-            const addBtn = document.getElementById('addWatering');
-            if (addBtn) addBtn.addEventListener('click', () => {  // CORREÇÃO AQUI!
-                const time = document.getElementById('wateringTime').value;
-                if (!time) { 
-                    alert('Selecione uma hora.'); 
-                    return; 
-                }
-                addWatering(selectedPlantId, dateStr, time);
+            const editBtn = document.getElementById('editWatering');
+            const editForm = document.getElementById('editForm');
+            const cancelEdit = document.getElementById('cancelEdit');
+            const saveEdit = document.getElementById('saveEdit');
+            if (editBtn) editBtn.addEventListener('click', () => { if (editForm) editForm.style.display = 'block'; });
+            if (cancelEdit) cancelEdit.addEventListener('click', () => { if (editForm) editForm.style.display = 'none'; });
+            if (saveEdit) saveEdit.addEventListener('click', () => {
+                const newTime = document.getElementById('editTime').value;
+                if (!newTime) { alert('Selecione uma hora.'); return; }
+                updateWateringTime(selectedPlantId, dateStr, newTime);
                 modal.remove();
-                renderCalendar(); 
+                renderCalendar();
                 updateInfoPanel();
             });
         }
@@ -283,14 +327,14 @@ document.addEventListener('DOMContentLoaded', () => {
             const skipBtn = document.getElementById('skipRecurrenceOnce');
             if (stopBtn) stopBtn.addEventListener('click', () => {
                 stopRecurrence(selectedPlantId, existingWatering.recurrenceId);
-                modal.remove(); 
-                renderCalendar(); 
+                modal.remove();
+                renderCalendar();
                 updateInfoPanel();
             });
             if (skipBtn) skipBtn.addEventListener('click', () => {
                 addRecurrenceException(selectedPlantId, existingWatering.recurrenceId, dateStr);
-                modal.remove(); 
-                renderCalendar(); 
+                modal.remove();
+                renderCalendar();
                 updateInfoPanel();
             });
         }
@@ -429,6 +473,15 @@ document.addEventListener('DOMContentLoaded', () => {
     function removeWatering(plantId, date) {
         const data = getWateringData(plantId).filter(w=>w.date!==date);
         localStorage.setItem(`watering_${plantId}`, JSON.stringify(data));
+    }
+    // NOVO: atualizar hora de um registo existente
+    function updateWateringTime(plantId, date, newTime) {
+        const data = getWateringData(plantId);
+        const idx = data.findIndex(w => w.date === date);
+        if (idx !== -1) {
+            data[idx].time = newTime;
+            localStorage.setItem(`watering_${plantId}`, JSON.stringify(data));
+        }
     }
     function toDateString(d){ return d.toISOString().split('T')[0]; }
     function formatMonthName(m){
