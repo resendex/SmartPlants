@@ -149,3 +149,11 @@ body {
 .linkForuns {
     margin: 0.5%;
 }
+
+.linkForum {
+    text-decoration: none;
+}
+
+.plants-grid {
+    margin-top: 3em;
+}
