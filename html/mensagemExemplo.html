@@ -4,9 +4,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Smart Plants - Fóruns</title>
+    <title>Smart Plants - Chat</title>
     <link rel="icon" href="../multimedia/image/logo.png" type="image/png">
-    <link rel="stylesheet" type="text/css" href="../css/forum.css">
+    <link rel="stylesheet" type="text/css" href="../css/mensagemExemplo.css">
     <link rel="stylesheet" type="text/css" href="../css/copyright.css">
 </head>  
 <body>
@@ -45,26 +45,31 @@
                     <div class="menu-icon-placeholder">💬</div>
                     <span>Chat</span>
                 </a>
-                <a href="minhas_plantas.html" class="menu-item">
+                <a href="minhasplantas.html" class="menu-item">
                     <div class="menu-icon-placeholder">🌱</div>
                     <span>Minhas Plantas</span>
                 </a>
             </nav>
         </aside>
 
-        <main class="content">
-            <h2 class="content-title">Fóruns</h2>
-            <div class="content-menu"></div>
-            <div class="MenuChatForuns"><a href="chat.html" class="linkChat">Chat</a><a href="forum.html" class="linkForuns">Fóruns</a></div>
-            <div id="plantsContainer" class="plants-grid">
-                <span><img src="../multimedia/image/user-icon-placeholder.png" alt="Utilizador" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">👤   Amantes_de_Flores</span>
-                <br>
-                <span class="mensagem1">JorgeF: Acabei de adquirir uma tulipa, alguém tem dicas de cuidados?</span>
-                <br>
-                <br>
-                <span>🟢 8 pessoas ativas de momento</span>
+        <div id="chat-history" class="chat-history">
+            <div class="message assistant-message">
+                Olá, como está a tulipa?
             </div>
-        </main>
+            <div class="message user-message">
+                
+            </div>
+        </div>
+
+    </div>
+
+    <div class="chat-input-area">
+        <input type="text" class="user-input" placeholder="Mensagem"
+            aria-label="Campo de entrada de mensagem" onkeypress="handleKeyPress(event)">
+        <button id="send-button" class = "enviar"
+            onclick="sendMessage()">
+            <span>Enviar</span>
+        </button>
     </div>
 
     <footer class="footer">
