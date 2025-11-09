@@ -8,6 +8,7 @@
     <link rel="icon" href="../multimedia/image/logo.png" type="image/png">
     <link rel="stylesheet" type="text/css" href="../css/mensagemExemplo.css">
     <link rel="stylesheet" type="text/css" href="../css/copyright.css">
+    <script src="../js/mandamensagem.js"></script>
 </head>  
 <body>
     <header class="header">
@@ -56,18 +57,17 @@
             <div class="message assistant-message">
                 Olá, como está a tulipa?
             </div>
-            <div class="message user-message">
-                
+            <div id="message user-message" class="message user-message">
+                <span id="mensagemUser"></span>
             </div>
         </div>
 
     </div>
 
     <div class="chat-input-area">
-        <input type="text" class="user-input" placeholder="Mensagem"
+        <input type="text" id="user-input" class="user-input" placeholder="Mensagem"
             aria-label="Campo de entrada de mensagem" onkeypress="handleKeyPress(event)">
-        <button id="send-button" class = "enviar"
-            onclick="sendMessage()">
+        <button id="send-button" class = "enviar">
             <span>Enviar</span>
         </button>
     </div>
