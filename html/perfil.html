@@ -18,41 +18,72 @@
     </div>
 </header>
 
-<div class="container">
+<div class="container" id="profile-root">
     <h1 class="page-title">Perfil</h1>
     
-    <div class="DadosFotografia">
-        <div class="dados">
-            <h3>Dados:</h3>
-            <label class="username">Username: User</label>
-            <br>
-            <label class="Idade">Idade: 21</label>
-            <br>
-            <label class="Email">Email: user21@gmail.com</label>
-        </div>
+    <div class="profile-grid">
+        <aside class="profile-left">
+            <div class="photo-card">
+                <img id="pf_photo_preview" class="profile-photo" src="../multimedia/image/user-icon-placeholder.png" alt="Foto de perfil">
+                <div class="photo-actions">
+                    <label class="file-label">
+                        Alterar foto
+                        <input id="pf_photo_input" type="file" accept="image/*" style="display:none">
+                    </label>
+                    <button id="pf_remove_photo" class="btn small">Remover</button>
+                </div>
+            </div>
+        </aside>
 
-        <div class="Fotografia">
-            <h3>Fotografia:</h3>
-            <img class="FotografiaUser" src="../multimedia/image/user-icon-placeholder.png" alt="Utilizador" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
-            <div class="user-placeholder">👤</div>
-            <button class="AlterarFotografia">Alterar</button>
-        </div>
-    </div>
+        <section class="profile-right">
+            <form id="pf_form" class="pf-form" onsubmit="return false;">
+                <div class="form-row">
+                    <label>Username</label>
+                    <input id="pf_username" type="text" readonly>
+                </div>
+                <div class="form-row">
+                    <label>Email</label>
+                    <input id="pf_email" type="email">
+                </div>
+                <div class="form-row">
+                    <label>Idade</label>
+                    <input id="pf_age" type="number" min="1" max="120">
+                </div>
+                <div class="form-row">
+                    <label>Localização</label>
+                    <input id="pf_location" type="text">
+                </div>
+                <div class="form-row">
+                    <label>Género</label>
+                    <select id="pf_gender">
+                        <option value="">-- Selecionar --</option>
+                        <option value="M">M</option>
+                        <option value="F">F</option>
+                        <option value="Outro">Outro</option>
+                    </select>
+                </div>
 
-    <div class="MudarPassword">
-        <button class="ButtonMudarPassword">Mudar Password</button>
-    </div>
+                <div class="form-actions">
+                    <button id="pf_save" class="btn">Guardar Alterações</button>
+                    <button id="pf_logout" class="btn ghost" type="button">Sair</button>
+                </div>
+            </form>
 
-    <div class="Plantas">
-        <span><a>Orquídia</a></span>
-        <span><a>x Remover</a></span>
-        <br>
-        <span><a>+ Adicionar</a></span>
-    </div>
+            <hr>
 
-    <div class="buttons-container">
-        <button class="Button">Configurações</button>
-        <button class="Button">Sobre</button>
+            <div class="change-password">
+                <button id="pf_change_show" class="btn small">Mudar Password</button>
+                <div id="pf_change_box" class="change-box" style="display:none;">
+                    <input id="pf_current_pwd" type="password" placeholder="Password atual"><br>
+                    <input id="pf_new_pwd" type="password" placeholder="Nova password"><br>
+                    <input id="pf_confirm_new_pwd" type="password" placeholder="Confirmar nova password"><br>
+                    <div style="margin-top:0.5em;">
+                        <button id="pf_change_submit" class="btn small">Confirmar</button>
+                        <button id="pf_change_cancel" class="btn small ghost">Cancelar</button>
+                    </div>
+                </div>
+            </div>
+        </section>
     </div>
 </div>
 
@@ -66,6 +97,98 @@
         Interação com Computadores
     </div>
 </footer>
+
+<!-- script local para gerir perfil (carregar / guardar / foto / password) -->
+<script>
+// Helper keys
+const USERS_KEY = 'sp_users';
+const CURRENT_KEY = 'sp_currentUser';
+
+function _getUsers(){ return JSON.parse(localStorage.getItem(USERS_KEY)||'{}'); }
+function _saveUsers(u){ localStorage.setItem(USERS_KEY, JSON.stringify(u)); }
+function _getCurrentUsername(){ return localStorage.getItem(CURRENT_KEY); }
+function _getCurrentUser(){ const users=_getUsers(); const cur=_getCurrentUsername(); return cur?users[cur]:null; }
+
+document.addEventListener('DOMContentLoaded', () => {
+    const user = _getCurrentUser();
+    const preview = document.getElementById('pf_photo_preview');
+    const inputFile = document.getElementById('pf_photo_input');
+    let photoData = null;
+
+    // Elements
+    const el = id => document.getElementById(id);
+    if (user) {
+        el('pf_username').value = user.username || '';
+        el('pf_email').value = user.email || '';
+        el('pf_age').value = user.age || '';
+        el('pf_location').value = user.location || '';
+        el('pf_gender').value = user.gender || '';
+        if (user.photo) { preview.src = user.photo; photoData = user.photo; }
+    }
+
+    // Upload preview
+    inputFile.addEventListener('change', (e)=>{
+        const f = e.target.files[0];
+        if (!f) return;
+        const reader = new FileReader();
+        reader.onload = () => {
+            photoData = reader.result;
+            preview.src = photoData;
+        };
+        reader.readAsDataURL(f);
+    });
+
+    // Remove photo
+    document.getElementById('pf_remove_photo').addEventListener('click', ()=>{
+        photoData = null;
+        preview.src = '../multimedia/image/user-icon-placeholder.png';
+    });
+
+    // clicking label triggers file input
+    document.querySelector('.file-label input')?.addEventListener('click', e => e.stopPropagation());
+
+    // Save profile
+    document.getElementById('pf_save').addEventListener('click', ()=>{
+        const users = _getUsers();
+        const cur = _getCurrentUsername();
+        if (!cur || !users[cur]) { alert('Sem utilizador ativo. Faça login.'); return; }
+        users[cur].email = el('pf_email').value.trim();
+        users[cur].age = el('pf_age').value;
+        users[cur].location = el('pf_location').value.trim();
+        users[cur].gender = el('pf_gender').value;
+        if (photoData) users[cur].photo = photoData; else delete users[cur].photo;
+        _saveUsers(users);
+        alert('Perfil guardado.');
+    });
+
+    // Change password toggle & actions
+    const changeShow = el('pf_change_show'), changeBox = el('pf_change_box');
+    changeShow.addEventListener('click', ()=> changeBox.style.display = changeBox.style.display === 'block' ? 'none' : 'block');
+    el('pf_change_cancel').addEventListener('click', ()=> { changeBox.style.display='none'; });
+    el('pf_change_submit').addEventListener('click', ()=>{
+        const users = _getUsers();
+        const cur = _getCurrentUsername();
+        const u = users[cur];
+        const current = el('pf_current_pwd').value;
+        const np = el('pf_new_pwd').value;
+        const np2 = el('pf_confirm_new_pwd').value;
+        if (!current || !np) { alert('Preencha as passwords.'); return; }
+        if (u.password !== current) { alert('Password atual incorreta.'); return; }
+        if (np !== np2) { alert('Novas passwords não coincidem.'); return; }
+        u.password = np;
+        _saveUsers(users);
+        el('pf_current_pwd').value = el('pf_new_pwd').value = el('pf_confirm_new_pwd').value = '';
+        changeBox.style.display = 'none';
+        alert('Password alterada.');
+    });
+
+    // logout (apenas remove current)
+    el('pf_logout').addEventListener('click', ()=>{
+        localStorage.removeItem(CURRENT_KEY);
+        location.href = 'login.html';
+    });
+});
+</script>
 </body>
 
 </html>

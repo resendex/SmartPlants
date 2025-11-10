@@ -4,14 +4,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Smart Plants - Calendário</title>
+    <title>Smart Plants - Fóruns</title>
     <link rel="icon" href="../multimedia/image/logo.png" type="image/png">
-    <link rel="stylesheet" type="text/css" href="../css/inicio.css">
-    <link rel="stylesheet" type="text/css" href="../css/calendario.css">
+    <link rel="stylesheet" type="text/css" href="../css/forum.css">
     <link rel="stylesheet" type="text/css" href="../css/copyright.css">
-    <script src="../js/calendario.js"></script>
-</head>
-
+</head>  
 <body>
     <header class="header">
         <div class="header-center">
@@ -44,19 +41,41 @@
                     <div class="menu-icon-placeholder">💧</div>
                     <span>Regar</span>
                 </a>
-                <a href="chat.html" class="menu-item">
+                <a href="chat.html" class="menu-item active">
                     <div class="menu-icon-placeholder">💬</div>
                     <span>Chat</span>
                 </a>
-                <a href="minhasplantas.html" class="menu-item active">
+                <a href="minhas_plantas.html" class="menu-item">
                     <div class="menu-icon-placeholder">🌱</div>
                     <span>Minhas Plantas</span>
                 </a>
             </nav>
         </aside>
-        
-        <!-- O conteúdo será gerado dinamicamente pelo JavaScript -->
-    </div>
-</body>
 
-</html>
+        <main class="content">
+            <h2 class="content-title">Fóruns</h2>
+            <div class="content-menu"></div>
+            <div class="MenuChatForuns"><a href="chat.html" class="linkChat">Chat</a><a href="forum.html" class="linkForuns">Fóruns</a></div>
+            <div id="plantsContainer" class="plants-grid">
+                <a class="linkForum" href="forumExemplo.html"><span><img src="../multimedia/image/user-icon-placeholder.png" alt="Utilizador" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">🌷   Amantes_de_Flores</span>
+                    <br>
+                    <span class="mensagem1">JorgeF: Acabei de adquirir uma tulipa, alguém tem dicas de cuidados?</span>
+                    <br>
+                    <br>
+                    <span>🟢 8 pessoas ativas de momento</span>
+                </a>
+            </div>
+        </main>
+    </div>
+
+    <footer class="footer">
+        <div class="copyright-info">
+            <span>©2025 Smart Plants Project</span>
+            <span class="divider"></span>
+            <span>Criado em contexto académico por estudantes da
+                <a href="https://ciencias.ulisboa.pt/" target="_blank">FCUL</a></span>
+            <span class="divider"></span>
+            Interação com Computadores
+        </div>
+    </footer>
+</body>
