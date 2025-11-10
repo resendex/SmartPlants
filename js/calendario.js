@@ -657,7 +657,6 @@ document.addEventListener('DOMContentLoaded', () => {
     }
     function addWatering(plantId, date, time, source = null) {
         const data = getWateringData(plantId);
-<<<<<<< HEAD
         const existing = data.find(w => w.date === date);
         if (existing) {
             // Atualizar se já existe
@@ -668,19 +667,14 @@ document.addEventListener('DOMContentLoaded', () => {
             const newWatering = { date, time, completed: false };
             if (source) newWatering.source = source;
             data.push(newWatering);
-=======
-        if (!data.some(w=>w.date===date)) {
-            data.push({ date, time, completed:false });
-            localStorage.setItem(`watering_${plantId}`, JSON.stringify(data));
             
-            // Adiciona notificação de evento de calendário
+            // Adiciona notificação de evento de calendário (apenas para novos eventos)
             if (typeof window.notificarEventoCalendario === 'function') {
                 const plant = plants.find(p => p.id == plantId);
                 const plantName = plant ? plant.name : 'Planta';
                 const formattedDate = new Date(date + 'T00:00:00').toLocaleDateString('pt-PT');
                 window.notificarEventoCalendario(`Rega de ${plantName}`, formattedDate);
             }
->>>>>>> d12376e (várias melhorias feitas nas funcionalidades recentemente implementadas pelos colegas.)
         }
         localStorage.setItem(`watering_${plantId}`, JSON.stringify(data));
     }
