@@ -8,7 +8,8 @@
     <link rel="icon" href="../multimedia/image/logo.png" type="image/png">
     <link rel="stylesheet" type="text/css" href="../css/inicio.css">
     <link rel="stylesheet" type="text/css" href="../css/copyright.css">
-    <script src="../js/add.js"></script>
+    <script src="../js/notifications-global.js"></script>
+    <script src="../js/inicio.js" defer></script>
 </head>
 
 <body>
@@ -56,10 +57,237 @@
 
         <main class="content">
             <h2 class="content-title">Bem-vindo ao Smart Plants</h2>
-            <p class="content-description">Selecione uma opção no menu lateral para começar.</p>
+            <p class="content-description">Visão geral das suas plantas e atividades</p>
             
-            <div class="dashboard-placeholder">
-                <p>Conteúdo do dashboard será exibido aqui</p>
+            <!-- Cards de Estatísticas -->
+            <div class="stats-container">
+                <div class="stat-card">
+                    <div class="stat-icon">🌱</div>
+                    <div class="stat-info">
+                        <div class="stat-number">12</div>
+                        <div class="stat-label">Plantas</div>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon">💧</div>
+                    <div class="stat-info">
+                        <div class="stat-number">5</div>
+                        <div class="stat-label">Regadas Hoje</div>
+                    </div>
+                </div>
+                <div class="stat-card highlight">
+                    <div class="stat-icon">⏰</div>
+                    <div class="stat-info">
+                        <div class="stat-number">3</div>
+                        <div class="stat-label">Precisam Regar</div>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon">🔔</div>
+                    <div class="stat-info">
+                        <div class="stat-number">7</div>
+                        <div class="stat-label">Notificações</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Alertas Importantes -->
+            <div class="alerts-section">
+                <h3 class="section-title">🚨 Alertas Importantes</h3>
+                <div class="alerts-container">
+                    <div class="alert-card urgent">
+                        <div class="alert-icon">⚠️</div>
+                        <div class="alert-content">
+                            <div class="alert-title">Samambaia precisa de água!</div>
+                            <div class="alert-time">Atrasada há 2 dias</div>
+                        </div>
+                        <button class="alert-action">Regar Agora</button>
+                    </div>
+                    <div class="alert-card warning">
+                        <div class="alert-icon">💧</div>
+                        <div class="alert-content">
+                            <div class="alert-title">Cacto - Próxima rega</div>
+                            <div class="alert-time">Em 3 horas</div>
+                        </div>
+                        <button class="alert-action">Ver Detalhes</button>
+                    </div>
+                    <div class="alert-card info">
+                        <div class="alert-icon">🌿</div>
+                        <div class="alert-content">
+                            <div class="alert-title">Violeta Africana está ótima!</div>
+                            <div class="alert-time">Última rega há 1 dia</div>
+                        </div>
+                        <button class="alert-action">Ver</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Conteúdo Principal em Grid -->
+            <div class="dashboard-grid">
+                <!-- Gráfico de Atividade -->
+                <div class="dashboard-card">
+                    <h3 class="card-title">📊 Atividade Semanal</h3>
+                    <div class="chart-container">
+                        <div class="bar-chart">
+                            <div class="bar-group">
+                                <div class="bar" style="height: 60%"></div>
+                                <span class="bar-label">Seg</span>
+                            </div>
+                            <div class="bar-group">
+                                <div class="bar" style="height: 80%"></div>
+                                <span class="bar-label">Ter</span>
+                            </div>
+                            <div class="bar-group">
+                                <div class="bar" style="height: 45%"></div>
+                                <span class="bar-label">Qua</span>
+                            </div>
+                            <div class="bar-group">
+                                <div class="bar" style="height: 90%"></div>
+                                <span class="bar-label">Qui</span>
+                            </div>
+                            <div class="bar-group">
+                                <div class="bar" style="height: 70%"></div>
+                                <span class="bar-label">Sex</span>
+                            </div>
+                            <div class="bar-group">
+                                <div class="bar" style="height: 55%"></div>
+                                <span class="bar-label">Sáb</span>
+                            </div>
+                            <div class="bar-group">
+                                <div class="bar" style="height: 40%"></div>
+                                <span class="bar-label">Dom</span>
+                            </div>
+                        </div>
+                        <div class="chart-legend">
+                            <span>💧 Plantas regadas por dia</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Minhas Plantas Favoritas -->
+                <div class="dashboard-card">
+                    <h3 class="card-title">🌱 Minhas Plantas</h3>
+                    <div class="plants-grid">
+                        <div class="plant-item">
+                            <div class="plant-image">🌵</div>
+                            <div class="plant-name">Cacto</div>
+                            <div class="plant-status healthy">Saudável</div>
+                        </div>
+                        <div class="plant-item">
+                            <div class="plant-image">🌿</div>
+                            <div class="plant-name">Samambaia</div>
+                            <div class="plant-status needs-water">Precisa água</div>
+                        </div>
+                        <div class="plant-item">
+                            <div class="plant-image">🌺</div>
+                            <div class="plant-name">Violeta</div>
+                            <div class="plant-status healthy">Saudável</div>
+                        </div>
+                        <div class="plant-item">
+                            <div class="plant-image">🪴</div>
+                            <div class="plant-name">Suculenta</div>
+                            <div class="plant-status healthy">Saudável</div>
+                        </div>
+                    </div>
+                    <a href="minhasplantas.html" class="view-all-link">Ver todas as plantas →</a>
+                </div>
+            </div>
+
+            <!-- Próximas Regas e Atividades -->
+            <div class="dashboard-grid">
+                <!-- Próximas Regas -->
+                <div class="dashboard-card">
+                    <h3 class="card-title">📅 Próximas Regas</h3>
+                    <div class="schedule-list">
+                        <div class="schedule-item today">
+                            <div class="schedule-time">
+                                <div class="time-label">HOJE</div>
+                                <div class="time-value">15:00</div>
+                            </div>
+                            <div class="schedule-plant">
+                                <div class="schedule-icon">💧</div>
+                                <div class="schedule-info">
+                                    <div class="schedule-name">Violeta Africana</div>
+                                    <div class="schedule-detail">Rega moderada - 200ml</div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="schedule-item">
+                            <div class="schedule-time">
+                                <div class="time-label">AMANHÃ</div>
+                                <div class="time-value">10:00</div>
+                            </div>
+                            <div class="schedule-plant">
+                                <div class="schedule-icon">💧</div>
+                                <div class="schedule-info">
+                                    <div class="schedule-name">Suculenta</div>
+                                    <div class="schedule-detail">Rega leve - 50ml</div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="schedule-item">
+                            <div class="schedule-time">
+                                <div class="time-label">12 NOV</div>
+                                <div class="time-value">09:00</div>
+                            </div>
+                            <div class="schedule-plant">
+                                <div class="schedule-icon">💧</div>
+                                <div class="schedule-info">
+                                    <div class="schedule-name">Orquídea</div>
+                                    <div class="schedule-detail">Rega por imersão</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <a href="calendario.html" class="view-all-link">Ver calendário completo →</a>
+                </div>
+
+                <!-- Atividades Recentes -->
+                <div class="dashboard-card">
+                    <h3 class="card-title">🕐 Atividades Recentes</h3>
+                    <div class="activity-list">
+                        <div class="activity-item">
+                            <div class="activity-icon success">✓</div>
+                            <div class="activity-content">
+                                <div class="activity-text">Regou a <strong>Rosa</strong></div>
+                                <div class="activity-time">Há 2 horas</div>
+                            </div>
+                        </div>
+                        <div class="activity-item">
+                            <div class="activity-icon add">+</div>
+                            <div class="activity-content">
+                                <div class="activity-text">Adicionou <strong>Cacto</strong></div>
+                                <div class="activity-time">Há 5 horas</div>
+                            </div>
+                        </div>
+                        <div class="activity-item">
+                            <div class="activity-icon success">✓</div>
+                            <div class="activity-content">
+                                <div class="activity-text">Regou a <strong>Samambaia</strong></div>
+                                <div class="activity-time">Ontem às 18:30</div>
+                            </div>
+                        </div>
+                        <div class="activity-item">
+                            <div class="activity-icon message">💬</div>
+                            <div class="activity-content">
+                                <div class="activity-text">Nova mensagem no <strong>Chat</strong></div>
+                                <div class="activity-time">Ontem às 14:20</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Dica do Dia -->
+            <div class="tip-card">
+                <div class="tip-icon">💡</div>
+                <div class="tip-content">
+                    <div class="tip-title">Dica do Dia</div>
+                    <div class="tip-text">
+                        Sabia que regar as plantas de manhã cedo ajuda a evitar doenças fúngicas? 
+                        A água tem tempo para evaporar antes do anoitecer!
+                    </div>
+                </div>
             </div>
         </main>
     </div>

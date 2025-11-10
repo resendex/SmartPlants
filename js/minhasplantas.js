@@ -234,6 +234,12 @@ function addProgressPhoto(plantId) {
                 console.log(`Foto de progresso adicionada. Total: ${plants[plantIndex].progressPhotos.length}`);
                 
                 localStorage.setItem('myPlants', JSON.stringify(plants));
+                
+                // Notificar progresso
+                if (typeof window.notificarProgressoPlanta === 'function') {
+                    window.notificarProgressoPlanta(plants[plantIndex].name);
+                }
+                
                 closePlantDetails();
                 viewPlantDetails(plantId);
             }

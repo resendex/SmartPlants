@@ -10,7 +10,7 @@ function salvarNotificacoes(notificacoes) {
 }
 
 // Função para adicionar uma nova notificação
-function adicionarNotificacao(tipo, mensagem) {
+function adicionarNotificacao(tipo, mensagem, link = null) {
     const notificacoes = getNotificacoes();
     const agora = new Date();
     
@@ -18,29 +18,97 @@ function adicionarNotificacao(tipo, mensagem) {
         id: Date.now(),
         tipo: tipo,
         mensagem: mensagem,
-        data: agora.toLocaleDateString('pt-BR'),
-        hora: agora.toLocaleTimeString('pt-BR'),
-        lida: false
+        data: agora.toLocaleDateString('pt-PT'),
+        hora: agora.toLocaleTimeString('pt-PT', { hour: '2-digit', minute: '2-digit' }),
+        lida: false,
+        link: link
     };
 
     notificacoes.unshift(novaNotificacao); // Adiciona no início do array
     salvarNotificacoes(notificacoes);
-    atualizarListaNotificacoes();
+    
+    // Atualiza badge de notificações não lidas
+    atualizarBadgeNotificacoes();
 }
 
 // Função para criar notificação de nova planta
 function notificarNovaPlanta(nomePlanta) {
     adicionarNotificacao(
         'planta',
-        `O utilizador criou a planta "${nomePlanta}".`
+        `Nova planta adicionada: "${nomePlanta}"`,
+        'minhasplantas.html'
     );
 }
 
 // Função para criar notificação de rega
-function notificarHorarioRega(nomePlanta, horario) {
+function notificarHorarioRega(nomePlanta) {
     adicionarNotificacao(
         'rega',
-        `Hora de regar a planta "${nomePlanta}"!`
+        `⏰ Hora de regar "${nomePlanta}"!`,
+        'regar.html'
+    );
+}
+
+// Função para criar notificação de rega realizada
+function notificarRegaRealizada(nomePlanta) {
+    adicionarNotificacao(
+        'rega',
+        `✅ Você regou "${nomePlanta}"`,
+        'minhasplantas.html'
+    );
+}
+
+// Função para criar notificação de evento do calendário
+function notificarEventoCalendario(titulo, data) {
+    adicionarNotificacao(
+        'calendario',
+        `📅 Evento agendado: "${titulo}" para ${data}`,
+        'calendario.html'
+    );
+}
+
+// Função para criar notificação de nova mensagem no chat
+function notificarNovaMensagem(usuario) {
+    adicionarNotificacao(
+        'chat',
+        `💬 Nova mensagem de ${usuario}`,
+        'chat.html'
+    );
+}
+
+// Função para criar notificação de novo post no fórum
+function notificarNovoPost(autor, titulo) {
+    adicionarNotificacao(
+        'forum',
+        `📢 ${autor} publicou: "${titulo}"`,
+        'forum.html'
+    );
+}
+
+// Função para criar notificação de progresso da planta
+function notificarProgressoPlanta(nomePlanta) {
+    adicionarNotificacao(
+        'planta',
+        `📸 Nova foto de progresso adicionada: "${nomePlanta}"`,
+        'minhasplantas.html'
+    );
+}
+
+// Função para criar notificação de comentário no fórum
+function notificarComentarioForum(autor, postTitulo) {
+    adicionarNotificacao(
+        'forum',
+        `💬 ${autor} comentou no post: "${postTitulo}"`,
+        'forum.html'
+    );
+}
+
+// Função para criar notificação de lembrete
+function notificarLembrete(titulo, mensagem) {
+    adicionarNotificacao(
+        'lembrete',
+        `🔔 Lembrete: ${titulo} - ${mensagem}`,
+        'lembretes.html'
     );
 }
 
@@ -81,23 +149,65 @@ function atualizarListaNotificacoes() {
     container.innerHTML = '';
 
     notificacoes.forEach(notificacao => {
-        const icone = notificacao.tipo === 'planta' ? '🌱' : '💧';
+        const icones = {
+            'planta': '🌱',
+            'rega': '💧',
+            'calendario': '📅',
+            'chat': '💬',
+            'forum': '📢',
+            'lembrete': '�'
+        };
+        
+        const icone = icones[notificacao.tipo] || '📌';
         const elemento = document.createElement('div');
         elemento.className = `notification-item ${notificacao.lida ? 'lida' : ''}`;
+        
+        // Se tiver link, torna clicável
+        const clickHandler = notificacao.link ? `onclick="window.location.href='${notificacao.link}'"` : '';
+        const cursorStyle = notificacao.link ? 'cursor: pointer;' : '';
+        
         elemento.innerHTML = `
             <div class="notification-icon">${icone}</div>
-            <div class="notification-content">
+            <div class="notification-content" ${clickHandler} style="${cursorStyle}">
                 <p class="notification-message">${notificacao.mensagem}</p>
                 <p class="notification-time">${notificacao.data} às ${notificacao.hora}</p>
-                <div class="notification-actions">
-                    ${!notificacao.lida ? 
-                        `<button onclick="marcarComoLida(${notificacao.id})" class="btn-mark-read">Marcar como lida</button>` : 
-                        ''}
-                    <button onclick="excluirNotificacao(${notificacao.id})" class="btn-delete">Excluir</button>
-                </div>
+                ${notificacao.link ? `<span class="notification-link">Clique para ver detalhes →</span>` : ''}
+            </div>
+            <div class="notification-actions">
+                ${!notificacao.lida ? 
+                    `<button onclick="event.stopPropagation(); marcarComoLida(${notificacao.id})" class="btn-mark-read" title="Marcar como lida">✓</button>` : 
+                    ''}
+                <button onclick="event.stopPropagation(); excluirNotificacao(${notificacao.id})" class="btn-delete" title="Excluir">🗑️</button>
             </div>
         `;
         container.appendChild(elemento);
+    });
+    
+    // Atualiza badge
+    atualizarBadgeNotificacoes();
+}
+
+// Função para atualizar o badge de notificações não lidas
+function atualizarBadgeNotificacoes() {
+    const notificacoes = getNotificacoes();
+    const naoLidas = notificacoes.filter(n => !n.lida).length;
+    
+    // Atualiza badge em todas as páginas
+    const menuItems = document.querySelectorAll('a[href="notificacoes.html"]');
+    menuItems.forEach(item => {
+        let badge = item.querySelector('.notification-badge');
+        
+        if (naoLidas > 0) {
+            if (!badge) {
+                badge = document.createElement('span');
+                badge.className = 'notification-badge';
+                item.appendChild(badge);
+            }
+            badge.textContent = naoLidas > 99 ? '99+' : naoLidas;
+            badge.style.display = 'flex';
+        } else if (badge) {
+            badge.style.display = 'none';
+        }
     });
 }
 

@@ -8,7 +8,8 @@
     <link rel="icon" href="../multimedia/image/logo.png" type="image/png">
     <link rel="stylesheet" type="text/css" href="../css/mensagemExemplo.css">
     <link rel="stylesheet" type="text/css" href="../css/copyright.css">
-    <script src="../js/mandamensagem.js"></script>
+    <script src="../js/notifications-global.js"></script>
+    <script src="../js/mandamensagem.js" defer></script>
 </head>  
 <body>
     <header class="header">
@@ -53,23 +54,34 @@
             </nav>
         </aside>
 
-        <div id="chat-history" class="chat-history">
-            <div class="message assistant-message">
-                Olá, como está a tulipa?
+        <div class="content">
+            <!-- Cabeçalho da Conversa -->
+            <div class="conversation-header">
+                <a href="chat.html" class="back-button">← Voltar</a>
+                <div class="conversation-user-info">
+                    <div class="conversation-user-avatar" id="conversationAvatar">🌸</div>
+                    <div>
+                        <h2 class="conversation-user-name" id="conversationUserName">Carregando...</h2>
+                        <span class="conversation-user-meta" id="conversationMeta">Online</span>
+                    </div>
+                </div>
             </div>
-            <div id="message user-message" class="message user-message">
-                <span id="mensagemUser"></span>
+
+            <!-- Histórico de Mensagens -->
+            <div id="chat-history" class="chat-history">
+                <!-- As mensagens serão carregadas dinamicamente aqui -->
+            </div>
+
+            <!-- Área de Input -->
+            <div class="chat-input-area">
+                <input type="text" id="user-input" class="user-input" placeholder="Escrever mensagem..."
+                    aria-label="Campo de entrada de mensagem" onkeypress="handleKeyPress(event)">
+                <button id="send-button" class="enviar">
+                    <span>Enviar</span>
+                </button>
             </div>
         </div>
 
-    </div>
-
-    <div class="chat-input-area">
-        <input type="text" id="user-input" class="user-input" placeholder="Mensagem"
-            aria-label="Campo de entrada de mensagem" onkeypress="handleKeyPress(event)">
-        <button id="send-button" class = "enviar">
-            <span>Enviar</span>
-        </button>
     </div>
 
     <footer class="footer">

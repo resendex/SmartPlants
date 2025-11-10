@@ -119,6 +119,39 @@ body {
     border-radius: 0.5em;
 }
 
+/* Badge de notificações não lidas */
+.notification-badge {
+    position: absolute;
+    top: 0.5em;
+    right: 1em;
+    background: linear-gradient(135deg, #dc3545 0%, #c82333 100%);
+    color: white;
+    font-size: 0.7em;
+    font-weight: 700;
+    padding: 0.3em 0.6em;
+    border-radius: 1em;
+    min-width: 1.5em;
+    height: 1.5em;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 0.2em 0.5em rgba(220, 53, 69, 0.4);
+    animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+    0%, 100% {
+        transform: scale(1);
+    }
+    50% {
+        transform: scale(1.1);
+    }
+}
+
+.menu-item {
+    position: relative;
+}
+
 .content {
     flex: 1;
     padding: 2em;
@@ -148,11 +181,23 @@ body {
     align-items: flex-start;
     gap: 1em;
     transition: transform 0.3s ease, box-shadow 0.3s ease;
+    position: relative;
 }
 
 .notification-item:hover {
     transform: translateY(-0.2em);
     box-shadow: 0 0.5em 1.5em rgba(0, 0, 0, 0.2);
+}
+
+.notification-item:not(.lida)::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0;
+    height: 100%;
+    width: 0.4em;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    border-radius: 1em 0 0 1em;
 }
 
 .notification-icon {
@@ -168,6 +213,20 @@ body {
 
 .notification-content {
     flex: 1;
+    cursor: inherit;
+}
+
+.notification-link {
+    display: inline-block;
+    margin-top: 0.5em;
+    color: #667eea;
+    font-size: 0.9em;
+    font-weight: 600;
+    transition: color 0.3s ease;
+}
+
+.notification-item:hover .notification-link {
+    color: #764ba2;
 }
 
 .notification-title {
@@ -192,35 +251,43 @@ body {
 .notification-actions {
     display: flex;
     gap: 0.5em;
-    margin-top: 1em;
+    flex-direction: column;
+    align-items: center;
 }
 
 .btn-mark-read,
 .btn-delete {
-    padding: 0.5em 1em;
+    padding: 0.6em;
     border: none;
-    border-radius: 0.3em;
-    font-size: 0.9em;
+    border-radius: 0.5em;
+    font-size: 1.2em;
     cursor: pointer;
     transition: all 0.2s ease;
+    width: 2.5em;
+    height: 2.5em;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
 .btn-mark-read {
-    background: #28a745;
+    background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
     color: white;
 }
 
 .btn-mark-read:hover {
-    background: #218838;
+    background: linear-gradient(135deg, #218838 0%, #1aa179 100%);
+    transform: scale(1.1);
 }
 
 .btn-delete {
-    background: #dc3545;
+    background: linear-gradient(135deg, #dc3545 0%, #c82333 100%);
     color: white;
 }
 
 .btn-delete:hover {
-    background: #c82333;
+    background: linear-gradient(135deg, #c82333 0%, #bd2130 100%);
+    transform: scale(1.1);
 }
 
 .notification-item.lida {
