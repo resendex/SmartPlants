@@ -184,14 +184,66 @@ body {
     font-size: 1.1rem;
 }
 
-.next-watering {
+.watering-info-container {
     margin-left: auto;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+}
+
+.next-watering {
     color: #009646;
     font-size: 0.9rem;
     font-weight: 500;
     background: rgba(0, 150, 70, 0.1);
     padding: 4px 12px;
     border-radius: 6px;
+}
+
+.next-watering.irrigation-watering {
+    background: linear-gradient(135deg, rgba(102, 126, 234, 0.15), rgba(118, 75, 162, 0.15));
+    color: #667eea;
+    border: 2px solid rgba(102, 126, 234, 0.3);
+    padding: 6px 12px;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.irrigation-badge {
+    background: linear-gradient(135deg, #667eea, #764ba2);
+    color: white;
+    font-size: 0.75rem;
+    padding: 2px 8px;
+    border-radius: 4px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.next-watering.recurrence-watering {
+    background: rgba(33, 150, 243, 0.1);
+    color: #2196F3;
+    border: 1px solid rgba(33, 150, 243, 0.3);
+}
+
+.btn-remove-schedule {
+    background: linear-gradient(135deg, rgba(244, 67, 54, 0.9), rgba(211, 47, 47, 0.9));
+    color: white;
+    border: none;
+    padding: 4px 10px;
+    border-radius: 6px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s;
+    white-space: nowrap;
+}
+
+.btn-remove-schedule:hover {
+    background: linear-gradient(135deg, rgba(211, 47, 47, 1), rgba(198, 40, 40, 1));
+    transform: scale(1.05);
 }
 
 .no-watering {
@@ -359,15 +411,26 @@ body {
 }
 
 .plant-schedule-item {
-    background: rgba(76, 175, 80, 0.1);
+    background: rgba(76, 175, 80, 0.05);
     border-left: 4px solid #4caf50;
-    padding: 1rem;
+    padding: 1rem 1.25rem;
     margin-bottom: 0.75rem;
     border-radius: 8px;
+    transition: all 0.3s;
+}
+
+.plant-schedule-item:hover {
+    background: rgba(76, 175, 80, 0.1);
+    transform: translateX(3px);
+}
+
+.plant-schedule-item.has-irrigation {
+    background: linear-gradient(135deg, rgba(102, 126, 234, 0.08), rgba(118, 75, 162, 0.08));
+    border-left-color: #667eea;
 }
 
 .plant-schedule-item.no-schedule {
-    background: rgba(158, 158, 158, 0.1);
+    background: rgba(158, 158, 158, 0.05);
     border-left-color: #9e9e9e;
 }
 
@@ -375,7 +438,73 @@ body {
     display: block;
     color: #333;
     font-size: 1.1rem;
-    margin-bottom: 0.5rem;
+    margin-bottom: 0.75rem;
+    font-weight: 700;
+}
+
+/* Schedule Info Styles */
+.schedule-info {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.schedule-badge {
+    display: inline-block;
+    padding: 4px 10px;
+    border-radius: 6px;
+    font-size: 0.75rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    width: fit-content;
+}
+
+.irrigation-badge {
+    background: linear-gradient(135deg, #667eea, #764ba2);
+    color: white;
+}
+
+.manual-badge {
+    background: linear-gradient(135deg, #4caf50, #8bc34a);
+    color: white;
+}
+
+.recurrence-badge {
+    background: linear-gradient(135deg, #2196F3, #03a9f4);
+    color: white;
+}
+
+.upcoming-badge {
+    background: rgba(158, 158, 158, 0.2);
+    color: #666;
+    border: 1px solid rgba(158, 158, 158, 0.4);
+}
+
+.schedule-text {
+    color: #555;
+    font-size: 0.95rem;
+    font-weight: 500;
+}
+
+.schedule-info.irrigation-schedule .schedule-text {
+    color: #667eea;
+    font-weight: 600;
+}
+
+.schedule-info.manual-schedule .schedule-text {
+    color: #4caf50;
+    font-weight: 600;
+}
+
+.schedule-info.upcoming-schedule .schedule-text {
+    color: #666;
+}
+
+.schedule-info.no-schedule-info .no-schedule-text {
+    color: #999;
+    font-size: 0.9rem;
+    font-style: italic;
 }
 
 .completed-schedule {

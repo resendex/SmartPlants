@@ -22,9 +22,42 @@ document.addEventListener('DOMContentLoaded', () => {
         
         plants.forEach(plant => {
             const nextWatering = getNextWatering(plant.id);
-            const wateringInfo = nextWatering ? 
-                `<span class="next-watering">Próxima rega: ${formatDate(nextWatering.date)} às ${nextWatering.time}</span>` : 
-                '<span class="no-watering">Nenhuma rega agendada</span>';
+            const irrigationWatering = getTodayIrrigationWatering(plant.id);
+            
+            let wateringInfo = '';
+            
+            // Prioridade: sistema de rega de hoje
+            if (irrigationWatering) {
+                wateringInfo = `
+                    <div class="watering-info-container">
+                        <span class="next-watering irrigation-watering">
+                            <span class="irrigation-badge">Sistema Automático</span>
+                            Rega agendada para hoje às ${irrigationWatering.time}
+                        </span>
+                        <button class="btn-remove-schedule" data-plant-id="${plant.id}" data-type="irrigation" title="Remover esta agenda do calendário">
+                            🗑️ Remover Agenda
+                        </button>
+                    </div>
+                `;
+            } else if (nextWatering) {
+                const isToday = isDateToday(nextWatering.date);
+                const typeLabel = nextWatering.source === 'recurrence' ? 'Recorrente' : 'Manual';
+                
+                wateringInfo = `
+                    <div class="watering-info-container">
+                        <span class="next-watering ${nextWatering.source === 'recurrence' ? 'recurrence-watering' : ''}">
+                            ${typeLabel}: ${isToday ? 'Hoje' : formatDate(nextWatering.date)} às ${nextWatering.time}
+                        </span>
+                        ${isToday ? `
+                            <button class="btn-remove-schedule" data-plant-id="${plant.id}" data-date="${nextWatering.date}" data-type="manual" title="Remover esta agenda do calendário">
+                                🗑️ Remover Agenda
+                            </button>
+                        ` : ''}
+                    </div>
+                `;
+            } else {
+                wateringInfo = '<span class="no-watering">Nenhuma rega agendada</span>';
+            }
             
             html += `
                 <div class="opcao">
@@ -38,6 +71,18 @@ document.addEventListener('DOMContentLoaded', () => {
         });
 
         plantsContainer.innerHTML = html;
+        
+        // Adicionar event listeners aos botões de remover
+        document.querySelectorAll('.btn-remove-schedule').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                const plantId = btn.dataset.plantId;
+                const type = btn.dataset.type;
+                const date = btn.dataset.date;
+                removeSchedule(plantId, type, date);
+            });
+        });
     }
 
     // Botão Guardar
@@ -73,24 +118,52 @@ document.addEventListener('DOMContentLoaded', () => {
         let hasSchedules = false;
 
         wateredPlants.forEach(plant => {
-            if (plant.completedWatering) {
+            const plantId = plant.id;
+            const todayIrrigation = getTodayIrrigationWatering(plantId);
+            const nextWatering = getNextWatering(plantId);
+            const nextSchedule = getNextScheduleInfo(plantId);
+            
+            let scheduleInfo = '';
+            
+            // Verificar agenda para hoje
+            if (todayIrrigation) {
                 hasSchedules = true;
-                plantsList += `
-                    <li class="plant-schedule-item">
-                        <strong>${plant.name}</strong>
-                        <span class="completed-schedule">
-                            Rega realizada: ${formatDate(plant.completedWatering.date)} às ${plant.completedWatering.time}
-                        </span>
-                    </li>
+                scheduleInfo = `
+                    <div class="schedule-info irrigation-schedule">
+                        <span class="schedule-badge irrigation-badge">Sistema Automático</span>
+                        <span class="schedule-text">Agendado para hoje às ${todayIrrigation.time}</span>
+                    </div>
+                `;
+            } else if (nextWatering && isDateToday(nextWatering.date)) {
+                hasSchedules = true;
+                const typeLabel = nextWatering.source === 'recurrence' ? 'Recorrente' : 'Manual';
+                scheduleInfo = `
+                    <div class="schedule-info manual-schedule">
+                        <span class="schedule-badge ${nextWatering.source === 'recurrence' ? 'recurrence-badge' : 'manual-badge'}">${typeLabel}</span>
+                        <span class="schedule-text">Agendado para hoje às ${nextWatering.time}</span>
+                    </div>
+                `;
+            } else if (nextSchedule) {
+                scheduleInfo = `
+                    <div class="schedule-info upcoming-schedule">
+                        <span class="schedule-badge upcoming-badge">${nextSchedule.type}</span>
+                        <span class="schedule-text">Próxima: ${nextSchedule.date} às ${nextSchedule.time}</span>
+                    </div>
                 `;
             } else {
-                plantsList += `
-                    <li class="plant-schedule-item no-schedule">
-                        <strong>${plant.name}</strong>
+                scheduleInfo = `
+                    <div class="schedule-info no-schedule-info">
                         <span class="no-schedule-text">Sem agendamento registrado</span>
-                    </li>
+                    </div>
                 `;
             }
+
+            plantsList += `
+                <li class="plant-schedule-item ${todayIrrigation ? 'has-irrigation' : ''}">
+                    <strong>${plant.name}</strong>
+                    ${scheduleInfo}
+                </li>
+            `;
         });
 
         modal.innerHTML = `
@@ -101,9 +174,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 </div>
                 <div class="modal-body">
                     <p class="modal-message">
-                        ${hasSchedules ? 
-                            'Ao confirmar, as seguintes regas serão marcadas como realizadas:' : 
-                            'As plantas selecionadas serão registradas como regadas:'}
+                        As plantas selecionadas serão registradas como regadas:
                     </p>
                     <ul class="plants-list">
                         ${plantsList}
@@ -136,25 +207,112 @@ document.addEventListener('DOMContentLoaded', () => {
             document.body.removeChild(modal);
         });
     }
+    
+    // NOVA FUNÇÃO: Obter informação da próxima agenda
+    function getNextScheduleInfo(plantId) {
+        const irrigationConfig = JSON.parse(localStorage.getItem(`irrigation_config_${plantId}`) || '{}');
+        const waterings = JSON.parse(localStorage.getItem(`watering_${plantId}`) || '[]');
+        
+        let nextDates = [];
+        
+        // Verificar sistema de rega automática
+        if (irrigationConfig.enabled && irrigationConfig.weeklyWatering) {
+            const weeklyWatering = irrigationConfig.weeklyWatering || 3;
+            const interval = Math.floor(7 / weeklyWatering);
+            const irrigationDays = [];
+            
+            for (let i = 0; i < weeklyWatering; i++) {
+                irrigationDays.push((i * interval) % 7);
+            }
+            
+            // Procurar próxima data do sistema
+            const today = new Date();
+            for (let i = 1; i < 14; i++) {
+                const checkDate = new Date(today);
+                checkDate.setDate(today.getDate() + i);
+                const checkDayOfWeek = checkDate.getDay();
+                const dateStr = checkDate.toISOString().split('T')[0];
+                
+                const exceptions = JSON.parse(localStorage.getItem(`irrigation_exceptions_${plantId}`) || '[]');
+                
+                if (irrigationDays.includes(checkDayOfWeek) && !exceptions.includes(dateStr)) {
+                    const override = waterings.find(w => w.date === dateStr && w.source === 'irrigation_override');
+                    nextDates.push({
+                        date: checkDate.toLocaleDateString('pt-PT', { day: '2-digit', month: '2-digit' }),
+                        time: override ? override.time : irrigationConfig.wateringTime,
+                        type: 'Sistema Automático',
+                        dateObj: checkDate
+                    });
+                    break;
+                }
+            }
+        }
+        
+        // Verificar agendamentos manuais e recorrentes
+        const today = new Date();
+        const todayStr = today.toISOString().split('T')[0];
+        
+        waterings
+            .filter(w => !w.completed && w.date > todayStr && w.source !== 'irrigation_override')
+            .forEach(w => {
+                const wDate = new Date(w.date + 'T00:00:00');
+                nextDates.push({
+                    date: wDate.toLocaleDateString('pt-PT', { day: '2-digit', month: '2-digit' }),
+                    time: w.time,
+                    type: w.source === 'recurrence' ? 'Recorrente' : 'Manual',
+                    dateObj: wDate
+                });
+            });
+        
+        // Ordenar e retornar a mais próxima
+        if (nextDates.length > 0) {
+            nextDates.sort((a, b) => a.dateObj - b.dateObj);
+            return nextDates[0];
+        }
+        
+        return null;
+    }
 
     function processWatering(wateredPlants) {
         let completedCount = 0;
+        let registeredTodayCount = 0;
+        const today = new Date();
+        const todayStr = today.toISOString().split('T')[0];
+        const nowTime = today.toTimeString().slice(0, 5);
 
         wateredPlants.forEach(plant => {
             if (plant.completedWatering) {
                 // Marcar como rega completada em vez de remover
                 markWateringAsCompleted(plant.id, plant.completedWatering.date, plant.completedWatering.time);
                 completedCount++;
+            } else {
+                // Se não há rega agendada para hoje, registar rega manual no calendário
+                // Verifica se já existe registo para hoje
+                const key = `watering_${plant.id}`;
+                const waterings = JSON.parse(localStorage.getItem(key) || '[]');
+                const alreadyToday = waterings.some(w => w.date === todayStr);
+                if (!alreadyToday) {
+                    // Adiciona registo de rega manual para hoje
+                    waterings.push({ date: todayStr, time: nowTime, completed: true, completedAt: new Date().toISOString() });
+                    localStorage.setItem(key, JSON.stringify(waterings));
+                    registeredTodayCount++;
+                }
             }
-            
             // Registrar histórico de rega
             registerWateringHistory(plant.id);
         });
 
         // Mensagem de sucesso
-        const message = completedCount > 0 ? 
-            `Rega confirmada! ${completedCount} rega(s) foi/foram realizada(s) com sucesso.` :
-            'Rega registrada com sucesso!';
+        let message = '';
+        if (completedCount > 0 && registeredTodayCount > 0) {
+            message = `Rega confirmada! ${completedCount} rega(s) agendada(s) e ${registeredTodayCount} rega(s) manual(is) foram registadas no calendário.`;
+        } else if (completedCount > 0) {
+            message = `Rega confirmada! ${completedCount} rega(s) foi/foram realizada(s) com sucesso.`;
+        } else if (registeredTodayCount > 0) {
+            message = `A rega de hoje foi confirmada e registada no calendário!`;
+        } else {
+            message = 'Rega registada com sucesso!';
+        }
 
         showModal('Sucesso', message, 'success');
 
@@ -164,27 +322,137 @@ document.addEventListener('DOMContentLoaded', () => {
         }, 1500);
     }
 
+    // NOVO: Verificar se há rega do sistema automático para hoje
+    function getTodayIrrigationWatering(plantId) {
+        const irrigationConfig = JSON.parse(localStorage.getItem(`irrigation_config_${plantId}`) || '{}');
+        
+        if (!irrigationConfig.enabled || !irrigationConfig.weeklyWatering) {
+            return null;
+        }
+        
+        const today = new Date();
+        const todayStr = today.toISOString().split('T')[0];
+        const dayOfWeek = today.getDay();
+        
+        // Verificar se hoje é dia de rega do sistema
+        const weeklyWatering = irrigationConfig.weeklyWatering || 3;
+        const interval = Math.floor(7 / weeklyWatering);
+        const irrigationDays = [];
+        
+        for (let i = 0; i < weeklyWatering; i++) {
+            irrigationDays.push((i * interval) % 7);
+        }
+        
+        if (!irrigationDays.includes(dayOfWeek)) {
+            return null;
+        }
+        
+        // Verificar se não foi desativado para hoje
+        const exceptions = JSON.parse(localStorage.getItem(`irrigation_exceptions_${plantId}`) || '[]');
+        if (exceptions.includes(todayStr)) {
+            return null;
+        }
+        
+        // Verificar se há override de hora
+        const waterings = JSON.parse(localStorage.getItem(`watering_${plantId}`) || '[]');
+        const override = waterings.find(w => w.date === todayStr && w.source === 'irrigation_override');
+        
+        return {
+            date: todayStr,
+            time: override ? override.time : irrigationConfig.wateringTime,
+            source: 'irrigation',
+            isOverride: !!override
+        };
+    }
+
     function getNextWatering(plantId) {
         const key = `watering_${plantId}`;
         const waterings = JSON.parse(localStorage.getItem(key) || '[]');
         
         if (waterings.length === 0) return null;
 
+        const today = new Date().toISOString().split('T')[0];
+
         // Ordenar por data (mais próxima primeiro)
         const sorted = waterings
-            .filter(w => !w.completed) // Filtrar apenas não completadas
+            .filter(w => !w.completed && w.source !== 'irrigation_override') // Filtrar apenas não completadas e não override
             .map(w => ({
                 date: w.date,
                 time: w.time,
+                source: w.source,
                 dateObj: new Date(w.date + 'T' + w.time)
             }))
             .sort((a, b) => a.dateObj - b.dateObj);
 
-        // Retornar a mais próxima no futuro ou presente
-        const now = new Date();
-        const future = sorted.find(w => w.dateObj >= now);
+        // Retornar a mais próxima de hoje
+        const todayWatering = sorted.find(w => w.date === today);
         
-        return future || sorted[0]; // Se não houver futuras, retorna a mais recente
+        return todayWatering || null;
+    }
+    
+    // NOVO: Verificar se data é hoje
+    function isDateToday(dateStr) {
+        const today = new Date().toISOString().split('T')[0];
+        return dateStr === today;
+    }
+    
+    // NOVO: Remover agenda do calendário
+    function removeSchedule(plantId, type, date) {
+        const plantName = plants.find(p => p.id === plantId)?.name || 'Planta';
+        
+        showConfirmModal(
+            'Remover Agenda',
+            `Deseja remover a agenda de rega de hoje para "${plantName}"?\n\nA rega não será mais lembrada no calendário.`,
+            () => {
+                if (type === 'irrigation') {
+                    // Adicionar exceção para o sistema de rega
+                    const todayStr = new Date().toISOString().split('T')[0];
+                    const exceptions = JSON.parse(localStorage.getItem(`irrigation_exceptions_${plantId}`) || '[]');
+                    if (!exceptions.includes(todayStr)) {
+                        exceptions.push(todayStr);
+                        localStorage.setItem(`irrigation_exceptions_${plantId}`, JSON.stringify(exceptions));
+                    }
+                } else {
+                    // Remover agendamento manual
+                    const waterings = JSON.parse(localStorage.getItem(`watering_${plantId}`) || '[]');
+                    const filtered = waterings.filter(w => w.date !== date);
+                    localStorage.setItem(`watering_${plantId}`, JSON.stringify(filtered));
+                }
+                
+                showModal('Sucesso', 'Agenda removida com sucesso!', 'success');
+                renderPlants();
+            }
+        );
+    }
+    
+    // NOVO: Modal de confirmação genérico
+    function showConfirmModal(title, message, onConfirm) {
+        const modal = document.createElement('div');
+        modal.className = 'modal-overlay';
+        modal.innerHTML = `
+            <div class="modal-content">
+                <div class="modal-header info">
+                    <h3>${title}</h3>
+                </div>
+                <div class="modal-body">
+                    <p style="white-space: pre-line;">${message}</p>
+                </div>
+                <div class="modal-footer">
+                    <button class="btn btn-cancel" id="cancelConfirmBtn">Cancelar</button>
+                    <button class="btn btn-confirm" id="confirmConfirmBtn">Confirmar</button>
+                </div>
+            </div>
+        `;
+        document.body.appendChild(modal);
+        
+        modal.querySelector('#cancelConfirmBtn').addEventListener('click', () => {
+            document.body.removeChild(modal);
+        });
+        
+        modal.querySelector('#confirmConfirmBtn').addEventListener('click', () => {
+            document.body.removeChild(modal);
+            if (onConfirm) onConfirm();
+        });
     }
 
     function markWateringAsCompleted(plantId, date, time) {

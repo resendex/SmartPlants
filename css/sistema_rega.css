@@ -539,6 +539,144 @@ body {
     pointer-events: none;
 }
 
+/* Success Schedule Modal */
+.success-schedule-modal {
+    max-width: 600px;
+    animation: slideInScale 0.4s ease;
+}
+
+@keyframes slideInScale {
+    from {
+        transform: translateY(-50px) scale(0.9);
+        opacity: 0;
+    }
+    to {
+        transform: translateY(0) scale(1);
+        opacity: 1;
+    }
+}
+
+.success-summary {
+    background: linear-gradient(135deg, rgba(76, 175, 80, 0.08), rgba(139, 195, 74, 0.08));
+    border: 2px solid rgba(76, 175, 80, 0.3);
+    border-radius: 10px;
+    padding: 1rem 1.5rem;
+    margin-bottom: 1.5rem;
+}
+
+.success-summary p {
+    margin: 0.5rem 0;
+    font-size: 1rem;
+}
+
+.success-summary strong {
+    color: #4caf50;
+    margin-right: 0.5rem;
+}
+
+.next-waterings {
+    margin: 1.5rem 0;
+}
+
+.next-waterings h4 {
+    color: #667eea;
+    font-size: 1.1rem;
+    margin: 0 0 1rem 0;
+}
+
+.schedule-dates-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.schedule-date-item {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 0.75rem 1rem;
+    margin-bottom: 0.5rem;
+    background: rgba(102, 126, 234, 0.05);
+    border-left: 4px solid #667eea;
+    border-radius: 8px;
+    transition: all 0.3s;
+}
+
+.schedule-date-item:hover {
+    background: rgba(102, 126, 234, 0.1);
+    transform: translateX(5px);
+}
+
+.schedule-date-item.today {
+    background: linear-gradient(135deg, rgba(76, 175, 80, 0.1), rgba(139, 195, 74, 0.1));
+    border-left-color: #4caf50;
+}
+
+.date-number {
+    background: linear-gradient(135deg, #667eea, #764ba2);
+    color: white;
+    width: 35px;
+    height: 35px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    font-weight: 700;
+    font-size: 0.9rem;
+    flex-shrink: 0;
+}
+
+.schedule-date-item.today .date-number {
+    background: linear-gradient(135deg, #4caf50, #8bc34a);
+}
+
+.date-info {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+    flex: 1;
+}
+
+.date-info strong {
+    color: #333;
+    font-size: 1rem;
+}
+
+.date-detail {
+    color: #666;
+    font-size: 0.9rem;
+}
+
+.today-badge {
+    display: inline-block;
+    background: #4caf50;
+    color: white;
+    padding: 2px 8px;
+    border-radius: 4px;
+    font-size: 0.75rem;
+    font-weight: 700;
+    margin-top: 0.25rem;
+}
+
+.success-note {
+    background: rgba(102, 126, 234, 0.05);
+    border: 1px solid rgba(102, 126, 234, 0.2);
+    border-radius: 8px;
+    padding: 1rem;
+    margin-top: 1.5rem;
+}
+
+.success-note p {
+    margin: 0;
+    color: #555;
+    font-size: 0.95rem;
+    line-height: 1.5;
+}
+
+.success-note strong {
+    color: #667eea;
+}
+
 /* Responsive */
 @media (max-width: 768px) {
     .sidebar {
