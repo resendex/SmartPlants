@@ -287,6 +287,17 @@
     box-shadow: 0 4px 12px rgba(220, 53, 69, 0.3);
 }
 
+.btn-warning {
+    background: linear-gradient(135deg, rgba(255, 152, 0, 0.9), rgba(255, 193, 7, 0.9));
+    color: white;
+}
+
+.btn-warning:hover {
+    background: linear-gradient(135deg, rgba(245, 124, 0, 1), rgba(255, 179, 0, 1));
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(255, 152, 0, 0.3);
+}
+
 .btn.btn-secondary {
     background: linear-gradient(135deg, rgba(102, 126, 234, 0.9), rgba(118, 75, 162, 0.9));
     color: #fff;
@@ -353,6 +364,104 @@
     border-left: 4px solid rgba(0, 150, 70, 0.6);
     border-radius: 8px;
     margin-bottom: .5rem;
+}
+
+/* Painel do sistema de rega automática */
+.irrigation-panel {
+    margin-bottom: 1.5rem;
+    padding: 1rem;
+    background: linear-gradient(135deg, rgba(102, 126, 234, 0.08), rgba(118, 75, 162, 0.08));
+    border: 2px solid rgba(102, 126, 234, 0.3);
+    border-radius: 12px;
+}
+
+.irrigation-panel h4 {
+    margin: 0 0 0.75rem 0;
+    color: #667eea;
+    font-size: 1.1rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.irrigation-summary {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.irrigation-summary p {
+    margin: 0;
+    color: #333;
+    font-size: 0.95rem;
+}
+
+.irrigation-summary strong {
+    color: #667eea;
+}
+
+/* Ícone do sistema de rega */
+.irrigation-icon {
+    position: absolute;
+    top: 6px;
+    left: 6px;
+    font-size: 0.85rem;
+    color: #667eea;
+    opacity: 0.9;
+}
+
+/* Ícone de edição personalizada (lápis) */
+.irrigation-icon.irrigation-edited {
+    color: #ff9800;
+    font-weight: bold;
+    font-size: 0.9rem;
+    animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+    0%, 100% {
+        opacity: 0.9;
+    }
+    50% {
+        opacity: 1;
+        transform: scale(1.1);
+    }
+}
+
+/* Dia marcado pelo sistema de rega */
+.day.irrigation-watering {
+    background: linear-gradient(135deg, rgba(102, 126, 234, 0.12), rgba(118, 75, 162, 0.12));
+    border-color: rgba(102, 126, 234, 0.5);
+}
+
+/* Badge do sistema de rega */
+.time-badge.irrigation-badge {
+    background: linear-gradient(135deg, rgba(102, 126, 234, 0.9), rgba(118, 75, 162, 0.9));
+}
+
+/* Modal header para sistema de rega */
+.modal-header.irrigation-header {
+    background: linear-gradient(135deg, rgba(102, 126, 234, 0.15), rgba(118, 75, 162, 0.15));
+    border-bottom: 2px solid rgba(102, 126, 234, 0.3);
+}
+
+/* Info do sistema de rega no modal */
+.irrigation-info {
+    background: rgba(102, 126, 234, 0.05);
+    padding: 1rem;
+    border-radius: 8px;
+    border-left: 4px solid #667eea;
+}
+
+.irrigation-info p {
+    margin: 0.5rem 0;
+}
+
+.irrigation-info p:first-child {
+    color: #667eea;
+    font-weight: 700;
+    font-size: 1.1rem;
+    margin-bottom: 1rem;
 }
 
 /* Info Panel */

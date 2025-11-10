@@ -8,6 +8,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const statusIndicator = document.getElementById('statusIndicator');
     const cancelSystemBtn = document.getElementById('cancelSystemBtn');
     const reactivateSystemBtn = document.getElementById('reactivateSystemBtn');
+    const viewCalendarBtn = document.getElementById('viewCalendarBtn');
 
     // CORREÇÃO: definir plantas e seleção inicial
     let plants = JSON.parse(localStorage.getItem('myPlants') || '[]');
@@ -16,6 +17,13 @@ document.addEventListener('DOMContentLoaded', () => {
     let currentEnabled = true;
     let lastSensorStatus = 'ok';
 
+    // Verificar se há uma planta pré-selecionada do sessionStorage
+    const preSelectedPlantId = sessionStorage.getItem('selectedPlant');
+    if (preSelectedPlantId) {
+        selectedPlantId = preSelectedPlantId;
+        sessionStorage.removeItem('selectedPlant'); // Limpar após uso
+    }
+
     loadPlants();
 
     // Event Listeners
@@ -23,6 +31,9 @@ document.addEventListener('DOMContentLoaded', () => {
     saveButton.addEventListener('click', saveConfiguration);
     cancelSystemBtn.addEventListener('click', onCancelSystem);          // ALTERADO
     reactivateSystemBtn.addEventListener('click', onReactivateSystem);  // NOVO
+    if (viewCalendarBtn) {
+        viewCalendarBtn.addEventListener('click', openCalendar);        // NOVO
+    }
 
     function loadPlants() {
         // Recarrega sempre do localStorage (caso tenha mudado noutra página)
@@ -40,6 +51,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         if (prev) {
             plantSelect.value = prev;
+            selectedPlantId = prev; // Garantir que está definido
             handlePlantChange({ target: plantSelect });
         }
     }
@@ -101,7 +113,38 @@ document.addEventListener('DOMContentLoaded', () => {
         wateringTimeInput.value = config.wateringTime || '08:00';
         currentEnabled = config.enabled !== false;
         updateEnabledUI(currentEnabled, lastSensorStatus === 'ok');
-        applyControlButtonsState(); // NOVO
+        applyControlButtonsState();
+        updateCurrentConfigPanel(config); // NOVO
+    }
+
+    // NOVO: Atualizar painel de configuração atual
+    function updateCurrentConfigPanel(config) {
+        const panel = document.getElementById('currentConfigPanel');
+        const frequencySpan = document.getElementById('currentFrequency');
+        const timeSpan = document.getElementById('currentTime');
+        const statusSpan = document.getElementById('currentStatus');
+
+        if (config.weeklyWatering && config.wateringTime) {
+            panel.style.display = 'block';
+            frequencySpan.textContent = config.weeklyWatering;
+            timeSpan.textContent = config.wateringTime;
+            statusSpan.textContent = config.enabled !== false ? '✓ Ativo' : '✖ Desativado';
+            statusSpan.style.color = config.enabled !== false ? '#4caf50' : '#f44336';
+        } else {
+            panel.style.display = 'none';
+        }
+    }
+
+    // NOVO: Abrir calendário com planta selecionada
+    function openCalendar() {
+        if (!selectedPlantId) {
+            showModal('Erro', 'Por favor, selecione uma planta primeiro.', 'warning');
+            return;
+        }
+        // Guardar planta selecionada no sessionStorage
+        sessionStorage.setItem('selectedPlant', selectedPlantId);
+        // Redirecionar para o calendário
+        window.location.href = 'calendario.html';
     }
 
     function saveConfiguration() {
@@ -122,11 +165,44 @@ document.addEventListener('DOMContentLoaded', () => {
             return;
         }
 
+        // Verificar se há configuração anterior
+        const key = `irrigation_config_${selectedPlantId}`;
+        const oldConfig = JSON.parse(localStorage.getItem(key) || '{}');
+        const hasChanges = oldConfig.weeklyWatering !== weeklyWatering || 
+                          oldConfig.wateringTime !== wateringTime;
+
+        // Se houve mudanças, limpar exceções e sobreposições antigas
+        if (hasChanges && oldConfig.weeklyWatering) {
+            showConfirmModal(
+                '⚠️ Atualizar Sistema de Rega',
+                `<div style="text-align:left;">
+                    <p><strong>Configuração Anterior:</strong></p>
+                    <ul style="margin-left:1.5rem;">
+                        <li>${oldConfig.weeklyWatering} regas por semana às ${oldConfig.wateringTime}</li>
+                    </ul>
+                    <p><strong>Nova Configuração:</strong></p>
+                    <ul style="margin-left:1.5rem;">
+                        <li>${weeklyWatering} regas por semana às ${wateringTime}</li>
+                    </ul>
+                    <p style="color:#f57c00;margin-top:1rem;"><strong>⚠️ Atenção:</strong> Todas as alterações de hora e exceções de dias específicos serão <strong>removidas</strong> para evitar conflitos com a nova configuração.</p>
+                    <p style="margin-top:1rem;">Deseja continuar?</p>
+                </div>`,
+                () => {
+                    clearIrrigationOverrides(selectedPlantId);
+                    saveConfigurationConfirmed(weeklyWatering, wateringTime);
+                }
+            );
+        } else {
+            saveConfigurationConfirmed(weeklyWatering, wateringTime);
+        }
+    }
+
+    function saveConfigurationConfirmed(weeklyWatering, wateringTime) {
         const config = {
             weeklyWatering,
             wateringTime,
             sensorStatus: lastSensorStatus,
-            enabled: currentEnabled,          // NOVO
+            enabled: currentEnabled,
             lastUpdated: new Date().toISOString()
         };
 
@@ -135,6 +211,17 @@ document.addEventListener('DOMContentLoaded', () => {
 
         const plant = plants.find(p => p.id == selectedPlantId);
         showModal('Sucesso', `Configurações de rega automática para "${plant.name}" foram salvas com sucesso!`, 'success');
+    }
+
+    // Função para limpar exceções e sobreposições do sistema de rega
+    function clearIrrigationOverrides(plantId) {
+        // Limpar exceções (dias desativados)
+        localStorage.removeItem(`irrigation_exceptions_${plantId}`);
+        
+        // Limpar sobreposições de hora (irrigation_override)
+        const wateringData = JSON.parse(localStorage.getItem(`watering_${plantId}`) || '[]');
+        const cleanedData = wateringData.filter(w => w.source !== 'irrigation_override');
+        localStorage.setItem(`watering_${plantId}`, JSON.stringify(cleanedData));
     }
 
     // NOVO: lida com o toggle
@@ -239,7 +326,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 <div class="modal-header info">
                     <h3>${title}</h3>
                 </div>
-                <div class="modal-body"><p>${message}</p></div>
+                <div class="modal-body">${message}</div>
                 <div class="modal-footer" style="display:flex;gap:.5rem;">
                     <button class="btn-secondary" id="cancelBtn">Cancelar</button>
                     <button class="btn-primary" id="confirmBtn">Confirmar</button>
@@ -262,7 +349,7 @@ document.addEventListener('DOMContentLoaded', () => {
         style.id = 'modal-styles';
         style.textContent = `
             .modal-overlay{position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,.6);display:flex;justify-content:center;align-items:center;z-index:2000;backdrop-filter:blur(4px)}
-            .modal-content{background:#fff;border-radius:16px;width:90%;max-width:450px;box-shadow:0 10px 40px rgba(0,0,0,.3);overflow:hidden;animation:modalSlideIn .3s ease}
+            .modal-content{background:#fff;border-radius:16px;width:90%;max-width:550px;box-shadow:0 10px 40px rgba(0,0,0,.3);overflow:hidden;animation:modalSlideIn .3s ease}
             @keyframes modalSlideIn{from{transform:translateY(-50px);opacity:0}to{transform:translateY(0);opacity:1}}
             .modal-header{padding:1.5rem;border-bottom:2px solid rgba(0,0,0,.1)}
             .modal-header.info{background:linear-gradient(135deg, rgba(33,150,243,.1), rgba(3,169,244,.1))}

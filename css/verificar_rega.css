@@ -223,6 +223,31 @@ body {
     transform: translateY(-2px);
 }
 
+.button-container {
+    display: flex;
+    gap: 1rem;
+    align-items: center;
+}
+
+.ButtonVoltar {
+    background: linear-gradient(135deg, #6c757d, #495057);
+    color: white;
+    font-size: 1.1em;
+    font-weight: 600;
+    padding: 1rem 3rem;
+    border: none;
+    border-radius: 12px;
+    cursor: pointer;
+    transition: all 0.3s;
+    box-shadow: 0 4px 15px rgba(108, 117, 125, 0.3);
+}
+
+.ButtonVoltar:hover {
+    background: linear-gradient(135deg, #5a6268, #343a40);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(108, 117, 125, 0.4);
+}
+
 .ButtonGuardar {
     background: linear-gradient(135deg, #009646, #00c864);
     color: white;

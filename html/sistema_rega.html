@@ -69,6 +69,27 @@
                 <!-- Configurações de Rega Automática -->
                 <div class="config-section" id="configSection">
                     <h3>⚙️ Rega Automática</h3>
+                    
+                    <div class="info-box">
+                        <span class="info-icon">ℹ️</span>
+                        <p><strong>Nota:</strong> Ao alterar as configurações (número de regas ou hora), todas as exceções e alterações personalizadas nos dias serão removidas para evitar conflitos.</p>
+                    </div>
+
+                    <!-- Painel de configuração atual -->
+                    <div class="current-config-panel" id="currentConfigPanel" style="display:none;">
+                        <h4>📋 Configuração Atual</h4>
+                        <div class="current-config-content">
+                            <p><strong>Frequência:</strong> <span id="currentFrequency">-</span> regas por semana</p>
+                            <p><strong>Hora:</strong> <span id="currentTime">-</span></p>
+                            <p><strong>Status:</strong> <span id="currentStatus">-</span></p>
+                        </div>
+                        <div class="calendar-info">
+                            <p>👁️ Visualize como as regas estão distribuídas ao longo do mês</p>
+                        </div>
+                        <button class="btn-view-calendar" id="viewCalendarBtn" title="Visualizar as marcações de rega no calendário">
+                            📅 Ver Calendário com Marcações
+                        </button>
+                    </div>
 
                     <div class="config-grid">
                         <!-- Número de Regas por Semana -->

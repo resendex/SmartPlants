@@ -100,9 +100,9 @@ document.addEventListener('DOMContentLoaded', function () {
         window.location.href = 'verificar_rega.html';
     });
 
-    // Gestão de Sistema: Redireciona DIRETAMENTE sem pop-up
+    // Gestão de Sistema: Abre pop-up para selecionar planta
     managementButton.addEventListener('click', function () {
-        window.location.href = 'sistema_rega.html';
+        openPlantSelectionPopup('sistema_rega.html');
     });
 
     // Botão Adicionar redireciona diretamente para a página add.html (se existir)

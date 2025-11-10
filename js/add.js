@@ -53,8 +53,44 @@ function handleFile(file) {
         };
         reader.readAsDataURL(file);
     } else {
-        alert('Por favor, selecione um arquivo de imagem válido.');
+        showWarningPopup('Por favor, selecione um arquivo de imagem válido.');
     }
+}
+
+// Função para mostrar pop-up de sucesso
+function showSuccessPopup(message, callback) {
+    const popup = document.createElement('div');
+    popup.className = 'success-popup-overlay';
+    popup.innerHTML = `
+        <div class="success-popup-container">
+            <div class="success-icon">✓</div>
+            <p class="success-message">${message}</p>
+            <button class="success-btn">OK</button>
+        </div>
+    `;
+    document.body.appendChild(popup);
+    
+    popup.querySelector('.success-btn').addEventListener('click', () => {
+        document.body.removeChild(popup);
+        if (callback) callback();
+    });
+}
+
+// Função para mostrar pop-up de aviso
+function showWarningPopup(message) {
+    const popup = document.createElement('div');
+    popup.className = 'warning-popup-overlay';
+    popup.innerHTML = `
+        <div class="warning-popup-container">
+            <p class="warning-message">${message}</p>
+            <button class="warning-btn">OK</button>
+        </div>
+    `;
+    document.body.appendChild(popup);
+    
+    popup.querySelector('.warning-btn').addEventListener('click', () => {
+        document.body.removeChild(popup);
+    });
 }
 
 // Event listeners para botões (apenas se existirem)
@@ -64,7 +100,7 @@ const btnNo = document.querySelector('.btn-no');
 if (btnYes) {
     btnYes.addEventListener('click', () => {
         if (!uploadedImage) {
-            alert('Por favor, adicione uma foto da planta primeiro.');
+            showWarningPopup('Por favor, adicione uma foto da planta primeiro.');
             return;
         }
         
@@ -156,16 +192,14 @@ if (btnYes) {
                 sessionStorage.removeItem('returnTo');
                 
                 // Mostrar confirmação e redirecionar para calendário
-                alert('Planta adicionada com sucesso! Redirecionando para o calendário...');
-                setTimeout(() => {
+                showSuccessPopup('Planta adicionada com sucesso! Redirecionando para o calendário...', () => {
                     window.location.href = returnTo;
-                }, 500);
+                });
             } else {
                 // Comportamento padrão: ir para minhasplantas.html
-                alert('Planta adicionada com sucesso!');
-                setTimeout(() => {
+                showSuccessPopup('Planta adicionada com sucesso!', () => {
                     window.location.href = 'minhasplantas.html';
-                }, 100);
+                });
             }
         });
     });

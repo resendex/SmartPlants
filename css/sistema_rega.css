@@ -247,6 +247,133 @@ body {
     border-bottom: 2px solid rgba(0, 150, 70, 0.2);
 }
 
+/* Info Box */
+.info-box {
+    background: linear-gradient(135deg, rgba(33, 150, 243, 0.08), rgba(3, 169, 244, 0.08));
+    border: 2px solid rgba(33, 150, 243, 0.3);
+    border-radius: 12px;
+    padding: 1rem 1.5rem;
+    margin-bottom: 1.5rem;
+    display: flex;
+    align-items: flex-start;
+    gap: 1rem;
+}
+
+.info-icon {
+    font-size: 1.5rem;
+    flex-shrink: 0;
+}
+
+.info-box p {
+    margin: 0;
+    color: #333;
+    font-size: 0.95rem;
+    line-height: 1.5;
+}
+
+.info-box strong {
+    color: #2196F3;
+}
+
+/* Current Config Panel */
+.current-config-panel {
+    background: linear-gradient(135deg, rgba(102, 126, 234, 0.08), rgba(118, 75, 162, 0.08));
+    border: 2px solid rgba(102, 126, 234, 0.3);
+    border-radius: 12px;
+    padding: 1.5rem;
+    margin-bottom: 1.5rem;
+}
+
+.current-config-panel h4 {
+    color: #667eea;
+    font-size: 1.2rem;
+    margin: 0 0 1rem 0;
+}
+
+.current-config-content {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.current-config-content p {
+    margin: 0;
+    color: #333;
+    font-size: 0.95rem;
+}
+
+.current-config-content strong {
+    color: #667eea;
+    min-width: 100px;
+    display: inline-block;
+}
+
+.current-config-content span {
+    color: #555;
+    font-weight: 600;
+}
+
+/* Calendar Info */
+.calendar-info {
+    margin-top: 1rem;
+    padding-top: 1rem;
+    border-top: 1px solid rgba(102, 126, 234, 0.2);
+}
+
+.calendar-info p {
+    margin: 0;
+    color: #667eea;
+    font-size: 0.9rem;
+    font-style: italic;
+    text-align: center;
+}
+
+/* View Calendar Button */
+.btn-view-calendar {
+    width: 100%;
+    padding: 0.75rem 1.5rem;
+    background: linear-gradient(135deg, #667eea, #764ba2);
+    color: white;
+    font-size: 1rem;
+    font-weight: 600;
+    border: none;
+    border-radius: 10px;
+    cursor: pointer;
+    transition: all 0.3s;
+    margin-top: 1rem;
+    box-shadow: 0 3px 10px rgba(102, 126, 234, 0.3);
+    position: relative;
+    overflow: hidden;
+}
+
+.btn-view-calendar::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 0;
+    height: 0;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.2);
+    transform: translate(-50%, -50%);
+    transition: width 0.6s, height 0.6s;
+}
+
+.btn-view-calendar:hover::before {
+    width: 300px;
+    height: 300px;
+}
+
+.btn-view-calendar:hover {
+    background: linear-gradient(135deg, #5568d3, #6a3f8f);
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+}
+
+.btn-view-calendar:active {
+    transform: translateY(0);
+}
+
 /* Config Grid */
 .config-grid {
     display: grid;

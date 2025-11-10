@@ -78,7 +78,7 @@ function viewPlantDetails(id) {
     const plants = JSON.parse(localStorage.getItem('myPlants') || '[]');
     const plant = plants.find(p => p.id === id);
     if (!plant) {
-        alert('Planta não encontrada.');
+        showWarningPopup('Planta não encontrada.');
         return;
     }
 
@@ -245,9 +245,37 @@ function addProgressPhoto(plantId) {
 
 // Remover foto de progresso
 function deleteProgressPhoto(plantId, photoIndex) {
-    if (!confirm('Tem certeza que deseja remover esta foto de progresso?')) {
-        return;
-    }
+    showDeletePhotoConfirmPopup(plantId, photoIndex);
+}
+
+// Pop-up de confirmação para remover foto de progresso
+function showDeletePhotoConfirmPopup(plantId, photoIndex) {
+    const popup = document.createElement('div');
+    popup.className = 'delete-confirm-overlay';
+    popup.innerHTML = `
+        <div class="delete-confirm-container">
+            <h3 class="delete-confirm-title">Esta página diz</h3>
+            <p class="delete-confirm-message">Tem certeza que deseja remover esta foto de progresso?</p>
+            <div class="delete-confirm-buttons">
+                <button class="delete-confirm-btn" id="confirmDeletePhotoBtn">OK</button>
+                <button class="delete-cancel-btn" id="cancelDeletePhotoBtn">Cancelar</button>
+            </div>
+        </div>
+    `;
+    document.body.appendChild(popup);
+    
+    document.getElementById('confirmDeletePhotoBtn').addEventListener('click', () => {
+        document.body.removeChild(popup);
+        proceedDeleteProgressPhoto(plantId, photoIndex);
+    });
+    
+    document.getElementById('cancelDeletePhotoBtn').addEventListener('click', () => {
+        document.body.removeChild(popup);
+    });
+}
+
+// Processar remoção da foto de progresso
+function proceedDeleteProgressPhoto(plantId, photoIndex) {
     
     let plants = JSON.parse(localStorage.getItem('myPlants') || '[]');
     const plantIndex = plants.findIndex(p => p.id === plantId);
@@ -316,8 +344,44 @@ function importPlantPhoto(plantId) {
 
 // Dispensar diagnóstico
 function dismissDiagnosis() {
-    alert('Diagnóstico dispensado.');
-    closePlantDetails();
+    showInfoPopup('Diagnóstico dispensado.', closePlantDetails);
+}
+
+// Pop-up de aviso genérico
+function showWarningPopup(message) {
+    const popup = document.createElement('div');
+    popup.className = 'warning-popup-overlay';
+    popup.innerHTML = `
+        <div class="warning-popup-container">
+            <h3 class="warning-popup-title">Esta página diz</h3>
+            <p class="warning-popup-message">${message}</p>
+            <button class="warning-popup-btn">OK</button>
+        </div>
+    `;
+    document.body.appendChild(popup);
+    
+    popup.querySelector('.warning-popup-btn').addEventListener('click', () => {
+        document.body.removeChild(popup);
+    });
+}
+
+// Pop-up de informação genérico
+function showInfoPopup(message, callback) {
+    const popup = document.createElement('div');
+    popup.className = 'warning-popup-overlay';
+    popup.innerHTML = `
+        <div class="warning-popup-container">
+            <h3 class="warning-popup-title">Esta página diz</h3>
+            <p class="warning-popup-message">${message}</p>
+            <button class="warning-popup-btn">OK</button>
+        </div>
+    `;
+    document.body.appendChild(popup);
+    
+    popup.querySelector('.warning-popup-btn').addEventListener('click', () => {
+        document.body.removeChild(popup);
+        if (callback) callback();
+    });
 }
 
 // Adicionar a lógica para redirecionar para o calendário
@@ -392,7 +456,7 @@ function editPlant(id) {
         const file = e.target.files[0];
         if (!file) return;
         if (!file.type.startsWith('image/')) {
-            alert('Por favor selecione uma imagem válida.');
+            showWarningPopup('Por favor selecione uma imagem válida.');
             return;
         }
         const reader = new FileReader();
@@ -435,18 +499,42 @@ function editPlant(id) {
         localStorage.setItem('myPlants', JSON.stringify(plants));
         overlay.remove();
         loadPlants();
-        alert('Informações da planta atualizadas.');
+        showInfoPopup('Informações da planta atualizadas.');
     });
 }
 
 // Remover planta
 function deletePlant(id) {
-    if (confirm('Tem certeza que deseja remover esta planta?')) {
+    showDeleteConfirmPopup(id);
+}
+
+// Pop-up de confirmação para remover planta
+function showDeleteConfirmPopup(id) {
+    const popup = document.createElement('div');
+    popup.className = 'delete-confirm-overlay';
+    popup.innerHTML = `
+        <div class="delete-confirm-container">
+            <h3 class="delete-confirm-title">Esta página diz</h3>
+            <p class="delete-confirm-message">Tem certeza que deseja remover esta planta?</p>
+            <div class="delete-confirm-buttons">
+                <button class="delete-confirm-btn" id="confirmDeleteBtn">OK</button>
+                <button class="delete-cancel-btn" id="cancelDeleteBtn">Cancelar</button>
+            </div>
+        </div>
+    `;
+    document.body.appendChild(popup);
+    
+    document.getElementById('confirmDeleteBtn').addEventListener('click', () => {
         let plants = JSON.parse(localStorage.getItem('myPlants') || '[]');
         plants = plants.filter(plant => plant.id !== id);
         localStorage.setItem('myPlants', JSON.stringify(plants));
+        document.body.removeChild(popup);
         loadPlants();
-    }
+    });
+    
+    document.getElementById('cancelDeleteBtn').addEventListener('click', () => {
+        document.body.removeChild(popup);
+    });
 }
 
 // Carregar plantas ao iniciar
