@@ -1,13 +1,66 @@
 // Dashboard Interativo - Smart Plants
 
+// Função para obter estatísticas reais do localStorage
+function obterEstatisticasReais() {
+    const plants = JSON.parse(localStorage.getItem('myPlants') || '[]');
+    const notificacoes = JSON.parse(localStorage.getItem('notificacoes') || '[]');
+    const regasHoje = JSON.parse(localStorage.getItem('regasHoje') || '{}');
+    
+    const today = new Date().toISOString().split('T')[0];
+    
+    // Contar plantas regadas hoje (dados reais do sistema de rega)
+    let plantasRegadasHoje = 0;
+    if (regasHoje.data === today && regasHoje.plantas) {
+        plantasRegadasHoje = regasHoje.plantas.length;
+    }
+    
+    // Contar plantas que precisam de rega
+    // Verifica calendário de cada planta e identifica as que têm rega agendada para hoje mas não foram regadas
+    let precisamRegar = 0;
+    plants.forEach(plant => {
+        const wateringData = JSON.parse(localStorage.getItem(`watering_${plant.id}`) || '[]');
+        const hasWateringToday = wateringData.some(w => w.date === today && !w.completed);
+        const wasWateredToday = regasHoje.plantas && regasHoje.plantas.includes(plant.id);
+        
+        if (hasWateringToday && !wasWateredToday) {
+            precisamRegar++;
+        }
+    });
+    
+    // Se não há agendamentos, usar heurística (plantas não regadas há mais de 3 dias)
+    if (precisamRegar === 0) {
+        plants.forEach(plant => {
+            const wateringData = JSON.parse(localStorage.getItem(`watering_${plant.id}`) || '[]');
+            const lastWatering = wateringData
+                .filter(w => w.completed)
+                .sort((a, b) => new Date(b.date) - new Date(a.date))[0];
+            
+            if (lastWatering) {
+                const daysSinceWatering = Math.floor((new Date(today) - new Date(lastWatering.date)) / (1000 * 60 * 60 * 24));
+                if (daysSinceWatering >= 3) {
+                    precisamRegar++;
+                }
+            } else {
+                // Planta nunca foi regada, precisa de rega
+                const wasWateredToday = regasHoje.plantas && regasHoje.plantas.includes(plant.id);
+                if (!wasWateredToday) {
+                    precisamRegar++;
+                }
+            }
+        });
+    }
+    
+    return {
+        totalPlantas: plants.length,
+        regadasHoje: plantasRegadasHoje,
+        precisamRegar: precisamRegar,
+        notificacoes: notificacoes.filter(n => !n.lida).length
+    };
+}
+
 // Dados simulados (posteriormente podem vir de uma API/banco de dados)
 const dashboardData = {
-    stats: {
-        totalPlantas: 12,
-        regadasHoje: 5,
-        precisamRegar: 3,
-        notificacoes: 7
-    },
+    stats: obterEstatisticasReais(), // Agora usa dados reais
     alertas: [
         {
             tipo: 'urgent',
@@ -63,6 +116,8 @@ const dashboardData = {
 
 // Função para atualizar estatísticas
 function atualizarEstatisticas() {
+    // Recarregar estatísticas reais
+    dashboardData.stats = obterEstatisticasReais();
     const stats = dashboardData.stats;
     
     // Atualiza os números (com animação)
@@ -286,6 +341,18 @@ document.addEventListener('DOMContentLoaded', () => {
     
     // Atualiza horários a cada minuto
     setInterval(atualizarHorarios, 60000);
+    
+    // Atualiza estatísticas quando a página volta ao foco
+    window.addEventListener('focus', () => {
+        atualizarEstatisticas();
+    });
+    
+    // Atualiza estatísticas quando há mudanças no localStorage (de outras abas)
+    window.addEventListener('storage', (e) => {
+        if (e.key === 'myPlants' || e.key === 'notificacoes') {
+            atualizarEstatisticas();
+        }
+    });
 });
 
 // Exporta funções para uso em outras partes do código
