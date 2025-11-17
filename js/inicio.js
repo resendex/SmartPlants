@@ -112,6 +112,40 @@ function configurarBotoesAlerta() {
     });
 }
 
+// Remove alert cards that reference plants the user doesn't have
+function filterAlertsByUserPlants() {
+    try {
+        const plants = JSON.parse(localStorage.getItem('myPlants') || '[]');
+        const plantNames = plants.map(p => (p.name || '').toLowerCase());
+
+        const alertsContainer = document.querySelector('.alerts-container');
+        if (!alertsContainer) return;
+
+        const alertCards = Array.from(alertsContainer.querySelectorAll('.alert-card'));
+
+        alertCards.forEach(card => {
+            const titleEl = card.querySelector('.alert-title');
+            const titleText = titleEl ? titleEl.textContent.toLowerCase() : card.textContent.toLowerCase();
+
+            // If any plant name appears in the alert title, keep it. Otherwise remove the card.
+            const matches = plantNames.some(name => name && titleText.includes(name));
+
+            if (!matches) {
+                card.remove();
+            }
+        });
+
+        // If after filtering there are no alerts, optionally hide the alerts section
+        const remaining = alertsContainer.querySelectorAll('.alert-card').length;
+        if (remaining === 0) {
+            const alertsSection = document.querySelector('.alerts-section');
+            if (alertsSection) alertsSection.style.display = 'none';
+        }
+    } catch (err) {
+        console.error('Erro ao filtrar alertas por plantas do utilizador:', err);
+    }
+}
+
 // Função para mostrar notificação temporária
 function mostrarNotificacao(mensagem) {
     // Cria elemento de notificação
