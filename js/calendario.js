@@ -730,7 +730,8 @@ document.addEventListener('DOMContentLoaded', () => {
         return d.toLocaleDateString('pt-PT',{day:'2-digit',month:'2-digit',year:'numeric'});
     }
 
-    // Garantir menu "Regar" ativo (se estrutura criada dinamicamente)
+    // Garantir que apenas o menu "Regar" fica ativo
+    document.querySelectorAll('.menu-item, .menu a').forEach(item => item.classList.remove('active'));
     const regarLink = document.querySelector('.menu a[href="regar.html"], .menu-item[href="regar.html"]');
     if (regarLink) regarLink.classList.add('active');
 

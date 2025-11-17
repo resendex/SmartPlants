@@ -114,9 +114,21 @@ if (btnYes) {
                             <label for="plantName">Nome da Planta:</label>
                             <input type="text" id="plantName" name="plantName" required>
                         </div>
-                        <div class="form-field">
-                            <label for="plantDate">Data de Plantio:</label>
-                            <input type="date" id="plantDate" name="plantDate" required>
+                        <div class="form-field-group">
+                            <p class="field-instruction">Escolha uma das opções de data:</p>
+                            <div class="form-field">
+                                <label for="plantDate">Data de Plantio (já plantada):</label>
+                                <input type="date" id="plantDate" name="plantDate" max="${new Date().toISOString().split('T')[0]}">
+                                <small class="field-hint">Para plantas já plantadas (até hoje)</small>
+                            </div>
+                            <div class="or-divider">
+                                <span>OU</span>
+                            </div>
+                            <div class="form-field">
+                                <label for="futureDate">Data a Plantar (futura):</label>
+                                <input type="date" id="futureDate" name="futureDate" min="${new Date().toISOString().split('T')[0]}">
+                                <small class="field-hint">Para plantas que serão plantadas (a partir de hoje)</small>
+                            </div>
                         </div>
                         <div class="form-field">
                             <label for="plantLocation">Localização:</label>
@@ -137,6 +149,33 @@ if (btnYes) {
         
         document.body.insertAdjacentHTML('beforeend', formHTML);
         
+        // Adicionar validação cruzada dos campos de data
+        const plantDateInput = document.getElementById('plantDate');
+        const futureDateInput = document.getElementById('futureDate');
+        
+        // Quando um campo é preenchido, o outro fica desabilitado
+        plantDateInput.addEventListener('input', () => {
+            if (plantDateInput.value) {
+                futureDateInput.value = '';
+                futureDateInput.disabled = true;
+                futureDateInput.parentElement.style.opacity = '0.5';
+            } else {
+                futureDateInput.disabled = false;
+                futureDateInput.parentElement.style.opacity = '1';
+            }
+        });
+        
+        futureDateInput.addEventListener('input', () => {
+            if (futureDateInput.value) {
+                plantDateInput.value = '';
+                plantDateInput.disabled = true;
+                plantDateInput.parentElement.style.opacity = '0.5';
+            } else {
+                plantDateInput.disabled = false;
+                plantDateInput.parentElement.style.opacity = '1';
+            }
+        });
+        
         // Cancelar
         document.querySelector('.btn-cancel').addEventListener('click', () => {
             document.querySelector('.plant-form-overlay').remove();
@@ -148,14 +187,34 @@ if (btnYes) {
             
             const plantName = document.getElementById('plantName').value.trim();
             const plantDate = document.getElementById('plantDate').value;
+            const futureDate = document.getElementById('futureDate').value;
             const plantLocation = document.getElementById('plantLocation').value.trim();
             const plantNotes = document.getElementById('plantNotes').value.trim();
+            
+            // Validação: pelo menos uma data deve ser preenchida
+            if (!plantDate && !futureDate) {
+                showWarningPopup('Por favor, selecione uma data (Data de Plantio ou Data a Plantar).');
+                return;
+            }
+            
+            // Determinar qual data usar e o status da planta
+            let finalDate;
+            let plantStatus;
+            
+            if (plantDate) {
+                finalDate = plantDate;
+                plantStatus = 'planted'; // Já plantada
+            } else {
+                finalDate = futureDate;
+                plantStatus = 'scheduled'; // Agendada para plantar
+            }
             
             // Criar objeto da planta
             const newPlant = {
                 id: Date.now(),
                 name: plantName,
-                plantDate: plantDate,
+                plantDate: finalDate,
+                status: plantStatus,
                 location: plantLocation,
                 notes: plantNotes,
                 image: uploadedImage,
