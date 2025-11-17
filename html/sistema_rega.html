@@ -69,75 +69,55 @@
 
                 <!-- Configurações de Rega Automática -->
                 <div class="config-section" id="configSection">
-                    <h3>⚙️ Rega Automática</h3>
+                    <h3>⚙️ Configure a Rega Automática</h3>
                     
-                    <div class="info-box">
-                        <span class="info-icon">ℹ️</span>
-                        <p><strong>Nota:</strong> Ao alterar as configurações (número de regas ou hora), todas as exceções e alterações personalizadas nos dias serão removidas para evitar conflitos.</p>
-                    </div>
-
-                    <!-- Painel de configuração atual -->
-                    <div class="current-config-panel" id="currentConfigPanel" style="display:none;">
-                        <h4>📋 Configuração Atual</h4>
-                        <div class="current-config-content">
-                            <p><strong>Frequência:</strong> <span id="currentFrequency">-</span> regas por semana</p>
-                            <p><strong>Hora:</strong> <span id="currentTime">-</span></p>
-                            <p><strong>Status:</strong> <span id="currentStatus">-</span></p>
-                        </div>
-                        <div class="calendar-info">
-                            <p>👁️ Visualize como as regas estão distribuídas ao longo do mês</p>
-                        </div>
-                        <button class="btn-view-calendar" id="viewCalendarBtn" title="Visualizar as marcações de rega no calendário">
-                            📅 Ver Calendário com Marcações
-                        </button>
-                    </div>
-
-                    <div class="config-grid">
-                        <!-- Número de Regas por Semana -->
-                        <div class="config-item">
-                            <label for="weeklyWatering">Nº de regas por semana:</label>
-                            <div class="input-group">
-                                <input type="number" id="weeklyWatering" min="1" max="7" value="3" disabled>
-                                <span class="unit">regas/semana</span>
+                    <!-- Status Atual Compacto -->
+                    <div class="status-card" id="statusCard" style="display:none;">
+                        <div class="status-header">
+                            <span class="status-icon-simple" id="statusIconSimple">✓</span>
+                            <div class="status-info">
+                                <strong id="statusTitle">Sistema Ativo</strong>
+                                <span id="statusDetail">3x/semana às 08:00</span>
                             </div>
+                        </div>
+                        <button class="btn-status-action" id="toggleStatusBtn">Desativar</button>
+                    </div>
+
+                    <div class="config-form">
+                        <!-- Número de Regas por Semana -->
+                        <div class="form-field">
+                            <label for="weeklyWatering">
+                                <span class="label-icon">🔄</span>
+                                Quantas vezes por semana?
+                            </label>
+                            <input type="number" id="weeklyWatering" min="1" max="7" value="3" disabled>
                         </div>
 
                         <!-- Hora da Rega -->
-                        <div class="config-item">
-                            <label for="wateringTime">Hora do dia (rega):</label>
-                            <div class="input-group">
-                                <input type="time" id="wateringTime" value="08:00" disabled>
-                                <span class="unit">📅</span>
-                            </div>
-                        </div>
-
-                        <!-- Estado dos Sensores -->
-                        <div class="config-item sensor-status">
-                            <label>Estado dos sensores:</label>
-                            <div class="sensor-display">
-                                <div class="sensor-status-box ok">
-                                    <span class="sensor-icon">✓</span>
-                                    <span class="sensor-label">Sensores OK</span>
-                                </div>
-                            </div>
-                            <p class="sensor-info">
-                                <small>⚙️ Status detectado automaticamente pelo sistema</small>
-                            </p>
+                        <div class="form-field">
+                            <label for="wateringTime">
+                                <span class="label-icon">🕐</span>
+                                A que horas?
+                            </label>
+                            <input type="time" id="wateringTime" value="08:00" disabled>
                         </div>
                     </div>
 
-                    <div class="status-indicator" id="statusIndicator">
-                        <div class="status-badge ok">
-                            <span class="status-icon">✓</span>
-                            <span class="status-text">Sistema Operacional - Sensores Funcionando Corretamente</span>
-                        </div>
+                    <div class="action-buttons">
+                        <button class="btn-primary" id="saveButton" disabled>
+                            <span class="btn-icon">💾</span>
+                            Guardar Configurações
+                        </button>
+                        <button class="btn-secondary" id="viewCalendarBtn" disabled>
+                            <span class="btn-icon">📅</span>
+                            Ver Calendário
+                        </button>
                     </div>
-
-                    <button class="btn-save" id="saveButton" disabled>Guardar Configurações</button>
-
-                    <!-- Botões de controle -->
-                    <button class="btn-save" id="cancelSystemBtn" style="margin-top:.75rem;background:#bbb;">Desativar sistema</button>
-                    <button class="btn-save" id="reactivateSystemBtn" style="margin-top:.75rem;background:#4caf50;display:none;">Reativar sistema</button>
+                    
+                    <div class="help-tip">
+                        <span class="tip-icon">💡</span>
+                        <p>Alterar estas configurações irá substituir personalizações anteriores do calendário.</p>
+                    </div>
                 </div>
 
                 <!-- Mensagem quando nenhuma planta está selecionada -->

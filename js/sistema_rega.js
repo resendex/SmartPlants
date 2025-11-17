@@ -5,10 +5,14 @@ document.addEventListener('DOMContentLoaded', () => {
     const weeklyWateringInput = document.getElementById('weeklyWatering');
     const wateringTimeInput = document.getElementById('wateringTime');
     const saveButton = document.getElementById('saveButton');
-    const statusIndicator = document.getElementById('statusIndicator');
-    const cancelSystemBtn = document.getElementById('cancelSystemBtn');
-    const reactivateSystemBtn = document.getElementById('reactivateSystemBtn');
     const viewCalendarBtn = document.getElementById('viewCalendarBtn');
+    
+    // Elementos do status card
+    const statusCard = document.getElementById('statusCard');
+    const statusIconSimple = document.getElementById('statusIconSimple');
+    const statusTitle = document.getElementById('statusTitle');
+    const statusDetail = document.getElementById('statusDetail');
+    const toggleStatusBtn = document.getElementById('toggleStatusBtn');
 
     // CORREÇÃO: definir plantas e seleção inicial
     let plants = JSON.parse(localStorage.getItem('myPlants') || '[]');
@@ -29,10 +33,9 @@ document.addEventListener('DOMContentLoaded', () => {
     // Event Listeners
     plantSelect.addEventListener('change', handlePlantChange);
     saveButton.addEventListener('click', saveConfiguration);
-    cancelSystemBtn.addEventListener('click', onCancelSystem);          // ALTERADO
-    reactivateSystemBtn.addEventListener('click', onReactivateSystem);  // NOVO
+    toggleStatusBtn.addEventListener('click', handleToggleStatus);
     if (viewCalendarBtn) {
-        viewCalendarBtn.addEventListener('click', openCalendar);        // NOVO
+        viewCalendarBtn.addEventListener('click', openCalendar);
     }
 
     function loadPlants() {
@@ -113,25 +116,23 @@ document.addEventListener('DOMContentLoaded', () => {
         wateringTimeInput.value = config.wateringTime || '08:00';
         currentEnabled = config.enabled !== false;
         updateEnabledUI(currentEnabled, lastSensorStatus === 'ok');
-        applyControlButtonsState();
-        updateCurrentConfigPanel(config); // NOVO
+        updateStatusCard(config);
     }
 
     // NOVO: Atualizar painel de configuração atual
-    function updateCurrentConfigPanel(config) {
-        const panel = document.getElementById('currentConfigPanel');
-        const frequencySpan = document.getElementById('currentFrequency');
-        const timeSpan = document.getElementById('currentTime');
-        const statusSpan = document.getElementById('currentStatus');
-
+    // Atualizar status card com configuração atual
+    function updateStatusCard(config) {
         if (config.weeklyWatering && config.wateringTime) {
-            panel.style.display = 'block';
-            frequencySpan.textContent = config.weeklyWatering;
-            timeSpan.textContent = config.wateringTime;
-            statusSpan.textContent = config.enabled !== false ? '✓ Ativo' : '✖ Desativado';
-            statusSpan.style.color = config.enabled !== false ? '#4caf50' : '#f44336';
+            statusCard.style.display = 'flex';
+            const isActive = config.enabled !== false;
+            
+            statusCard.classList.toggle('inactive', !isActive);
+            statusIconSimple.textContent = isActive ? '✓' : '✖';
+            statusTitle.textContent = isActive ? 'Sistema Ativo' : 'Sistema Desativado';
+            statusDetail.textContent = `${config.weeklyWatering}x/semana às ${config.wateringTime}`;
+            toggleStatusBtn.textContent = isActive ? 'Desativar' : 'Ativar';
         } else {
-            panel.style.display = 'none';
+            statusCard.style.display = 'none';
         }
     }
 
@@ -149,7 +150,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function saveConfiguration() {
         if (!selectedPlantId) {
-            showModal('Erro', 'Por favor, selecione uma planta.', 'warning');
+            showModal('Aviso', 'Por favor, selecione uma planta.', 'warning');
             return;
         }
 
@@ -157,62 +158,28 @@ document.addEventListener('DOMContentLoaded', () => {
         const wateringTime = wateringTimeInput.value;
 
         if (weeklyWatering < 1 || weeklyWatering > 7) {
-            showModal('Erro', 'O número de regas deve estar entre 1 e 7 por semana.', 'warning');
+            showModal('Erro', 'O número de regas deve estar entre 1 e 7.', 'error');
             return;
         }
         if (!wateringTime) {
-            showModal('Erro', 'Por favor, defina a hora da rega.', 'warning');
+            showModal('Erro', 'Por favor, selecione uma hora.', 'error');
             return;
         }
 
-        // SEMPRE mostrar confirmação e limpar personalizações ao guardar
-        const key = `irrigation_config_${selectedPlantId}`;
-        const oldConfig = JSON.parse(localStorage.getItem(key) || '{}');
-
-        // Verificar se há personalizações que serão perdidas
         const hasCustomizations = hasIrrigationCustomizations(selectedPlantId);
 
-        if (oldConfig.weeklyWatering) {
-            // Já existe configuração - mostrar comparação
+        if (hasCustomizations) {
+            const count = countIrrigationCustomizations(selectedPlantId);
             showConfirmModal(
-                '⚠️ Guardar Configuração do Sistema de Rega',
-                `<div style="text-align:left;">
-                    <p><strong>Configuração Anterior:</strong></p>
-                    <ul style="margin-left:1.5rem;">
-                        <li>${oldConfig.weeklyWatering} regas por semana às ${oldConfig.wateringTime}</li>
-                    </ul>
-                    <p><strong>Nova Configuração:</strong></p>
-                    <ul style="margin-left:1.5rem;">
-                        <li>${weeklyWatering} regas por semana às ${wateringTime}</li>
-                    </ul>
-                    ${hasCustomizations ? `
-                        <p style="color:#f57c00;margin-top:1rem;"><strong>⚠️ Atenção:</strong> Você tem ${countIrrigationCustomizations(selectedPlantId)} alterações personalizadas que serão <strong>removidas</strong>.</p>
-                    ` : ''}
-                    <p style="margin-top:1rem;"><strong>Ao guardar, o sistema recomeçará como se fosse uma nova configuração.</strong></p>
-                    <p>Deseja continuar?</p>
-                </div>`,
+                'Confirmar Alterações',
+                `Existem ${count} personalizações no calendário que serão removidas. Continuar?`,
                 () => {
                     clearIrrigationOverrides(selectedPlantId);
                     saveConfigurationConfirmed(weeklyWatering, wateringTime);
                 }
             );
         } else {
-            // Primeira configuração - apenas confirmar
-            showConfirmModal(
-                'Ativar Sistema de Rega',
-                `<div style="text-align:left;">
-                    <p>Configurar sistema de rega automática:</p>
-                    <ul style="margin-left:1.5rem;">
-                        <li><strong>Frequência:</strong> ${weeklyWatering} regas por semana</li>
-                        <li><strong>Hora:</strong> ${wateringTime}</li>
-                    </ul>
-                    <p style="margin-top:1rem;">Deseja ativar?</p>
-                </div>`,
-                () => {
-                    clearIrrigationOverrides(selectedPlantId); // Limpar por precaução
-                    saveConfigurationConfirmed(weeklyWatering, wateringTime);
-                }
-            );
+            saveConfigurationConfirmed(weeklyWatering, wateringTime);
         }
     }
 
@@ -289,73 +256,22 @@ document.addEventListener('DOMContentLoaded', () => {
         return nextDates;
     }
 
-    // NOVA FUNÇÃO: Modal de sucesso com agenda
+    // Modal de sucesso simplificado
     function showSuccessScheduleModal(plantName, weeklyWatering, wateringTime, nextDates) {
-        const modal = document.createElement('div');
-        modal.className = 'modal-overlay';
-        
-        // Mostrar apenas as próximas 3 regas
-        let datesHTML = nextDates.slice(0, 3).map((date, index) => `
-            <li class="schedule-date-item-compact ${date.isToday ? 'today' : ''}">
-                <span class="date-number-compact">${index + 1}º</span>
-                <span class="date-info-compact">
-                    <strong>${date.dayName}</strong>, ${date.dateStr}
-                    ${date.isToday ? ' <span class="today-badge-compact">Hoje</span>' : ''}
-                </span>
-            </li>
-        `).join('');
-        
-        modal.innerHTML = `
-            <div class="modal-content success-schedule-modal-compact">
-                <div class="modal-header success">
-                    <h3>✅ Sistema de Rega Ativado!</h3>
-                    <button class="close-btn" id="closeXBtn" aria-label="Fechar">&times;</button>
-                </div>
-                <div class="modal-body-compact">
-                    <div class="success-summary-compact">
-                        <p><strong>${plantName}</strong> • ${weeklyWatering}x/semana às ${wateringTime}</p>
-                    </div>
-                    
-                    <div class="next-waterings-compact">
-                        <h4>📅 Próximas 3 Regas:</h4>
-                        <ul class="schedule-dates-list-compact">
-                            ${datesHTML}
-                        </ul>
-                    </div>
-                    
-                    <div class="success-note-compact">
-                        <p>💡 As regas aparecerão automaticamente no calendário.</p>
-                    </div>
-                </div>
-                <div class="modal-footer-compact">
-                    <button class="btn btn-secondary-compact" id="closeSuccessBtn">Fechar</button>
-                    <button class="btn btn-primary-compact" id="viewCalendarBtnModal">📅 Ver Calendário</button>
-                </div>
-            </div>
+        const nextDate = nextDates[0];
+        const message = `
+            <p><strong>${plantName}</strong> configurado para regar <strong>${weeklyWatering}x por semana</strong> às <strong>${wateringTime}</strong>.</p>
+            <p style="margin-top:1rem;">📅 Próxima rega: <strong>${nextDate.dayName}, ${nextDate.dateStr}</strong></p>
+            <p style="margin-top:0.5rem;color:#666;font-size:0.9rem;">💡 Verifique o calendário para visualizar todas as regas agendadas.</p>
         `;
         
-        document.body.appendChild(modal);
+        showModal('✅ Sistema de Rega Ativado!', message, 'success');
         
-        // Event listeners
-        const closeModal = () => {
-            if (document.body.contains(modal)) {
-                document.body.removeChild(modal);
-            }
-        };
-        
-        modal.querySelector('#closeSuccessBtn').addEventListener('click', closeModal);
-        modal.querySelector('#closeXBtn').addEventListener('click', closeModal);
-        
-        modal.querySelector('#viewCalendarBtnModal').addEventListener('click', () => {
-            closeModal();
-            openCalendar();
-        });
-        
-        // Fechar ao clicar fora do modal
-        modal.addEventListener('click', (e) => {
-            if (e.target === modal) {
-                closeModal();
-            }
+        // Atualizar status card
+        updateStatusCard({
+            weeklyWatering,
+            wateringTime,
+            enabled: true
         });
     }
 
@@ -370,97 +286,48 @@ document.addEventListener('DOMContentLoaded', () => {
         localStorage.setItem(`watering_${plantId}`, JSON.stringify(cleanedData));
     }
 
-    // NOVO: lida com o toggle
-    function onToggleEnabled(e) {
-        if (!selectedPlantId) {
-            showModal('Erro', 'Selecione uma planta primeiro.', 'warning');
-            e.target.checked = false;
+    // Alternar ativação do sistema
+    function handleToggleStatus() {
+        if (!selectedPlantId) return;
+        
+        const key = `irrigation_config_${selectedPlantId}`;
+        const config = JSON.parse(localStorage.getItem(key) || '{}');
+        
+        if (!config.weeklyWatering) {
+            showModal('Aviso', 'Configure o sistema antes de ativar.', 'warning');
             return;
         }
-        currentEnabled = e.target.checked;
-        persistEnabled();
-        updateEnabledUI(currentEnabled, lastSensorStatus === 'ok');
-    }
-
-    // NOVO: botão "Desativar sistema"
-    function onCancelSystem() {
-        if (!selectedPlantId) {
-            showModal('Erro', 'Selecione uma planta primeiro.', 'warning');
-            return;
-        }
+        
+        const newEnabled = !currentEnabled;
+        const action = newEnabled ? 'ativar' : 'desativar';
+        
         showConfirmModal(
-            'Desativar sistema de rega',
-            'Tem a certeza que deseja desativar a rega automática para esta planta?',
+            'Confirmar',
+            `Deseja ${action} o sistema de rega automática?`,
             () => {
-                currentEnabled = false;
-                persistEnabled();
-                updateEnabledUI(false, lastSensorStatus === 'ok');
-                applyControlButtonsState(); // NOVO
-                showModal('Sistema desativado', 'A rega automática foi desativada.', 'success');
+                currentEnabled = newEnabled;
+                config.enabled = newEnabled;
+                localStorage.setItem(key, JSON.stringify(config));
+                updateStatusCard(config);
+                updateEnabledUI(currentEnabled, lastSensorStatus === 'ok');
+                
+                const plant = plants.find(p => p.id == selectedPlantId);
+                showModal(
+                    'Sucesso',
+                    `Sistema de rega ${newEnabled ? 'ativado' : 'desativado'} para ${plant.name}.`,
+                    'success'
+                );
             }
         );
     }
 
-    // NOVO: reativar
-    function onReactivateSystem() {
-        if (!selectedPlantId) {
-            showModal('Erro', 'Selecione uma planta primeiro.', 'warning');
-            return;
-        }
-        currentEnabled = true;
-        persistEnabled();
-        updateEnabledUI(true, lastSensorStatus === 'ok');
-        applyControlButtonsState();
-        showModal('Sistema reativado', 'A rega automática foi reativada.', 'success');
-    }
-
-    // NOVO: alternar visibilidade dos botões
-    function applyControlButtonsState() {
-        if (currentEnabled) {
-            cancelSystemBtn.style.display = 'inline-block';
-            reactivateSystemBtn.style.display = 'none';
-        } else {
-            cancelSystemBtn.style.display = 'none';
-            reactivateSystemBtn.style.display = 'inline-block';
-        }
-    }
-
     function updateEnabledUI(enabled, sensorOk) {
-        const editable = enabled && sensorOk;
-        weeklyWateringInput.disabled = !editable;
-        wateringTimeInput.disabled = !editable;
-        saveButton.disabled = !editable;
-
-        const configItems = document.querySelectorAll('.config-item:not(.sensor-status)');
-        configItems.forEach(item => item.classList.toggle('disabled', !editable));
-
-        const badge = statusIndicator.querySelector('.status-badge');
-        const icon = statusIndicator.querySelector('.status-icon');
-        const text = statusIndicator.querySelector('.status-text');
-
-        if (!enabled) {
-            badge.classList.remove('ok', 'problema');
-            badge.classList.add('falha');
-            icon.textContent = '✖';
-            text.textContent = 'Sistema Desativado';
-        } else if (sensorOk) {
-            badge.classList.remove('problema', 'falha');
-            badge.classList.add('ok');
-            icon.textContent = '✓';
-            text.textContent = 'Sistema Ativado - Sensores Funcionando Corretamente';
-        } else {
-            badge.classList.remove('ok', 'falha');
-            badge.classList.add('problema');
-            icon.textContent = '⚠️';
-            text.textContent = 'Sistema Ativo com Problemas de Sensor';
-        }
-    }
-
-    function persistEnabled() {
-        const key = `irrigation_config_${selectedPlantId}`;
-        const cfg = JSON.parse(localStorage.getItem(key) || '{}');
-        cfg.enabled = currentEnabled;
-        localStorage.setItem(key, JSON.stringify(cfg));
+        const canEdit = enabled && sensorOk;
+        
+        weeklyWateringInput.disabled = !canEdit;
+        wateringTimeInput.disabled = !canEdit;
+        saveButton.disabled = !canEdit;
+        viewCalendarBtn.disabled = !selectedPlantId;
     }
 
     // NOVO: modal de confirmação
