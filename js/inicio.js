@@ -66,10 +66,10 @@ function atualizarEstatisticas() {
     const stats = dashboardData.stats;
     
     // Atualiza os números (com animação)
-    animarNumero('.stat-card:nth-child(1) .stat-number', stats.totalPlantas);
-    animarNumero('.stat-card:nth-child(2) .stat-number', stats.regadasHoje);
-    animarNumero('.stat-card:nth-child(3) .stat-number', stats.precisamRegar);
-    animarNumero('.stat-card:nth-child(4) .stat-number', stats.notificacoes);
+    animarNumero('.stat-card-link:nth-child(1) .stat-number', stats.totalPlantas);
+    animarNumero('.stat-card-link:nth-child(2) .stat-number', stats.regadasHoje);
+    animarNumero('.stat-card-link:nth-child(3) .stat-number', stats.precisamRegar);
+    animarNumero('.stat-card-link:nth-child(4) .stat-number', stats.notificacoes);
 }
 
 // Função para animar números
