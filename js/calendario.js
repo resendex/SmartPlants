@@ -49,6 +49,17 @@ document.addEventListener('DOMContentLoaded', () => {
     infoPanel.className = 'info-panel';
     mainContent.appendChild(infoPanel);
 
+    // Botão voltar para sistema de rega
+    const backButton = document.createElement('div');
+    backButton.className = 'back-to-system';
+    backButton.innerHTML = `
+        <button id="backToSystemBtn" class="btn btn-back">
+            <span class="btn-icon">←</span>
+            Voltar para Sistema de Rega
+        </button>
+    `;
+    mainContent.appendChild(backButton);
+
     // Eventos
     document.getElementById('plantSelect').addEventListener('change', (e) => {
         selectedPlantId = e.target.value;
@@ -63,6 +74,13 @@ document.addEventListener('DOMContentLoaded', () => {
             return;
         }
         openRecurrenceModal();
+    });
+
+    document.getElementById('backToSystemBtn').addEventListener('click', () => {
+        if (selectedPlantId) {
+            sessionStorage.setItem('selectedPlant', selectedPlantId);
+        }
+        window.location.href = 'sistema_rega.html';
     });
 
     // Inicial
