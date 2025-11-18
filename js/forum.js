@@ -43,33 +43,138 @@ function setupInteractionButtons() {
     interactionButtons.forEach(button => {
         button.addEventListener('click', (e) => {
             e.stopPropagation();
-            
-            const icon = button.querySelector('.interaction-icon').textContent;
-            
-            // Toggle active state
+
+            const iconEl = button.querySelector('.interaction-icon');
+            const icon = iconEl ? iconEl.textContent : '';
+
+            // If this is the comment icon, open the comment box for this post
+            if (icon === '💬') {
+                const post = button.closest('.forum-post');
+                if (post) openCommentBox(post, button);
+                return;
+            }
+
+            // For other interaction types (like/guardar) toggle active state
             button.classList.toggle('active');
-            
+
             // Incrementa/decrementa contador se existir
             const countElement = button.querySelector('.interaction-count');
             if (countElement) {
                 let count = parseInt(countElement.textContent) || 0;
-                
+
                 if (button.classList.contains('active')) {
                     count++;
                     showNotification(`Ação realizada com sucesso! ${icon}`);
                 } else {
                     count--;
                 }
-                
+
                 countElement.textContent = count;
             }
-            
+
             // Adiciona animação
             button.style.transform = 'scale(0.9)';
             setTimeout(() => {
                 button.style.transform = 'scale(1)';
             }, 100);
         });
+    });
+}
+
+// Abre uma caixa de comentário dentro do post e foca o textarea
+function openCommentBox(post, triggerButton) {
+    // Se já existir uma caixa de comentário neste post, foca o textarea
+    let existing = post.querySelector('.comment-box');
+    if (existing) {
+        const ta = existing.querySelector('textarea');
+        if (ta) ta.focus();
+        return;
+    }
+
+    const footer = post.querySelector('.post-footer') || post;
+
+    const commentBox = document.createElement('div');
+    commentBox.className = 'comment-box';
+    commentBox.style.cssText = 'margin-top:12px; display:flex; gap:8px; align-items:flex-start;';
+    commentBox.innerHTML = `
+        <textarea placeholder="Escreve um comentário..." rows="2" style="flex:1;padding:0.6em;border:1px solid #ddd;border-radius:0.4em;font-family:inherit;"></textarea>
+        <div style="display:flex;flex-direction:column;gap:8px;">
+            <button class="btn-comment-submit" style="background:linear-gradient(135deg,#28a745 0%,#20c997 100%);color:white;border:none;padding:0.5em 0.8em;border-radius:0.4em;cursor:pointer;">Comentar</button>
+            <button class="btn-comment-cancel" style="background:#f0f0f0;border:none;padding:0.4em 0.6em;border-radius:0.4em;cursor:pointer;">Cancelar</button>
+        </div>
+    `;
+
+    footer.appendChild(commentBox);
+
+    const textarea = commentBox.querySelector('textarea');
+    const submitBtn = commentBox.querySelector('.btn-comment-submit');
+    const cancelBtn = commentBox.querySelector('.btn-comment-cancel');
+
+    // Auto-focus
+    setTimeout(() => textarea.focus(), 50);
+
+    // Submit handler: add a simple comment element and increment count
+    submitBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const text = textarea.value.trim();
+        if (!text) {
+            showNotification('Escreve algo antes de comentar.');
+            return;
+        }
+
+        // Append simple comment under the post (after footer)
+        const commentList = post.querySelector('.comment-list') || document.createElement('div');
+        commentList.className = 'comment-list';
+        commentList.style.cssText = 'margin-top:12px; padding-left:12px; border-left:2px solid rgba(0,0,0,0.04);';
+
+        const commentItem = document.createElement('div');
+        commentItem.className = 'comment-item';
+        commentItem.style.cssText = 'margin-bottom:8px;';
+        commentItem.innerHTML = `<strong>Tu:</strong> <span>${escapeHtml(text)}</span>`;
+
+        commentList.appendChild(commentItem);
+
+        // If commentList was just created, append it after footer
+        if (!post.querySelector('.comment-list')) {
+            footer.parentElement.appendChild(commentList);
+        }
+
+        // Update comment count on the interaction button if present
+        const commentBtn = Array.from(post.querySelectorAll('.interaction-btn')).find(b => {
+            const ic = b.querySelector('.interaction-icon');
+            return ic && ic.textContent === '💬';
+        });
+
+        if (commentBtn) {
+            const countEl = commentBtn.querySelector('.interaction-count');
+            if (countEl) {
+                let count = parseInt(countEl.textContent) || 0;
+                countEl.textContent = (count + 1).toString();
+            }
+        }
+
+        showNotification('Comentário adicionado!');
+
+        // Remove the comment box
+        commentBox.remove();
+    });
+
+    cancelBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        commentBox.remove();
+    });
+}
+
+// Pequena função para escapar HTML em comentários
+function escapeHtml(unsafe) {
+    return unsafe.replace(/[&<>\"]/g, function(m) {
+        switch (m) {
+            case '&': return '&amp;';
+            case '<': return '&lt;';
+            case '>': return '&gt;';
+            case '"': return '&quot;';
+            default: return m;
+        }
     });
 }
 

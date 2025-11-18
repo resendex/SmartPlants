@@ -301,6 +301,9 @@ document.addEventListener('DOMContentLoaded', () => {
             // Registrar histórico de rega
             registerWateringHistory(plant.id);
         });
+        
+        // Atualizar estatísticas de rega de hoje
+        atualizarEstatisticasRega(wateredPlants);
 
         // Mensagem de sucesso
         let message = '';
@@ -516,5 +519,34 @@ document.addEventListener('DOMContentLoaded', () => {
             month: '2-digit',
             year: 'numeric'
         });
+    }
+    
+    // Função para atualizar estatísticas de rega no localStorage
+    function atualizarEstatisticasRega(wateredPlants) {
+        const today = new Date().toISOString().split('T')[0];
+        
+        // Buscar estatísticas existentes ou criar nova estrutura
+        let regasHoje = JSON.parse(localStorage.getItem('regasHoje') || '{}');
+        
+        // Limpar dados de dias anteriores
+        if (regasHoje.data !== today) {
+            regasHoje = {
+                data: today,
+                plantas: []
+            };
+        }
+        
+        // Adicionar plantas regadas hoje (evitar duplicatas)
+        wateredPlants.forEach(plant => {
+            if (!regasHoje.plantas.includes(plant.id)) {
+                regasHoje.plantas.push(plant.id);
+            }
+        });
+        
+        // Salvar no localStorage
+        localStorage.setItem('regasHoje', JSON.stringify(regasHoje));
+        
+        // Disparar evento personalizado para atualizar dashboard em tempo real
+        window.dispatchEvent(new Event('regasAtualizadas'));
     }
 });

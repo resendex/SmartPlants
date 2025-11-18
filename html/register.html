@@ -72,8 +72,10 @@
 
         <div class="buttons-container">
             <button type="submit" class="btn btn-create">Criar Conta</button>
-            <button type="button" class="btn btn-login" onclick="location.href='login.html'">Já Tenho Conta</button>
+            <!-- Use an anchor to ensure navigation works reliably (avoids JS click issues) -->
+            <a class="btn btn-login" href="login.html">Já Tenho Conta</a>
         </div>
+        <div id="register-message" aria-live="polite" style="margin-top:12px;color:green"></div>
     </form>
 </div>
 
@@ -87,6 +89,7 @@
         Interação com Computadores
     </div>
 </footer>
+    <script src="../js/register.js"></script>
 </body>
 
 </html>
