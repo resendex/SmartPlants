@@ -184,8 +184,30 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // logout (apenas remove current)
     el('pf_logout').addEventListener('click', ()=>{
-        localStorage.removeItem(CURRENT_KEY);
-        location.href = 'login.html';
+        // Pop-up de confirmação para Log out
+        const popup = document.createElement('div');
+        popup.className = 'delete-confirm-overlay';
+        popup.innerHTML = `
+            <div class="delete-confirm-container">
+                <h3 class="delete-confirm-title">Esta página diz</h3>
+                <p class="delete-confirm-message">Tem certeza que deseja fazer logout?</p>
+                <div class="delete-confirm-buttons">
+                    <button class="delete-confirm-btn" id="confirmDeleteBtn">OK</button>
+                    <button class="delete-cancel-btn" id="cancelDeleteBtn">Cancelar</button>
+                </div>
+            </div>
+        `;
+        document.body.appendChild(popup);
+        
+        document.getElementById('confirmDeleteBtn').addEventListener('click', () => {
+            document.body.removeChild(popup);
+            localStorage.removeItem(CURRENT_KEY);
+            location.href = 'home.html';
+        });
+        
+        document.getElementById('cancelDeleteBtn').addEventListener('click', () => {
+            document.body.removeChild(popup);
+        });
     });
 });
 </script>
