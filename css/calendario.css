@@ -1,0 +1,877 @@
+/* Plant Selector */
+.plant-selector {
+    margin-bottom: 2rem;
+    padding: 1.5rem;
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 12px;
+    backdrop-filter: blur(10px);
+}
+
+.plant-selector label {
+    display: block;
+    margin-bottom: 0.5rem;
+    font-weight: 600;
+    color: #333;
+}
+
+.plant-selector select {
+    width: 100%;
+    padding: 0.75rem;
+    border: 2px solid rgba(0, 150, 70, 0.3);
+    border-radius: 8px;
+    font-size: 1rem;
+    background: white;
+    cursor: pointer;
+    transition: border-color 0.3s;
+}
+
+.plant-selector select:focus {
+    outline: none;
+    border-color: rgba(0, 150, 70, 0.8);
+}
+
+/* Calendar Container */
+.calendar-container {
+    background: white;
+    border-radius: 16px;
+    padding: 2rem;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+    margin-bottom: 2rem;
+}
+
+.calendar-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1.5rem;
+}
+
+.month-year {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: #333;
+    text-transform: capitalize;
+}
+
+.nav-btn {
+    background: linear-gradient(135deg, rgba(0, 150, 70, 0.1), rgba(0, 200, 100, 0.1));
+    border: 2px solid rgba(0, 150, 70, 0.3);
+    border-radius: 8px;
+    width: 40px;
+    height: 40px;
+    font-size: 1.2rem;
+    cursor: pointer;
+    transition: all 0.3s;
+}
+
+.nav-btn:hover {
+    background: linear-gradient(135deg, rgba(0, 150, 70, 0.2), rgba(0, 200, 100, 0.2));
+    transform: scale(1.05);
+}
+
+/* Weekdays */
+.weekdays {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 8px;
+    margin-bottom: 8px;
+}
+
+.weekday {
+    text-align: center;
+    font-weight: 700;
+    color: #666;
+    padding: 0.75rem;
+    font-size: 0.9rem;
+}
+
+/* Days Grid */
+.days-grid {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 8px;
+}
+
+.day {
+    aspect-ratio: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    border: 2px solid rgba(0, 0, 0, 0.05);
+    border-radius: 12px;
+    cursor: pointer;
+    transition: all 0.3s;
+    position: relative;
+    background: white;
+    min-height: 80px;
+}
+
+.day:not(.disabled):hover {
+    background: rgba(0, 150, 70, 0.05);
+    border-color: rgba(0, 150, 70, 0.3);
+    transform: scale(1.05);
+}
+
+.day.disabled {
+    color: #ccc;
+    cursor: not-allowed;
+    background: rgba(0, 0, 0, 0.02);
+}
+
+.day.prev-month,
+.day.next-month {
+    color: #bbb;
+}
+
+.day.today {
+    border-color: rgba(0, 150, 70, 0.8);
+    background: rgba(0, 150, 70, 0.05);
+    font-weight: 700;
+}
+
+.day.marked {
+    background: linear-gradient(135deg, rgba(0, 150, 70, 0.15), rgba(0, 200, 100, 0.15));
+    border-color: rgba(0, 150, 70, 0.5);
+}
+
+.day.completed {
+    background: linear-gradient(135deg, rgba(76, 175, 80, 0.2), rgba(139, 195, 74, 0.2));
+    border-color: rgba(76, 175, 80, 0.6);
+}
+
+.day-number {
+    font-size: 1.1rem;
+    font-weight: 600;
+}
+
+.time-badge {
+    background: rgba(0, 150, 70, 0.9);
+    color: white;
+    padding: 2px 6px;
+    border-radius: 6px;
+    font-size: 0.7rem;
+    margin-top: 4px;
+    font-weight: 600;
+}
+
+.check-badge {
+    background: rgba(76, 175, 80, 0.9);
+    color: white;
+    padding: 4px 8px;
+    border-radius: 50%;
+    font-size: 1rem;
+    margin-top: 4px;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 24px;
+    height: 24px;
+}
+
+/* Modal */
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.6);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+    backdrop-filter: blur(4px);
+}
+
+.modal-content {
+    background: white;
+    border-radius: 16px;
+    width: 90%;
+    max-width: 450px;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+    overflow: hidden;
+}
+
+.modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1.5rem;
+    background: linear-gradient(135deg, rgba(0, 150, 70, 0.1), rgba(0, 200, 100, 0.1));
+    border-bottom: 2px solid rgba(0, 150, 70, 0.2);
+}
+
+.modal-header h3 {
+    margin: 0;
+    font-size: 1.3rem;
+    color: #333;
+    text-transform: capitalize;
+}
+
+.close-btn {
+    background: transparent;
+    border: none;
+    font-size: 2rem;
+    cursor: pointer;
+    color: #666;
+    transition: color 0.3s;
+}
+
+.close-btn:hover {
+    color: #333;
+}
+
+.modal-body {
+    padding: 2rem;
+}
+
+.modal-body p {
+    margin-bottom: 1rem;
+    color: #555;
+}
+
+.modal-body label {
+    display: block;
+    margin-bottom: 0.5rem;
+    font-weight: 600;
+    color: #333;
+}
+
+.modal-body input[type="time"] {
+    width: 100%;
+    padding: 0.75rem;
+    border: 2px solid rgba(0, 150, 70, 0.3);
+    border-radius: 8px;
+    font-size: 1rem;
+    margin-bottom: 1rem;
+}
+
+.modal-body input[type="time"]:focus {
+    outline: none;
+    border-color: rgba(0, 150, 70, 0.8);
+}
+
+/* Buttons */
+.btn {
+    padding: 0.75rem 1.5rem;
+    border: none;
+    border-radius: 8px;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s;
+    width: 100%;
+}
+
+.btn-primary {
+    background: linear-gradient(135deg, rgba(0, 150, 70, 0.9), rgba(0, 200, 100, 0.9));
+    color: white;
+}
+
+.btn-primary:hover {
+    background: linear-gradient(135deg, rgba(0, 130, 60, 1), rgba(0, 180, 90, 1));
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 150, 70, 0.3);
+}
+
+.btn-danger {
+    background: linear-gradient(135deg, rgba(220, 53, 69, 0.9), rgba(200, 35, 51, 0.9));
+    color: white;
+}
+
+.btn-danger:hover {
+    background: linear-gradient(135deg, rgba(200, 35, 51, 1), rgba(180, 25, 40, 1));
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(220, 53, 69, 0.3);
+}
+
+.btn-warning {
+    background: linear-gradient(135deg, rgba(255, 152, 0, 0.9), rgba(255, 193, 7, 0.9));
+    color: white;
+}
+
+.btn-warning:hover {
+    background: linear-gradient(135deg, rgba(245, 124, 0, 1), rgba(255, 179, 0, 1));
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(255, 152, 0, 0.3);
+}
+
+.btn.btn-secondary {
+    background: linear-gradient(135deg, rgba(102, 126, 234, 0.9), rgba(118, 75, 162, 0.9));
+    color: #fff;
+    border: none;
+    border-radius: 8px;
+    padding: 0.6rem 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all .2s ease;
+}
+
+.btn.btn-secondary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(102,126,234,.35);
+}
+
+.btn.btn-small {
+    padding: 0.4rem 0.7rem;
+    font-size: 0.9rem;
+    border-radius: 6px;
+}
+
+/* Calendar Controls */
+.calendar-controls {
+    display: flex;
+    justify-content: flex-end;
+    margin: 0 0 1rem 0;
+}
+
+/* Botão voltar para sistema de rega */
+.back-to-system {
+    margin-top: 2rem;
+    padding-top: 1.5rem;
+    border-top: 2px solid rgba(102, 126, 234, 0.2);
+    text-align: center;
+}
+
+.btn-back {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.875rem 1.75rem;
+    background: white;
+    color: #667eea;
+    border: 2px solid #667eea;
+    border-radius: 10px;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s;
+}
+
+.btn-back:hover {
+    background: #667eea;
+    color: white;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+}
+
+.btn-back .btn-icon {
+    font-size: 1.2rem;
+    font-weight: bold;
+}
+
+/* Ícone de recorrência no dia */
+.recurrence-icon {
+    position: absolute;
+    top: 6px;
+    right: 6px;
+    font-size: 0.85rem;
+    color: #2e7d32;
+    opacity: 0.85;
+}
+
+/* Painel de recorrências na Info Panel */
+.recurrence-panel {
+    margin-top: 1.25rem;
+}
+
+.recurrence-panel h4 {
+    margin: 0 0 .5rem 0;
+    color: #333;
+    font-size: 1.1rem;
+}
+
+.recurrence-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.recurrence-list li {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: .75rem;
+    padding: .6rem .75rem;
+    background: rgba(0, 150, 70, 0.05);
+    border-left: 4px solid rgba(0, 150, 70, 0.6);
+    border-radius: 8px;
+    margin-bottom: .5rem;
+}
+
+/* Painel do sistema de rega automática */
+.irrigation-panel {
+    margin-bottom: 1.5rem;
+    padding: 1rem;
+    background: linear-gradient(135deg, rgba(102, 126, 234, 0.08), rgba(118, 75, 162, 0.08));
+    border: 2px solid rgba(102, 126, 234, 0.3);
+    border-radius: 12px;
+}
+
+.irrigation-panel h4 {
+    margin: 0 0 0.75rem 0;
+    color: #667eea;
+    font-size: 1.1rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.irrigation-summary {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.irrigation-summary p {
+    margin: 0;
+    color: #333;
+    font-size: 0.95rem;
+}
+
+.irrigation-summary strong {
+    color: #667eea;
+}
+
+/* Ícone do sistema de rega */
+.irrigation-icon {
+    position: absolute;
+    top: 6px;
+    left: 6px;
+    font-size: 0.85rem;
+    color: #667eea;
+    opacity: 0.9;
+}
+
+/* Ícone de edição personalizada (lápis) */
+.irrigation-icon.irrigation-edited {
+    color: #ff9800;
+    font-weight: bold;
+    font-size: 0.9rem;
+    animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+    0%, 100% {
+        opacity: 0.9;
+    }
+    50% {
+        opacity: 1;
+        transform: scale(1.1);
+    }
+}
+
+/* Dia marcado pelo sistema de rega */
+.day.irrigation-watering {
+    background: linear-gradient(135deg, rgba(102, 126, 234, 0.12), rgba(118, 75, 162, 0.12));
+    border-color: rgba(102, 126, 234, 0.5);
+}
+
+/* Badge do sistema de rega */
+.time-badge.irrigation-badge {
+    background: linear-gradient(135deg, rgba(102, 126, 234, 0.9), rgba(118, 75, 162, 0.9));
+}
+
+/* Modal header para sistema de rega */
+.modal-header.irrigation-header {
+    background: linear-gradient(135deg, rgba(102, 126, 234, 0.15), rgba(118, 75, 162, 0.15));
+    border-bottom: 2px solid rgba(102, 126, 234, 0.3);
+}
+
+/* Info do sistema de rega no modal */
+.irrigation-info {
+    background: rgba(102, 126, 234, 0.05);
+    padding: 1rem;
+    border-radius: 8px;
+    border-left: 4px solid #667eea;
+}
+
+.irrigation-info p {
+    margin: 0.5rem 0;
+}
+
+.irrigation-info p:first-child {
+    color: #667eea;
+    font-weight: 700;
+    font-size: 1.1rem;
+    margin-bottom: 1rem;
+}
+
+/* Info Panel */
+.info-panel {
+    background: white;
+    border-radius: 16px;
+    padding: 2rem;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+}
+
+.info-panel h3 {
+    margin-top: 0;
+    margin-bottom: 1rem;
+    color: #333;
+    font-size: 1.3rem;
+}
+
+.watering-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.watering-list li {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.75rem;
+    margin-bottom: 0.5rem;
+    background: rgba(0, 150, 70, 0.05);
+    border-radius: 8px;
+    border-left: 4px solid rgba(0, 150, 70, 0.8);
+}
+
+.watering-list .date {
+    font-weight: 600;
+    color: #333;
+}
+
+.watering-list .time {
+    background: rgba(0, 150, 70, 0.9);
+    color: white;
+    padding: 4px 10px;
+    border-radius: 6px;
+    font-size: 0.9rem;
+    font-weight: 600;
+}
+
+.warning {
+    text-align: center;
+    color: #666;
+    font-size: 1.1rem;
+    padding: 2rem;
+}
+
+/* Diferenciar regas únicas e recorrentes visualmente */
+.watering-icon {
+    position: absolute;
+    bottom: 2px;
+    font-size: 14px;
+}
+
+.watering-icon.single {
+    right: 2px;
+}
+
+.watering-icon.recurring {
+    left: 2px;
+}
+
+.day.single-watering {
+    background: #e8f5e9 !important;
+}
+
+.day.recurring-watering {
+    background: #e3f2fd !important;
+}
+
+.day.single-watering.recurring-watering {
+    background: linear-gradient(135deg, #e8f5e9 50%, #e3f2fd 50%) !important;
+}
+
+.watering-info {
+    padding: 0.8rem;
+    border-radius: 8px;
+    margin: 1rem 0;
+    font-weight: 600;
+}
+
+.watering-info.single {
+    background: #e8f5e9;
+    border-left: 4px solid #4CAF50;
+    color: #2e7d32;
+}
+
+.watering-info.recurring {
+    background: #e3f2fd;
+    border-left: 4px solid #2196F3;
+    color: #1565c0;
+}
+
+.btn-warning {
+    background: #ff9800;
+    color: white;
+}
+
+.btn-warning:hover {
+    background: #f57c00;
+}
+
+.btn-danger {
+    background: #f44336;
+    color: white;
+}
+
+.btn-danger:hover {
+    background: #d32f2f;
+}
+
+/* Modal de Escolha de Planta */
+.plant-selection-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.7);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+    animation: fadeIn 0.3s ease;
+}
+
+.plant-selection-modal {
+    background: white;
+    padding: 2.5em 3em;
+    border-radius: 1.2em;
+    box-shadow: 0 0.5em 2em rgba(0, 0, 0, 0.3);
+    max-width: 450px;
+    width: 90%;
+    text-align: center;
+    animation: slideIn 0.3s ease;
+}
+
+.modal-title {
+    color: #333;
+    font-size: 1.8em;
+    font-weight: 700;
+    margin: 0 0 1.5em 0;
+    text-align: center;
+}
+
+.plant-list {
+    margin: 2em 0;
+    display: flex;
+    flex-direction: column;
+    gap: 0.8em;
+    max-height: 300px;
+    overflow-y: auto;
+    padding: 0.5em;
+}
+
+/* Scrollbar personalizada */
+.plant-list::-webkit-scrollbar {
+    width: 8px;
+}
+
+.plant-list::-webkit-scrollbar-track {
+    background: rgba(102, 126, 234, 0.1);
+    border-radius: 10px;
+}
+
+.plant-list::-webkit-scrollbar-thumb {
+    background: linear-gradient(135deg, #667eea, #764ba2);
+    border-radius: 10px;
+}
+
+.plant-list::-webkit-scrollbar-thumb:hover {
+    background: linear-gradient(135deg, #5568d3, #6a3f8f);
+}
+
+.plant-option {
+    display: flex;
+    align-items: center;
+    padding: 0.8em 1em;
+    border: 2px solid #e0e0e0;
+    border-radius: 0.8em;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    background: white;
+}
+
+.plant-option:hover {
+    border-color: #667eea;
+    background: rgba(102, 126, 234, 0.05);
+    transform: translateX(0.3em);
+}
+
+.plant-option.selected {
+    border-color: #667eea;
+    background: rgba(102, 126, 234, 0.1);
+    box-shadow: 0 0.2em 0.5em rgba(102, 126, 234, 0.2);
+}
+
+.plant-radio {
+    margin-right: 1em;
+    width: 20px;
+    height: 20px;
+    accent-color: #667eea;
+    cursor: pointer;
+}
+
+.plant-name {
+    font-size: 1.1em;
+    font-weight: 600;
+    color: #333;
+    flex: 1;
+    text-align: left;
+}
+
+.plant-icon {
+    font-size: 1.5em;
+    margin-left: 0.5em;
+}
+
+.modal-buttons {
+    display: flex;
+    gap: 1em;
+    margin-top: 2em;
+}
+
+.btn-modal {
+    padding: 1em 2em;
+    font-size: 1.1em;
+    font-weight: 600;
+    border: none;
+    border-radius: 0.6em;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 0.25em 0.5em rgba(0, 0, 0, 0.2);
+    flex: 1;
+}
+
+.btn-confirm {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+}
+
+.btn-confirm:hover:not(:disabled) {
+    background: linear-gradient(135deg, #5568d3 0%, #6a3f8f 100%);
+    transform: translateY(-0.15em);
+    box-shadow: 0 0.4em 0.8em rgba(0, 0, 0, 0.3);
+}
+
+.btn-confirm:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.btn-add-plant {
+    background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+    color: white;
+}
+
+.btn-add-plant:hover {
+    background: linear-gradient(135deg, #218838 0%, #1aa179 100%);
+    transform: translateY(-0.15em);
+    box-shadow: 0 0.4em 0.8em rgba(0, 0, 0, 0.3);
+}
+
+.btn-cancel {
+    background: linear-gradient(135deg, #6c757d 0%, #5a6268 100%);
+    color: white;
+}
+
+.btn-cancel:hover {
+    background: linear-gradient(135deg, #5a6268 0%, #4e555b 100%);
+    transform: translateY(-0.15em);
+    box-shadow: 0 0.4em 0.8em rgba(0, 0, 0, 0.3);
+}
+
+.btn-modal:active {
+    transform: translateY(0);
+    box-shadow: 0 0.15em 0.3em rgba(0, 0, 0, 0.2);
+}
+
+/* Mensagem quando não há plantas */
+.no-plants-message {
+    padding: 2em;
+    text-align: center;
+    color: #666;
+}
+
+.no-plants-icon {
+    font-size: 3em;
+    margin-bottom: 0.5em;
+}
+
+.no-plants-message p {
+    margin: 0.5em 0;
+    font-size: 1em;
+    line-height: 1.5;
+}
+
+/* Animações */
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 1;
+    }
+}
+
+@keyframes slideIn {
+    from {
+        transform: translateY(-30px);
+        opacity: 0;
+    }
+    to {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .calendar-container {
+        padding: 1rem;
+    }
+
+    .day {
+        min-height: 60px;
+    }
+
+    .day-number {
+        font-size: 0.9rem;
+    }
+
+    .time-badge {
+        font-size: 0.6rem;
+        padding: 1px 4px;
+    }
+
+    .month-year {
+        font-size: 1.2rem;
+    }
+
+    .modal-content {
+        width: 95%;
+    }
+    
+    .plant-selection-modal {
+        padding: 2em 1.5em;
+        max-width: 95%;
+    }
+    
+    .modal-title {
+        font-size: 1.5em;
+    }
+    
+    .modal-buttons {
+        flex-direction: column;
+    }
+    
+    .btn-modal {
+        width: 100%;
+    }
+    
+    .plant-option {
+        padding: 1em 0.8em;
+    }
+    
+    .plant-name {
+        font-size: 1em;
+    }
+}

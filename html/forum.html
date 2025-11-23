@@ -1,0 +1,343 @@
+<!DOCTYPE html>
+<html lang="pt-pt">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Smart Plants - Fóruns</title>
+    <link rel="icon" href="../multimedia/image/logo.png" type="image/png">
+    <link rel="stylesheet" type="text/css" href="../css/forum.css">
+    <link rel="stylesheet" type="text/css" href="../css/copyright.css">
+    <script src="../js/notifications-global.js"></script>
+    <script src="../js/forum.js" defer></script>
+</head>  
+<body>
+    <header class="header">
+        <div class="header-center">
+            <h1 class="header-title">SMART PLANTS</h1>
+        </div>
+        <div class="header-right">
+            <a href="perfil.html" class="user-icon">
+                <img src="../multimedia/image/user-icon-placeholder.png" alt="Utilizador" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                <div class="user-placeholder">👤</div>
+            </a>
+        </div>
+    </header>
+
+    <div class="main-container">
+        <aside class="sidebar">
+            <nav class="menu">
+                <a href="inicio.html" class="menu-item">
+                    <div class="menu-icon-placeholder">🏠</div>
+                    <span>Início</span>
+                </a>
+                <a href="add.html" class="menu-item">
+                    <div class="menu-icon-placeholder">➕</div>
+                    <span>Adicionar Planta</span>
+                </a>
+                <a href="notificacoes.html" class="menu-item">
+                    <div class="menu-icon-placeholder">🔔</div>
+                    <span>Notificações</span>
+                </a>
+                <a href="regar.html" class="menu-item">
+                    <div class="menu-icon-placeholder">💧</div>
+                    <span>Regar</span>
+                </a>
+                <a href="chat.html" class="menu-item active">
+                    <div class="menu-icon-placeholder">💬</div>
+                    <span>Chat</span>
+                </a>
+                <a href="minhasplantas.html" class="menu-item">
+                    <div class="menu-icon-placeholder">🌱</div>
+                    <span>Minhas Plantas</span>
+                </a>
+            </nav>
+        </aside>
+
+        <main class="content">
+            <h2 class="content-title">Comunidade</h2>
+            
+            <!-- Tabs Chat/Fóruns -->
+            <div class="tabs-container">
+                <a href="chat.html" class="tab-link">
+                    <span class="tab-icon">💬</span>
+                    <span class="tab-text">Chat</span>
+                </a>
+                <a href="forum.html" class="tab-link active">
+                    <span class="tab-icon">👥</span>
+                    <span class="tab-text">Fóruns</span>
+                </a>
+            </div>
+
+            <!-- Filtros de Categoria -->
+            <div class="categories-container">
+                <button class="category-btn active" data-category="all">
+                    <span class="category-icon">🌿</span>
+                    <span>Todas</span>
+                </button>
+                <button class="category-btn" data-category="progress">
+                    <span class="category-icon">📈</span>
+                    <span>Progresso</span>
+                </button>
+                <button class="category-btn" data-category="help">
+                    <span class="category-icon">🆘</span>
+                    <span>Ajuda</span>
+                </button>
+                <button class="category-btn" data-category="tips">
+                    <span class="category-icon">💡</span>
+                    <span>Dicas</span>
+                </button>
+            </div>
+
+            <!-- Posts do Fórum -->
+            <div class="forum-posts">
+                <!-- Post 1: Progresso de Planta -->
+                <div class="forum-post progress-post" data-category="progress">
+                    <div class="post-header">
+                        <div class="post-author">
+                            <div class="author-avatar">🌷</div>
+                            <div class="author-info">
+                                <h3 class="author-name">PedroFlores328</h3>
+                                <span class="post-time">Há 2 horas</span>
+                            </div>
+                        </div>
+                        <span class="post-category progress">📈 Progresso</span>
+                    </div>
+
+                    <div class="post-content">
+                        <h2 class="post-title">Minha tulipa após 2 meses! 🌷✨</h2>
+                        <p class="post-text">
+                            Olá pessoal! Venho compartilhar o incrível progresso da minha tulipa. 
+                            Comecei com apenas um bolbo e agora está linda! Seguindo as dicas de rega 
+                            da comunidade, ela cresceu super saudável.
+                        </p>
+
+                        <!-- Galeria de Progresso -->
+                        <div class="progress-gallery">
+                            <div class="progress-item">
+                                <div class="progress-photo" style="display: flex; align-items: center; justify-content: center; background: linear-gradient(135deg, #e8f5e9, #c8e6c9); font-size: 4em;">🌱</div>
+                                <span class="progress-label">Semana 1</span>
+                            </div>
+                            <div class="progress-item">
+                                <div class="progress-photo" style="display: flex; align-items: center; justify-content: center; background: linear-gradient(135deg, #c8e6c9, #a5d6a7); font-size: 4em;">🌿</div>
+                                <span class="progress-label">Semana 4</span>
+                            </div>
+                            <div class="progress-item highlight">
+                                <div class="progress-photo" style="display: flex; align-items: center; justify-content: center; background: linear-gradient(135deg, #a5d6a7, #81c784); font-size: 4em;">🌷</div>
+                                <span class="progress-label">Semana 8</span>
+                            </div>
+                        </div>
+
+                        <div class="plant-stats">
+                            <span class="stat-badge">💧 Rega: 3x/semana</span>
+                            <span class="stat-badge">☀️ Luz: Indireta</span>
+                            <span class="stat-badge">🌡️ 18-22°C</span>
+                        </div>
+                    </div>
+
+                    <div class="post-footer">
+                        <div class="post-interactions">
+                            <button class="interaction-btn">
+                                <span class="interaction-icon">👍</span>
+                                <span class="interaction-count">24</span>
+                            </button>
+                            <button class="interaction-btn">
+                                <span class="interaction-icon">💬</span>
+                                <span class="interaction-count">8</span>
+                            </button>
+                            <button class="interaction-btn">
+                                <span class="interaction-icon">🔖</span>
+                                <span>Guardar</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Post 2: Pedido de Ajuda -->
+                <div class="forum-post help-post" data-category="help">
+                    <div class="post-header">
+                        <div class="post-author">
+                            <div class="author-avatar">😟</div>
+                            <div class="author-info">
+                                <h3 class="author-name">JorgeF</h3>
+                                <span class="post-time">Há 5 horas</span>
+                            </div>
+                        </div>
+                        <span class="post-category help">🆘 Ajuda</span>
+                    </div>
+
+                    <div class="post-content">
+                        <h2 class="post-title">Folhas amarelas na samambaia - Socorro! 😰</h2>
+                        <p class="post-text">
+                            Pessoal, minha samambaia está com folhas amareladas nas pontas. 
+                            Já tentei ajustar a rega mas não melhorou. Alguém já passou por isso?
+                        </p>
+
+                        <div class="post-image-placeholder">
+                            <span class="image-icon">📷</span>
+                            <span>Foto da planta anexada</span>
+                        </div>
+                    </div>
+
+                    <div class="post-footer">
+                        <div class="post-interactions">
+                            <button class="interaction-btn">
+                                <span class="interaction-icon">👍</span>
+                                <span class="interaction-count">12</span>
+                            </button>
+                            <button class="interaction-btn active">
+                                <span class="interaction-icon">💬</span>
+                                <span class="interaction-count">15</span>
+                            </button>
+                        </div>
+                        <div class="help-badge">
+                            <span>✓ 3 respostas de especialistas</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Post 3: Dica da Comunidade -->
+                <div class="forum-post tips-post" data-category="tips">
+                    <div class="post-header">
+                        <div class="post-author">
+                            <div class="author-avatar">🌵</div>
+                            <div class="author-info">
+                                <h3 class="author-name">CactoLover</h3>
+                                <span class="post-time">Ontem</span>
+                            </div>
+                        </div>
+                        <span class="post-category tips">💡 Dica</span>
+                    </div>
+
+                    <div class="post-content">
+                        <h2 class="post-title">Como cuidar de cactos no inverno ❄️🌵</h2>
+                        <p class="post-text">
+                            Dica importante para quem tem cactos! No inverno, reduza a rega drasticamente. 
+                            Os cactos entram em dormência e precisam de menos água.
+                        </p>
+
+                        <div class="tips-list">
+                            <div class="tip-item">✓ Regue apenas 1x por mês</div>
+                            <div class="tip-item">✓ Mantenha em local com luz</div>
+                            <div class="tip-item">✓ Evite correntes de ar frio</div>
+                        </div>
+                    </div>
+
+                    <div class="post-footer">
+                        <div class="post-interactions">
+                            <button class="interaction-btn">
+                                <span class="interaction-icon">👍</span>
+                                <span class="interaction-count">45</span>
+                            </button>
+                            <button class="interaction-btn">
+                                <span class="interaction-icon">💬</span>
+                                <span class="interaction-count">6</span>
+                            </button>
+                            <button class="interaction-btn">
+                                <span class="interaction-icon">📌</span>
+                                <span>Fixar</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Post 4: Outro Progresso -->
+                <div class="forum-post progress-post" data-category="progress">
+                    <div class="post-header">
+                        <div class="post-author">
+                            <div class="author-avatar">🌺</div>
+                            <div class="author-info">
+                                <h3 class="author-name">OrquideasPT</h3>
+                                <span class="post-time">2 dias</span>
+                            </div>
+                        </div>
+                        <span class="post-category progress">📈 Progresso</span>
+                    </div>
+
+                    <div class="post-content">
+                        <h2 class="post-title">Primeira floração da minha orquídea! 🌸</h2>
+                        <p class="post-text">
+                            Depois de 1 ano de cuidados, finalmente floresceu! Estou tão feliz! 
+                            Obrigada a todos que me ajudaram com dicas de fertilização.
+                        </p>
+
+                        <div class="achievement-badge">
+                            <span class="achievement-icon">🏆</span>
+                            <div class="achievement-info">
+                                <strong>Conquista Desbloqueada!</strong>
+                                <p>Primeira Floração</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="post-footer">
+                        <div class="post-interactions">
+                            <button class="interaction-btn">
+                                <span class="interaction-icon">❤️</span>
+                                <span class="interaction-count">67</span>
+                            </button>
+                            <button class="interaction-btn">
+                                <span class="interaction-icon">💬</span>
+                                <span class="interaction-count">23</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Post 5: Grupo Ativo -->
+                <div class="forum-post community-post" data-category="all">
+                    <div class="post-header">
+                        <div class="post-author">
+                            <div class="author-avatar">🌻</div>
+                            <div class="author-info">
+                                <h3 class="author-name">Amantes_de_Flores</h3>
+                                <span class="post-time">3 dias</span>
+                            </div>
+                        </div>
+                        <span class="post-category community">🌿 Grupo</span>
+                    </div>
+
+                    <div class="post-content">
+                        <h2 class="post-title">Grupo: Amantes de Flores 🌺</h2>
+                        <p class="post-text">
+                            Comunidade dedicada a plantas floríferas! Compartilhe fotos, dicas e experiências.
+                        </p>
+
+                        <div class="community-stats">
+                            <div class="community-stat">
+                                <span class="stat-number">156</span>
+                                <span class="stat-label">Membros</span>
+                            </div>
+                            <div class="community-stat">
+                                <span class="stat-number">8</span>
+                                <span class="stat-label">Online agora</span>
+                            </div>
+                            <div class="community-stat">
+                                <span class="stat-number">342</span>
+                                <span class="stat-label">Posts</span>
+                            </div>
+                        </div>
+
+                        <button class="join-btn">Juntar-se ao Grupo</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Botão para criar novo post -->
+            <button class="fab-button" title="Novo post">
+                <span class="fab-icon">✏️</span>
+            </button>
+        </main>
+    </div>
+
+    <footer class="footer">
+        <div class="copyright-info">
+            <span>©2025 Smart Plants Project</span>
+            <span class="divider"></span>
+            <span>Criado em contexto académico por estudantes da
+                <a href="https://ciencias.ulisboa.pt/" target="_blank">FCUL</a></span>
+            <span class="divider"></span>
+            Interação com Computadores
+        </div>
+    </footer>
+</body>

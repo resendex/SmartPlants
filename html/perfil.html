@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="pt-pt">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Smart Plants - Perfil</title>
+    <link rel="icon" href="../multimedia/image/logo.png" type="image/png">
+    <link rel="stylesheet" type="text/css" href="../css/perfil.css">
+    <link rel="stylesheet" type="text/css" href="../css/copyright.css">
+</head>
+
+<body>
+<header class="header">
+    <div class="header-left">
+        <span class="header-title">Smart Plants</span>
+        <img class="header-logo" src="../multimedia/image/smartplants.png" alt="Smart Plants Logo" onclick="location.href='inicio.html'">
+    </div>
+</header>
+
+<div class="container" id="profile-root">
+    <h1 class="page-title">Perfil</h1>
+    
+    <div class="profile-grid">
+        <aside class="profile-left">
+            <div class="photo-card">
+                <img id="pf_photo_preview" class="profile-photo" src="../multimedia/image/user-icon-placeholder.png" alt="Foto de perfil">
+                <div class="photo-actions">
+                    <label class="file-label">
+                        Alterar foto
+                        <input id="pf_photo_input" type="file" accept="image/*" style="display:none">
+                    </label>
+                    <button id="pf_remove_photo" class="btn small">Remover</button>
+                </div>
+            </div>
+        </aside>
+
+        <section class="profile-right">
+            <form id="pf_form" class="pf-form" onsubmit="return false;">
+                <div class="form-row">
+                    <label>Username</label>
+                    <input id="pf_username" type="text" readonly>
+                </div>
+                <div class="form-row">
+                    <label>Email</label>
+                    <input id="pf_email" type="email">
+                </div>
+                <div class="form-row">
+                    <label>Idade</label>
+                    <input id="pf_age" type="number" min="1" max="120">
+                </div>
+                <div class="form-row">
+                    <label>Localização</label>
+                    <input id="pf_location" type="text">
+                </div>
+                <div class="form-row">
+                    <label>Género</label>
+                    <select id="pf_gender">
+                        <option value="">-- Selecionar --</option>
+                        <option value="M">M</option>
+                        <option value="F">F</option>
+                        <option value="Outro">Outro</option>
+                    </select>
+                </div>
+
+                <div class="form-actions">
+                    <button id="pf_save" class="btn">Guardar Alterações</button>
+                    <button id="pf_logout" class="btn ghost" type="button">Sair</button>
+                </div>
+            </form>
+
+            <hr>
+
+            <div class="change-password">
+                <button id="pf_change_show" class="btn small">Mudar Password</button>
+                <div id="pf_change_box" class="change-box" style="display:none;">
+                    <input id="pf_current_pwd" type="password" placeholder="Password atual"><br>
+                    <input id="pf_new_pwd" type="password" placeholder="Nova password"><br>
+                    <input id="pf_confirm_new_pwd" type="password" placeholder="Confirmar nova password"><br>
+                    <div style="margin-top:0.5em;">
+                        <button id="pf_change_submit" class="btn small">Confirmar</button>
+                        <button id="pf_change_cancel" class="btn small ghost">Cancelar</button>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </div>
+</div>
+
+<footer class="footer">
+    <div class="copyright-info">
+        <span>©2025 Smart Plants Project</span>
+        <span class="divider"></span>
+        <span>Criado em contexto académico por estudantes da
+            <a href="https://ciencias.ulisboa.pt/" target="_blank">FCUL</a></span>
+        <span class="divider"></span>
+        Interação com Computadores
+    </div>
+</footer>
+
+<!-- script local para gerir perfil (carregar / guardar / foto / password) -->
+<script>
+// Helper keys
+const USERS_KEY = 'sp_users';
+const CURRENT_KEY = 'sp_currentUser';
+
+function _getUsers(){ return JSON.parse(localStorage.getItem(USERS_KEY)||'{}'); }
+function _saveUsers(u){ localStorage.setItem(USERS_KEY, JSON.stringify(u)); }
+function _getCurrentUsername(){ return localStorage.getItem(CURRENT_KEY); }
+function _getCurrentUser(){ const users=_getUsers(); const cur=_getCurrentUsername(); return cur?users[cur]:null; }
+
+document.addEventListener('DOMContentLoaded', () => {
+    const user = _getCurrentUser();
+    const preview = document.getElementById('pf_photo_preview');
+    const inputFile = document.getElementById('pf_photo_input');
+    let photoData = null;
+
+    // Elements
+    const el = id => document.getElementById(id);
+    if (user) {
+        el('pf_username').value = user.username || '';
+        el('pf_email').value = user.email || '';
+        el('pf_age').value = user.age || '';
+        el('pf_location').value = user.location || '';
+        el('pf_gender').value = user.gender || '';
+        if (user.photo) { preview.src = user.photo; photoData = user.photo; }
+    }
+
+    // Upload preview
+    inputFile.addEventListener('change', (e)=>{
+        const f = e.target.files[0];
+        if (!f) return;
+        const reader = new FileReader();
+        reader.onload = () => {
+            photoData = reader.result;
+            preview.src = photoData;
+        };
+        reader.readAsDataURL(f);
+    });
+
+    // Remove photo
+    document.getElementById('pf_remove_photo').addEventListener('click', ()=>{
+        photoData = null;
+        preview.src = '../multimedia/image/user-icon-placeholder.png';
+    });
+
+    // clicking label triggers file input
+    document.querySelector('.file-label input')?.addEventListener('click', e => e.stopPropagation());
+
+    // Save profile
+    document.getElementById('pf_save').addEventListener('click', ()=>{
+        const users = _getUsers();
+        const cur = _getCurrentUsername();
+        if (!cur || !users[cur]) { alert('Sem utilizador ativo. Faça login.'); return; }
+        users[cur].email = el('pf_email').value.trim();
+        users[cur].age = el('pf_age').value;
+        users[cur].location = el('pf_location').value.trim();
+        users[cur].gender = el('pf_gender').value;
+        if (photoData) users[cur].photo = photoData; else delete users[cur].photo;
+        _saveUsers(users);
+        alert('Perfil guardado.');
+    });
+
+    // Change password toggle & actions
+    const changeShow = el('pf_change_show'), changeBox = el('pf_change_box');
+    changeShow.addEventListener('click', ()=> changeBox.style.display = changeBox.style.display === 'block' ? 'none' : 'block');
+    el('pf_change_cancel').addEventListener('click', ()=> { changeBox.style.display='none'; });
+    el('pf_change_submit').addEventListener('click', ()=>{
+        const users = _getUsers();
+        const cur = _getCurrentUsername();
+        const u = users[cur];
+        const current = el('pf_current_pwd').value;
+        const np = el('pf_new_pwd').value;
+        const np2 = el('pf_confirm_new_pwd').value;
+        if (!current || !np) { alert('Preencha as passwords.'); return; }
+        if (u.password !== current) { alert('Password atual incorreta.'); return; }
+        if (np !== np2) { alert('Novas passwords não coincidem.'); return; }
+        u.password = np;
+        _saveUsers(users);
+        el('pf_current_pwd').value = el('pf_new_pwd').value = el('pf_confirm_new_pwd').value = '';
+        changeBox.style.display = 'none';
+        alert('Password alterada.');
+    });
+
+    // logout (apenas remove current)
+    el('pf_logout').addEventListener('click', ()=>{
+        // Pop-up de confirmação para Log out
+        const popup = document.createElement('div');
+        popup.className = 'delete-confirm-overlay';
+        popup.innerHTML = `
+            <div class="delete-confirm-container">
+                <h3 class="delete-confirm-title">Esta página diz</h3>
+                <p class="delete-confirm-message">Tem certeza que deseja fazer logout?</p>
+                <div class="delete-confirm-buttons">
+                    <button class="delete-confirm-btn" id="confirmDeleteBtn">OK</button>
+                    <button class="delete-cancel-btn" id="cancelDeleteBtn">Cancelar</button>
+                </div>
+            </div>
+        `;
+        document.body.appendChild(popup);
+        
+        document.getElementById('confirmDeleteBtn').addEventListener('click', () => {
+            document.body.removeChild(popup);
+            localStorage.removeItem(CURRENT_KEY);
+            location.href = 'home.html';
+        });
+        
+        document.getElementById('cancelDeleteBtn').addEventListener('click', () => {
+            document.body.removeChild(popup);
+        });
+    });
+});
+</script>
+</body>
+
+</html>

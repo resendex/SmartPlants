@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="pt-pt">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" type="text/css" href="../css/regar.css">
+    <title>Smart Plants - Regar</title>
+    <script src="../js/regar.js"></script>
+</head>
+
+<body>
+    <header class="header">
+        <div class="header-center">
+            <h1 class="header-title">SMART PLANTS</h1>
+        </div>
+        <div class="header-right">
+            <a href="perfil.html" class="user-icon">
+                <img src="../multimedia/image/user-icon-placeholder.png" alt="Utilizador" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                <div class="user-placeholder">👤</div>
+            </a>
+        </div>
+    </header>
+
+    <div class="main-container">
+        <aside class="sidebar">
+            <nav class="menu">
+                <a href="inicio.html" class="menu-item">
+                    <div class="menu-icon-placeholder">🏠</div>
+                    <span>Início</span>
+                </a>
+                <a href="add.html" class="menu-item">
+                    <div class="menu-icon-placeholder">➕</div>
+                    <span>Adicionar Planta</span>
+                </a>
+                <a href="notificacoes.html" class="menu-item">
+                    <div class="menu-icon-placeholder">🔔</div>
+                    <span>Notificações</span>
+                </a>
+                <a href="regar.html" class="menu-item active">
+                    <div class="menu-icon-placeholder">💧</div>
+                    <span>Regar</span>
+                </a>
+                <a href="chat.html" class="menu-item">
+                    <div class="menu-icon-placeholder">💬</div>
+                    <span>Chat</span>
+                </a>
+                <a href="minhasplantas.html" class="menu-item">
+                    <div class="menu-icon-placeholder">🌱</div>
+                    <span>Minhas Plantas</span>
+                </a>
+            </nav>
+        </aside>
+
+        <main class="content">
+            <div class="page-header">
+                <h2 class="content-title">💧 Sistema de Rega</h2>
+                <p class="content-subtitle">Gerencie a rega das suas plantas de forma inteligente</p>
+            </div>
+
+            <div class="cards-container">
+                <!-- Card Calendário -->
+                <div class="option-card" id="calendarButton">
+                    <div class="card-icon">📅</div>
+                    <div class="card-content">
+                        <h3>Calendário</h3>
+                        <p>Visualize e gerencie todas as regas agendadas num calendário interativo</p>
+                    </div>
+                    <div class="card-arrow">→</div>
+                </div>
+
+                <!-- Card Verificação -->
+                <div class="option-card" id="verifyButton">
+                    <div class="card-icon">✓</div>
+                    <div class="card-content">
+                        <h3>Verificação de Rega</h3>
+                        <p>Confirme as regas realizadas e mantenha o histórico atualizado</p>
+                    </div>
+                    <div class="card-arrow">→</div>
+                </div>
+
+                <!-- Card Gestão do Sistema -->
+                <div class="option-card" id="managementButton">
+                    <div class="card-icon">⚙️</div>
+                    <div class="card-content">
+                        <h3>Gestão do Sistema</h3>
+                        <p>Configure a rega automática, frequência e horários personalizados</p>
+                    </div>
+                    <div class="card-arrow">→</div>
+                </div>
+            </div>
+
+            <!-- Dica para adicionar plantas -->
+            <div class="help-section">
+                <div class="help-icon">💡</div>
+                <div class="help-content">
+                    <strong>Ainda não tem plantas?</strong>
+                    <p>Começe por adicionar plantas para poder agendar a respetiva rega.</p>
+                    <button class="btn-add-plant" onclick="window.location.href='add.html'">
+                        <span>➕</span> Adicionar Planta
+                    </button>
+                </div>
+            </div>
+        </main>
+    </div>
+</body>
+
+</html>

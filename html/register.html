@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="pt-pt">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Smart Plants - Criar Conta</title>
+    <link rel="icon" href="../multimedia/image/logo.png" type="image/png">
+    <link rel="stylesheet" type="text/css" href="../css/register.css">
+    <link rel="stylesheet" type="text/css" href="../css/copyright.css">
+</head>
+
+<body>
+<header class="header">
+    <div class="header-left">
+        <span class="header-title">Smart Plants</span>
+        <img class="header-logo" src="../multimedia/image/smartplants.png" alt="Smart Plants Logo" onclick="location.href='home.html'">
+    </div>
+</header>
+
+<div class="container">
+    <h1 class="page-title">Criar Conta</h1>
+    
+    <form class="register-form">
+        <div class="form-group">
+            <label for="username">Nome do usuário</label>
+            <input type="text" id="username" name="username" required>
+        </div>
+
+        <div class="form-group">
+            <label for="email">E-mail</label>
+            <input type="email" id="email" name="email" required>
+        </div>
+
+        <div class="form-group">
+            <label for="age">Idade</label>
+            <input type="number" id="age" name="age" min="1" max="120" required>
+        </div>
+
+        <div class="form-group">
+            <label for="password">Password</label>
+            <input type="password" id="password" name="password" required>
+        </div>
+
+        <div class="form-group">
+            <label for="confirm-password">Confirmar Password</label>
+            <input type="password" id="confirm-password" name="confirm-password" required>
+        </div>
+
+        <div class="form-group">
+            <label>Género</label>
+            <div class="gender-options">
+                <label class="radio-label">
+                    <input type="radio" name="gender" value="M" required>
+                    <span>M</span>
+                </label>
+                <label class="radio-label">
+                    <input type="radio" name="gender" value="F">
+                    <span>F</span>
+                </label>
+                <label class="radio-label">
+                    <input type="radio" name="gender" value="Outro">
+                    <span>Outro</span>
+                </label>
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label for="location">Localização</label>
+            <input type="text" id="location" name="location" required>
+        </div>
+
+        <div class="buttons-container">
+            <button type="submit" class="btn btn-create">Criar Conta</button>
+            <!-- Use an anchor to ensure navigation works reliably (avoids JS click issues) -->
+            <a class="btn btn-login" href="login.html">Já Tenho Conta</a>
+        </div>
+        <div id="register-message" aria-live="polite" style="margin-top:12px;color:green"></div>
+    </form>
+</div>
+
+<footer class="footer">
+    <div class="copyright-info">
+        <span>©2025 Smart Plants Project</span>
+        <span class="divider"></span>
+        <span>Criado em contexto académico por estudantes da
+            <a href="https://ciencias.ulisboa.pt/" target="_blank">FCUL</a></span>
+        <span class="divider"></span>
+        Interação com Computadores
+    </div>
+</footer>
+    <script src="../js/register.js"></script>
+</body>
+
+</html>

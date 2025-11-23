@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="pt-pt">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Smart Plants - Chat</title>
+    <link rel="icon" href="../multimedia/image/logo.png" type="image/png">
+    <link rel="stylesheet" type="text/css" href="../css/chat.css">
+    <link rel="stylesheet" type="text/css" href="../css/copyright.css">
+    <script src="../js/notifications-global.js"></script>
+    <script src="../js/chat.js" defer></script>
+</head>  
+<body>
+    <header class="header">
+        <div class="header-center">
+            <h1 class="header-title">SMART PLANTS</h1>
+        </div>
+        <div class="header-right">
+            <a href="perfil.html" class="user-icon">
+                <img src="../multimedia/image/user-icon-placeholder.png" alt="Utilizador" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                <div class="user-placeholder">👤</div>
+            </a>
+        </div>
+    </header>
+
+    <div class="main-container">
+        <aside class="sidebar">
+            <nav class="menu">
+                <a href="inicio.html" class="menu-item">
+                    <div class="menu-icon-placeholder">🏠</div>
+                    <span>Início</span>
+                </a>
+                <a href="add.html" class="menu-item">
+                    <div class="menu-icon-placeholder">➕</div>
+                    <span>Adicionar Planta</span>
+                </a>
+                <a href="notificacoes.html" class="menu-item">
+                    <div class="menu-icon-placeholder">🔔</div>
+                    <span>Notificações</span>
+                </a>
+                <a href="regar.html" class="menu-item">
+                    <div class="menu-icon-placeholder">💧</div>
+                    <span>Regar</span>
+                </a>
+                <a href="chat.html" class="menu-item active">
+                    <div class="menu-icon-placeholder">💬</div>
+                    <span>Chat</span>
+                </a>
+                <a href="minhasplantas.html" class="menu-item">
+                    <div class="menu-icon-placeholder">🌱</div>
+                    <span>Minhas Plantas</span>
+                </a>
+            </nav>
+        </aside>
+
+        <main class="content">
+            <h2 class="content-title">Mensagens</h2>
+            
+            <!-- Tabs Chat/Fóruns -->
+            <div class="tabs-container">
+                <a href="chat.html" class="tab-link active">
+                    <span class="tab-icon">💬</span>
+                    <span class="tab-text">Chat</span>
+                </a>
+                <a href="forum.html" class="tab-link">
+                    <span class="tab-icon">👥</span>
+                    <span class="tab-text">Fóruns</span>
+                </a>
+            </div>
+
+            <!-- Barra de Pesquisa -->
+            <div class="search-container">
+                <input type="text" class="search-input" placeholder="Pesquisar conversas..." id="searchInput">
+                <button class="search-btn">🔍</button>
+            </div>
+
+            <!-- Lista de Conversas -->
+            <div class="conversations-list">
+                <!-- Conversa 1 -->
+                <a href="mensagemExemplo.html" class="conversation-card unread">
+                    <div class="conversation-avatar">
+                        <img src="../multimedia/image/user-icon-placeholder.png" alt="PedroFlores328" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                        <div class="avatar-placeholder">🌸</div>
+                    </div>
+                    <div class="conversation-info">
+                        <div class="conversation-header">
+                            <h3 class="conversation-name">PedroFlores328</h3>
+                            <span class="conversation-time">10:30</span>
+                        </div>
+                        <div class="conversation-preview">
+                            <p class="last-message">Olá, como está a tulipa?</p>
+                            <span class="unread-badge">3</span>
+                        </div>
+                        <div class="conversation-meta">
+                            <span class="meta-item">💦 Regou 3 vezes esta semana</span>
+                        </div>
+                    </div>
+                </a>
+
+                <!-- Conversa 2 -->
+                <a href="mensagemExemplo.html" class="conversation-card">
+                    <div class="conversation-avatar">
+                        <div class="avatar-placeholder">🌿</div>
+                    </div>
+                    <div class="conversation-info">
+                        <div class="conversation-header">
+                            <h3 class="conversation-name">MariaVerde</h3>
+                            <span class="conversation-time">Ontem</span>
+                        </div>
+                        <div class="conversation-preview">
+                            <p class="last-message">Obrigada pelas dicas da samambaia! 🌱</p>
+                        </div>
+                        <div class="conversation-meta">
+                            <span class="meta-item">🌱 12 plantas</span>
+                        </div>
+                    </div>
+                </a>
+
+                <!-- Conversa 3 -->
+                <a href="mensagemExemplo.html" class="conversation-card">
+                    <div class="conversation-avatar">
+                        <div class="avatar-placeholder">🌵</div>
+                    </div>
+                    <div class="conversation-info">
+                        <div class="conversation-header">
+                            <h3 class="conversation-name">CactoLover</h3>
+                            <span class="conversation-time">Ontem</span>
+                        </div>
+                        <div class="conversation-preview">
+                            <p class="last-message">Vi o progresso da tua suculenta, está linda!</p>
+                        </div>
+                        <div class="conversation-meta">
+                            <span class="meta-item">🏆 Especialista em Cactos</span>
+                        </div>
+                    </div>
+                </a>
+
+                <!-- Conversa 4 -->
+                <a href="mensagemExemplo.html" class="conversation-card">
+                    <div class="conversation-avatar">
+                        <div class="avatar-placeholder">🌺</div>
+                    </div>
+                    <div class="conversation-info">
+                        <div class="conversation-header">
+                            <h3 class="conversation-name">OrquideasPT</h3>
+                            <span class="conversation-time">2 dias</span>
+                        </div>
+                        <div class="conversation-preview">
+                            <p class="last-message">Tens fotos novas da orquídea?</p>
+                        </div>
+                        <div class="conversation-meta">
+                            <span class="meta-item">📸 Compartilhou 8 fotos</span>
+                        </div>
+                    </div>
+                </a>
+
+                <!-- Conversa 5 -->
+                <a href="mensagemExemplo.html" class="conversation-card">
+                    <div class="conversation-avatar">
+                        <div class="avatar-placeholder">🪴</div>
+                    </div>
+                    <div class="conversation-info">
+                        <div class="conversation-header">
+                            <h3 class="conversation-name">JardimUrbano</h3>
+                            <span class="conversation-time">3 dias</span>
+                        </div>
+                        <div class="conversation-preview">
+                            <p class="last-message">Vamos trocar mudas? 😊</p>
+                        </div>
+                        <div class="conversation-meta">
+                            <span class="meta-item">� Lisboa</span>
+                        </div>
+                    </div>
+                </a>
+
+                <!-- Conversa 6 -->
+                <a href="mensagemExemplo.html" class="conversation-card">
+                    <div class="conversation-avatar">
+                        <div class="avatar-placeholder">🌻</div>
+                    </div>
+                    <div class="conversation-info">
+                        <div class="conversation-header">
+                            <h3 class="conversation-name">SunflowerFan</h3>
+                            <span class="conversation-time">1 semana</span>
+                        </div>
+                        <div class="conversation-preview">
+                            <p class="last-message">Os girassóis estão a crescer bem!</p>
+                        </div>
+                        <div class="conversation-meta">
+                            <span class="meta-item">☀️ Plantas de exterior</span>
+                        </div>
+                    </div>
+                </a>
+            </div>
+
+            <!-- Botão Flutuante para Nova Conversa -->
+            <button class="fab-button" title="Nova conversa">
+                <span class="fab-icon">✏️</span>
+            </button>
+        </main>
+    </div>
+
+    <footer class="footer">
+        <div class="copyright-info">
+            <span>©2025 Smart Plants Project</span>
+            <span class="divider"></span>
+            <span>Criado em contexto académico por estudantes da
+                <a href="https://ciencias.ulisboa.pt/" target="_blank">FCUL</a></span>
+            <span class="divider"></span>
+            Interação com Computadores
+        </div>
+    </footer>
+</body>

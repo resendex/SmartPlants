@@ -1,0 +1,347 @@
+body {
+    font-family: Arial, sans-serif;
+    background: linear-gradient(135deg, #667eea 0%, green 100%);
+    min-height: 100vh;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+}
+
+.header {
+    background: rgba(255, 255, 255, 0.95);
+    padding: 1em 2em;
+    box-shadow: 0 0.2em 0.5em rgba(0, 0, 0, 0.1);
+}
+
+.header-left {
+    display: flex;
+    align-items: center;
+    gap: 1em;
+}
+
+.header-logo {
+    width: 10em;
+    height: auto;
+    margin-left: -3.5em;
+    margin-bottom: 0.5em;
+    cursor: pointer;
+    transition: transform 0.3s ease, filter 0.3s ease;
+}
+
+.header-logo:hover {
+    transform: scale(1.1);
+    filter: brightness(1.1);
+}
+
+.header-title {
+    font-size: 1.5em;
+    font-weight: 700;
+    color: #333;
+}
+
+.container {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    padding: 2em;
+    max-width: 600px;
+    margin: 2em auto;
+    background: rgba(255, 255, 255, 0.95);
+    border-radius: 1.2em;
+    box-shadow: 0 0.5em 2em rgba(0, 0, 0, 0.3);
+    width: 90%;
+}
+
+.page-title {
+    color: #333;
+    font-size: 2em;
+    font-weight: 700;
+    margin: 0 0 1.5em 0;
+    text-align: left;
+    width: 100%;
+}
+
+.buttons-container {
+    display: flex;
+    flex-direction: row;
+    gap: 1em;
+    margin-top: 2em;
+    width: 100%;
+}
+
+button {
+    padding: 0.2em 0.4em;
+    font-size: 1em;
+    font-weight: 600;
+    border: none;
+    border-radius: 0.6em;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 0.25em 0.5em rgba(0, 0, 0, 0.2);
+    flex: 1;
+}
+
+.user-placeholder {
+    display: none;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    align-items: center;
+    justify-content: center;
+    font-size: 5em;
+    color: white;
+}
+
+.DadosFotografia {
+    display: flex;
+    width: 100%;
+}
+
+.Dados {
+    width: 50%;
+}
+
+.Fotografia {
+    height: 50%;
+    margin-left: 20%;
+    width: 17%;
+}
+
+.AlterarFotografia {
+    margin-top: 0.2em;
+}
+
+.Plantas {
+    margin-top: 2.5em;
+    margin-bottom: 2em;
+}
+
+/* -- NOVAS REGRAS PARA LAYOUT E ESTÉTICA DO PERFIL -- */
+
+.container {
+	/* ...existing code... */
+	/* manter propriedades anteriores, mas garantir padding e largura adequadas */
+}
+
+.page-title {
+	/* ...existing code... */
+	text-align: left;
+}
+
+/* grid para organizar foto e dados */
+.profile-grid {
+	display: grid;
+	grid-template-columns: 220px 1fr;
+	gap: 1.5em;
+	width: 100%;
+	align-items: start;
+}
+
+.profile-left .photo-card {
+	background: #fff;
+	padding: 1em;
+	border-radius: 1em;
+	box-shadow: 0 0.5em 1em rgba(0,0,0,0.08);
+	text-align: center;
+}
+
+.profile-photo {
+	width: 180px;
+	height: 180px;
+	object-fit: cover;
+	border-radius: 50%;
+	border: 6px solid #f6f6f6;
+	box-shadow: 0 0.6em 1em rgba(0,0,0,0.08);
+}
+
+.photo-actions {
+	display: flex;
+	flex-direction: column;
+	gap: 0.5em;
+	margin-top: 0.8em;
+}
+
+.file-label {
+	background: linear-gradient(135deg,#667eea,#764ba2);
+	color: white;
+	padding: 0.5em 0.8em;
+	border-radius: 0.6em;
+	cursor: pointer;
+	display: inline-block;
+	font-weight: 600;
+}
+
+.btn.small {
+	padding: 0.45em 0.8em;
+	font-size: 0.9em;
+}
+
+.profile-right {
+	background: rgba(255,255,255,0.0);
+	padding: 0;
+}
+
+.pf-form {
+	display: flex;
+	flex-direction: column;
+	gap: 0.8em;
+}
+
+.pf-form .form-row {
+	display: flex;
+	gap: 1em;
+	align-items: center;
+}
+
+.pf-form .form-row label {
+	min-width: 120px;
+	color: #333;
+	font-weight: 700;
+}
+
+.pf-form .form-row input,
+.pf-form .form-row select {
+	flex: 1;
+	padding: 0.6em 0.8em;
+	border: 1px solid #e6e6e6;
+	border-radius: 0.6em;
+	font-size: 1em;
+	box-shadow: inset 0 1px 0 rgba(0,0,0,0.02);
+}
+
+.form-actions {
+	display: flex;
+	gap: 0.8em;
+	margin-top: 0.4em;
+}
+
+.btn.ghost {
+	background: transparent;
+	border: 1px solid #ccc;
+	color: #333;
+}
+
+.change-password {
+	margin-top: 1em;
+}
+
+.change-box {
+	background: rgba(255,255,255,0.95);
+	padding: 1em;
+	border-radius: 0.6em;
+	box-shadow: 0 0.4em 0.8em rgba(0,0,0,0.05);
+	margin-top: 0.6em;
+}
+
+.change-box input {
+	width: 100%;
+	padding: 0.6em;
+	border: 1px solid #eee;
+	border-radius: 0.5em;
+	margin-top: 0.5em;
+}
+
+/* Pop-ups de confirmação e aviso */
+.delete-confirm-overlay,
+.warning-popup-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.6);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 10000;
+    animation: fadeIn 0.2s ease;
+}
+
+.delete-confirm-container,
+.warning-popup-container {
+    background-color: #2d2d2d;
+    padding: 20px 30px;
+    border-radius: 8px;
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.5);
+    min-width: 400px;
+    max-width: 500px;
+    animation: slideIn 0.3s ease;
+}
+
+.delete-confirm-title,
+.warning-popup-title {
+    color: white;
+    font-size: 0.9em;
+    font-weight: 400;
+    margin: 0 0 15px 0;
+}
+
+.delete-confirm-message,
+.warning-popup-message {
+    color: white;
+    font-size: 1em;
+    line-height: 1.5;
+    margin: 0 0 25px 0;
+}
+
+.delete-confirm-buttons {
+    display: flex;
+    gap: 10px;
+    justify-content: flex-end;
+}
+
+.delete-confirm-btn,
+.delete-cancel-btn,
+.warning-popup-btn {
+    padding: 8px 24px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 0.95em;
+    font-weight: 500;
+    transition: all 0.3s ease;
+}
+
+.delete-confirm-btn,
+.warning-popup-btn {
+    background-color: #5b9dd9;
+    color: white;
+}
+
+.delete-confirm-btn:hover,
+.warning-popup-btn:hover {
+    background-color: #4a8bc2;
+}
+
+.delete-cancel-btn {
+    background-color: #3d3d3d;
+    color: white;
+}
+
+.delete-cancel-btn:hover {
+    background-color: #4d4d4d;
+}
+
+@media (max-width: 600px) {   
+    
+    .buttons-container {
+        flex-direction: column;
+    }
+    
+    .container {
+        padding: 1.5em;
+    }
+}
+
+@media (max-width: 760px) {
+	.profile-grid {
+		grid-template-columns: 1fr;
+	}
+	.pf-form .form-row {
+		flex-direction: column;
+		align-items: stretch;
+	}
+	.pf-form .form-row label { min-width: auto; }
+}
