@@ -1,5 +1,6 @@
 document.addEventListener('DOMContentLoaded', () => {
-    const plantSelect = document.getElementById('plantSelect');
+    const plantSelectBtn = document.getElementById('plantSelectBtn');
+    const selectedPlantNameSpan = document.getElementById('selectedPlantName');
     const configSection = document.getElementById('configSection');
     const noPlantMessage = document.getElementById('noPlantMessage');
     const weeklyWateringInput = document.getElementById('weeklyWatering');
@@ -16,7 +17,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // CORREÇÃO: definir plantas e seleção inicial
     let plants = JSON.parse(localStorage.getItem('myPlants') || '[]');
-    let selectedPlantId = plantSelect.value || null;
+    let selectedPlantId = null;
 
     let currentEnabled = true;
     let lastSensorStatus = 'ok';
@@ -25,17 +26,44 @@ document.addEventListener('DOMContentLoaded', () => {
     const preSelectedPlantId = sessionStorage.getItem('selectedPlant');
     if (preSelectedPlantId) {
         selectedPlantId = preSelectedPlantId;
-        sessionStorage.removeItem('selectedPlant'); // Limpar após uso
+        // NÃO limpar do sessionStorage aqui - pode ser necessário para outras operações
+    }
+
+    // Verificar se há parâmetros na URL (vindo de minhas plantas)
+    const urlParams = new URLSearchParams(window.location.search);
+    const plantIdFromUrl = urlParams.get('plantId');
+    const frequencyFromUrl = urlParams.get('frequency');
+    
+    if (plantIdFromUrl) {
+        selectedPlantId = plantIdFromUrl;
+        sessionStorage.setItem('selectedPlant', plantIdFromUrl);
     }
 
     loadPlants();
+    
+    // Se veio com frequência predefinida da recomendação (4 vezes por semana)
+    if (frequencyFromUrl && selectedPlantId) {
+        // Aguardar um pouco para garantir que o DOM está pronto
+        setTimeout(() => {
+            // Definir 4 regas por semana conforme recomendação do diagnóstico
+            weeklyWateringInput.value = 4;
+            
+            // Verificar se há agendas existentes e mostrar aviso
+            checkAndShowDiagnosticWarning(selectedPlantId);
+        }, 100);
+    }
 
     // Event Listeners
-    plantSelect.addEventListener('change', handlePlantChange);
+    plantSelectBtn.addEventListener('click', openPlantSelectionModal);
     saveButton.addEventListener('click', saveConfiguration);
     toggleStatusBtn.addEventListener('click', handleToggleStatus);
     if (viewCalendarBtn) {
         viewCalendarBtn.addEventListener('click', openCalendar);
+    }
+    
+    const clearSchedulesBtn = document.getElementById('clearSchedulesBtn');
+    if (clearSchedulesBtn) {
+        clearSchedulesBtn.addEventListener('click', () => confirmClearAllSchedules(selectedPlantId));
     }
 
     function loadPlants() {
@@ -43,24 +71,34 @@ document.addEventListener('DOMContentLoaded', () => {
         plants = JSON.parse(localStorage.getItem('myPlants') || '[]');
 
         if (!plants.length) {
-            plantSelect.innerHTML = '<option value="">Nenhuma planta disponível</option>';
+            selectedPlantNameSpan.textContent = 'Nenhuma planta disponível';
             selectedPlantId = null;
+            configSection.classList.remove('active');
+            noPlantMessage.classList.remove('hidden');
             return;
         }
 
-        const prev = selectedPlantId;
-        plantSelect.innerHTML = '<option value="">-- Escolha uma planta --</option>' +
-            plants.map(p => `<option value="${p.id}" ${p.id == prev ? 'selected':''}>${p.name}</option>`).join('');
-
-        if (prev) {
-            plantSelect.value = prev;
-            selectedPlantId = prev; // Garantir que está definido
-            handlePlantChange({ target: plantSelect });
+        if (selectedPlantId) {
+            const plant = plants.find(p => p.id == selectedPlantId);
+            if (plant) {
+                selectedPlantNameSpan.textContent = plant.name;
+                handlePlantChange(selectedPlantId);
+            } else {
+                // Planta não encontrada
+                selectedPlantNameSpan.textContent = '-- Escolha uma planta --';
+                configSection.classList.remove('active');
+                noPlantMessage.classList.remove('hidden');
+            }
+        } else {
+            // Nenhuma planta selecionada
+            selectedPlantNameSpan.textContent = '-- Escolha uma planta --';
+            configSection.classList.remove('active');
+            noPlantMessage.classList.remove('hidden');
         }
     }
 
-    function handlePlantChange(e) {
-        selectedPlantId = e.target.value;
+    function handlePlantChange(plantId) {
+        selectedPlantId = plantId;
 
         if (!selectedPlantId) {
             configSection.classList.remove('active');
@@ -78,35 +116,7 @@ document.addEventListener('DOMContentLoaded', () => {
     function simulateSensorAnalysis() {
         const sensorStatus = 'ok';
         lastSensorStatus = sensorStatus;
-        updateStatusIndicator(sensorStatus);
-        updateFieldsState(sensorStatus); // mantém chamada
-    }
-
-    // ALTERADO: agora usa também o enabled atual
-    function updateFieldsState(status) {
-        const isOk = status === 'ok';
-        updateEnabledUI(currentEnabled, isOk);
-    }
-
-    function updateStatusIndicator(status) {
-        const badge = statusIndicator.querySelector('.status-badge');
-        if (!badge) return;
-        badge.classList.remove('ok','problema','falha');
-        const icon = badge.querySelector('.status-icon');
-        const text = badge.querySelector('.status-text');
-        if (currentEnabled && status === 'ok') {
-            badge.classList.add('ok');
-            icon.textContent = '✓';
-            text.textContent = 'Sistema Operacional - Sensores Funcionando Corretamente';
-        } else if (currentEnabled && status !== 'ok') {
-            badge.classList.add('problema');
-            icon.textContent = '⚠️';
-            text.textContent = 'Sistema Ativo com Problemas de Sensor';
-        } else {
-            badge.classList.add('falha');
-            icon.textContent = '✖';
-            text.textContent = 'Sistema Desativado';
-        }
+        updateEnabledUI(currentEnabled, sensorStatus === 'ok');
     }
 
     function loadConfiguration(plantId) {
@@ -117,6 +127,249 @@ document.addEventListener('DOMContentLoaded', () => {
         currentEnabled = config.enabled !== false;
         updateEnabledUI(currentEnabled, lastSensorStatus === 'ok');
         updateStatusCard(config);
+        updateActiveSchedulesSection(plantId);
+    }
+    
+    // Mostrar aviso quando vem do diagnóstico
+    function checkAndShowDiagnosticWarning(plantId) {
+        const hasSchedules = hasAnySchedules(plantId);
+        
+        if (hasSchedules) {
+            const scheduleCount = countAllSchedules(plantId);
+            showConfirmModal(
+                '⚠️ Aviso do Diagnóstico',
+                `Esta planta possui ${scheduleCount} rega(s) agendada(s). Para aplicar a recomendação do diagnóstico (4 regas por semana), todas as regas atuais serão desfeitas. Deseja continuar?`,
+                () => {
+                    // Usuário confirmou - limpar todas as agendas e materializar a nova
+                    clearAllSchedulesForPlant(plantId);
+                    materializeDiagnosticSchedule(plantId);
+                    showModal('Sucesso', 'Recomendação do diagnóstico aplicada com sucesso! 4 regas por semana foram agendadas.', 'success');
+                    loadConfiguration(plantId);
+                },
+                () => {
+                    // Usuário cancelou - voltar para minhas plantas
+                    window.location.href = 'minhasplantas.html';
+                }
+            );
+        } else {
+            // Não há agendas existentes, materializar diretamente
+            materializeDiagnosticSchedule(plantId);
+            showModal('Sucesso', 'Recomendação do diagnóstico aplicada! 4 regas por semana foram agendadas.', 'success');
+            loadConfiguration(plantId);
+        }
+    }
+    
+    // Materializar a agenda recomendada do diagnóstico
+    function materializeDiagnosticSchedule(plantId) {
+        const config = {
+            enabled: true,
+            weeklyWatering: 4,
+            wateringTime: '08:00'
+        };
+        
+        const key = `irrigation_config_${plantId}`;
+        localStorage.setItem(key, JSON.stringify(config));
+        
+        // Atualizar os campos do formulário
+        weeklyWateringInput.value = 4;
+        wateringTimeInput.value = '08:00';
+        currentEnabled = true;
+        
+        // Notificar sistema de rega ativado
+        if (typeof window.notificarSistemaRega === 'function') {
+            const plants = JSON.parse(localStorage.getItem('myPlants') || '[]');
+            const plant = plants.find(p => p.id == plantId);
+            if (plant) {
+                window.notificarSistemaRega(plant.name, 4);
+            }
+        }
+    }
+    
+    // Verificar se há qualquer tipo de agenda
+    function hasAnySchedules(plantId) {
+        const wateringData = JSON.parse(localStorage.getItem(`watering_${plantId}`) || '[]');
+        const recurrences = JSON.parse(localStorage.getItem(`recurrences_${plantId}`) || '[]');
+        const irrigationConfig = JSON.parse(localStorage.getItem(`irrigation_config_${plantId}`) || '{}');
+        
+        const futureWaterings = wateringData.filter(w => !w.completed && w.date >= new Date().toISOString().split('T')[0]);
+        const activeRecurrences = recurrences.filter(r => !r.stopped);
+        const hasActiveIrrigation = irrigationConfig.enabled && irrigationConfig.weeklyWatering;
+        
+        return futureWaterings.length > 0 || activeRecurrences.length > 0 || hasActiveIrrigation;
+    }
+    
+    // Contar todas as agendas
+    function countAllSchedules(plantId) {
+        const wateringData = JSON.parse(localStorage.getItem(`watering_${plantId}`) || '[]');
+        const recurrences = JSON.parse(localStorage.getItem(`recurrences_${plantId}`) || '[]');
+        const irrigationConfig = JSON.parse(localStorage.getItem(`irrigation_config_${plantId}`) || '{}');
+        
+        const futureWaterings = wateringData.filter(w => !w.completed && w.date >= new Date().toISOString().split('T')[0]);
+        const activeRecurrences = recurrences.filter(r => !r.stopped);
+        const irrigationCount = (irrigationConfig.enabled && irrigationConfig.weeklyWatering) ? 1 : 0;
+        
+        return futureWaterings.length + activeRecurrences.length + irrigationCount;
+    }
+    
+    // Atualizar seção de calendarização ativa
+    function updateActiveSchedulesSection(plantId) {
+        const activeSchedulesSection = document.getElementById('activeSchedulesSection');
+        const activeSchedulesList = document.getElementById('activeSchedulesList');
+        const clearSchedulesBtn = document.getElementById('clearSchedulesBtn');
+        
+        if (!activeSchedulesSection || !activeSchedulesList) return;
+        
+        const wateringData = JSON.parse(localStorage.getItem(`watering_${plantId}`) || '[]');
+        const recurrences = JSON.parse(localStorage.getItem(`recurrences_${plantId}`) || '[]');
+        const irrigationConfig = JSON.parse(localStorage.getItem(`irrigation_config_${plantId}`) || '{}');
+        
+        const futureWaterings = wateringData.filter(w => !w.completed && w.date >= new Date().toISOString().split('T')[0]);
+        const activeRecurrences = recurrences.filter(r => !r.stopped);
+        const hasActiveIrrigation = irrigationConfig.enabled && irrigationConfig.weeklyWatering;
+        
+        let html = '';
+        
+        // Sistema automático
+        if (hasActiveIrrigation) {
+            html += `
+                <div class="schedule-item">
+                    <span class="schedule-icon">⚙️</span>
+                    <div class="schedule-info">
+                        <strong>Sistema Automático</strong>
+                        <span>${irrigationConfig.weeklyWatering}x por semana às ${irrigationConfig.wateringTime}</span>
+                    </div>
+                    <button class="btn-remove-schedule" onclick="removeIrrigationSystem(${plantId})" title="Desmarcar">
+                        ✕
+                    </button>
+                </div>
+            `;
+        }
+        
+        // Recorrências
+        activeRecurrences.forEach((rec, index) => {
+            html += `
+                <div class="schedule-item">
+                    <span class="schedule-icon">↻</span>
+                    <div class="schedule-info">
+                        <strong>Rega Recorrente</strong>
+                        <span>A cada ${rec.intervalDays} dia(s) às ${rec.time}</span>
+                    </div>
+                    <button class="btn-remove-schedule" onclick="removeRecurrence(${plantId}, ${rec.id})" title="Desmarcar">
+                        ✕
+                    </button>
+                </div>
+            `;
+        });
+        
+        // Regas manuais futuras
+        if (futureWaterings.length > 0) {
+            html += `
+                <div class="schedule-item">
+                    <span class="schedule-icon">📅</span>
+                    <div class="schedule-info">
+                        <strong>Regas Manuais</strong>
+                        <span>${futureWaterings.length} rega(s) agendada(s)</span>
+                    </div>
+                    <button class="btn-remove-schedule" onclick="removeManualWaterings(${plantId})" title="Desmarcar todas">
+                        ✕
+                    </button>
+                </div>
+            `;
+        }
+        
+        if (html) {
+            activeSchedulesList.innerHTML = html;
+            activeSchedulesSection.style.display = 'block';
+            // Esconder o botão geral
+            clearSchedulesBtn.style.display = 'none';
+        } else {
+            activeSchedulesSection.style.display = 'none';
+        }
+    }
+    
+    // Funções globais para remover agendas individuais
+    window.removeIrrigationSystem = function(plantId) {
+        showConfirmModal(
+            'Desmarcar Sistema Automático',
+            'Tem certeza que deseja desativar o sistema automático de rega?',
+            () => {
+                const irrigationConfig = JSON.parse(localStorage.getItem(`irrigation_config_${plantId}`) || '{}');
+                irrigationConfig.enabled = false;
+                irrigationConfig.weeklyWatering = 0;
+                localStorage.setItem(`irrigation_config_${plantId}`, JSON.stringify(irrigationConfig));
+                
+                showModal('Sucesso', 'Sistema automático desativado.', 'success');
+                loadConfiguration(plantId);
+            }
+        );
+    };
+    
+    window.removeRecurrence = function(plantId, recurrenceId) {
+        showConfirmModal(
+            'Desmarcar Rega Recorrente',
+            'Tem certeza que deseja remover esta rega recorrente?',
+            () => {
+                let recurrences = JSON.parse(localStorage.getItem(`recurrences_${plantId}`) || '[]');
+                recurrences = recurrences.filter(r => r.id !== recurrenceId);
+                localStorage.setItem(`recurrences_${plantId}`, JSON.stringify(recurrences));
+                
+                showModal('Sucesso', 'Rega recorrente removida.', 'success');
+                loadConfiguration(plantId);
+            }
+        );
+    };
+    
+    window.removeManualWaterings = function(plantId) {
+        const wateringData = JSON.parse(localStorage.getItem(`watering_${plantId}`) || '[]');
+        const futureCount = wateringData.filter(w => !w.completed && w.date >= new Date().toISOString().split('T')[0]).length;
+        
+        showConfirmModal(
+            'Desmarcar Regas Manuais',
+            `Tem certeza que deseja remover ${futureCount} rega(s) manual(is) agendada(s)?`,
+            () => {
+                // Manter apenas regas completadas ou passadas
+                const updated = wateringData.filter(w => w.completed || w.date < new Date().toISOString().split('T')[0]);
+                localStorage.setItem(`watering_${plantId}`, JSON.stringify(updated));
+                
+                showModal('Sucesso', 'Regas manuais removidas.', 'success');
+                loadConfiguration(plantId);
+            }
+        );
+    };
+    
+    // Confirmar limpeza de todas as agendas
+    function confirmClearAllSchedules(plantId) {
+        if (!plantId) return;
+        
+        const count = countAllSchedules(plantId);
+        
+        showConfirmModal(
+            'Confirmar Desmarcação',
+            `Tem certeza que deseja desmarcar todas as ${count} rega(s) agendada(s)? Esta ação não pode ser desfeita.`,
+            () => {
+                clearAllSchedulesForPlant(plantId);
+                showModal('Sucesso', 'Todas as regas foram desmarcadas.', 'success');
+                loadConfiguration(plantId);
+            }
+        );
+    }
+    
+    // Limpar todas as agendas de uma planta
+    function clearAllSchedulesForPlant(plantId) {
+        // Limpar sistema de rega
+        const irrigationConfig = JSON.parse(localStorage.getItem(`irrigation_config_${plantId}`) || '{}');
+        irrigationConfig.enabled = false;
+        irrigationConfig.weeklyWatering = 0;
+        localStorage.setItem(`irrigation_config_${plantId}`, JSON.stringify(irrigationConfig));
+        
+        // Limpar regas manuais futuras
+        localStorage.removeItem(`watering_${plantId}`);
+        
+        // Limpar recorrências
+        localStorage.removeItem(`recurrences_${plantId}`);
+        
+        // Limpar exceções
+        localStorage.removeItem(`irrigation_exceptions_${plantId}`);
     }
 
     // NOVO: Atualizar painel de configuração atual
@@ -166,21 +419,175 @@ document.addEventListener('DOMContentLoaded', () => {
             return;
         }
 
-        const hasCustomizations = hasIrrigationCustomizations(selectedPlantId);
+        // Verificar se há regas personalizadas (manuais ou recorrentes)
+        const hasPersonalizedSchedules = hasPersonalizedWaterings(selectedPlantId);
+        
+        if (hasPersonalizedSchedules) {
+            // Mostrar modal de conflito com regas personalizadas
+            showPersonalizedScheduleConflictModal(selectedPlantId, weeklyWatering, wateringTime);
+        } else {
+            // Verificar personalizações do sistema de rega
+            const hasCustomizations = hasIrrigationCustomizations(selectedPlantId);
 
-        if (hasCustomizations) {
-            const count = countIrrigationCustomizations(selectedPlantId);
-            showConfirmModal(
-                'Confirmar Alterações',
-                `Existem ${count} personalizações no calendário que serão removidas. Continuar?`,
-                () => {
-                    clearIrrigationOverrides(selectedPlantId);
+            if (hasCustomizations) {
+                const count = countIrrigationCustomizations(selectedPlantId);
+                showConfirmModal(
+                    'Confirmar Alterações',
+                    `Existem ${count} personalizações no calendário que serão removidas. Continuar?`,
+                    () => {
+                        clearIrrigationOverrides(selectedPlantId);
+                        saveConfigurationConfirmed(weeklyWatering, wateringTime);
+                    }
+                );
+            } else {
+                saveConfigurationConfirmed(weeklyWatering, wateringTime);
+            }
+        }
+    }
+    
+    // Verificar se há regas personalizadas (manuais ou recorrentes)
+    function hasPersonalizedWaterings(plantId) {
+        const wateringData = JSON.parse(localStorage.getItem(`watering_${plantId}`) || '[]');
+        const recurrences = JSON.parse(localStorage.getItem(`recurrences_${plantId}`) || '[]');
+        
+        const futureWaterings = wateringData.filter(w => !w.completed && w.date >= new Date().toISOString().split('T')[0] && !w.source);
+        const activeRecurrences = recurrences.filter(r => !r.stopped);
+        
+        return futureWaterings.length > 0 || activeRecurrences.length > 0;
+    }
+    
+    // Contar regas personalizadas
+    function countPersonalizedWaterings(plantId) {
+        const wateringData = JSON.parse(localStorage.getItem(`watering_${plantId}`) || '[]');
+        const recurrences = JSON.parse(localStorage.getItem(`recurrences_${plantId}`) || '[]');
+        
+        const futureWaterings = wateringData.filter(w => !w.completed && w.date >= new Date().toISOString().split('T')[0] && !w.source);
+        const activeRecurrences = recurrences.filter(r => !r.stopped);
+        
+        return futureWaterings.length + activeRecurrences.length;
+    }
+    
+    // Mostrar modal de conflito com regas personalizadas
+    function showPersonalizedScheduleConflictModal(plantId, weeklyWatering, wateringTime) {
+        const count = countPersonalizedWaterings(plantId);
+        
+        const modal = document.createElement('div');
+        modal.className = 'plant-selection-overlay';
+        modal.innerHTML = `
+            <div class="plant-selection-modal" style="max-width: 550px;">
+                <h2 class="modal-title" style="color: #ff9800;">⚠️ Regas Personalizadas Existentes</h2>
+                
+                <div style="padding: 1em 0;">
+                    <p style="color: #555; font-size: 1em; line-height: 1.6; margin-bottom: 1em;">
+                        Esta planta possui <strong>${count} rega(s) personalizada(s)</strong> agendada(s) no calendário (regas manuais ou recorrentes).
+                    </p>
+                    <p style="color: #555; font-size: 1em; line-height: 1.6; margin-bottom: 1em;">
+                        O que deseja fazer?
+                    </p>
+                </div>
+
+                <div style="display: flex; flex-direction: column; gap: 1em; margin-bottom: 1.5em;">
+                    <!-- Opção 1: Remover personalizadas -->
+                    <div class="schedule-option-card" data-action="remove" style="border: 2px solid #667eea; border-radius: 0.8em; padding: 1.2em; cursor: pointer; transition: all 0.3s ease; background: rgba(102, 126, 234, 0.05);">
+                        <div style="display: flex; align-items: center; gap: 1em;">
+                            <div style="font-size: 2em;">⚙️</div>
+                            <div style="flex: 1;">
+                                <h3 style="margin: 0 0 0.3em 0; color: #667eea; font-size: 1.1em;">Remover Personalizadas e Ativar Sistema</h3>
+                                <p style="margin: 0; color: #666; font-size: 0.9em;">
+                                    Remove todas as regas personalizadas e ativa o sistema automático (${weeklyWatering}x por semana)
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Opção 2: Manter personalizadas -->
+                    <div class="schedule-option-card" data-action="keep" style="border: 2px solid #28a745; border-radius: 0.8em; padding: 1.2em; cursor: pointer; transition: all 0.3s ease; background: rgba(40, 167, 69, 0.05);">
+                        <div style="display: flex; align-items: center; gap: 1em;">
+                            <div style="font-size: 2em;">📅</div>
+                            <div style="flex: 1;">
+                                <h3 style="margin: 0 0 0.3em 0; color: #28a745; font-size: 1.1em;">Manter Personalizadas e Adicionar Sistema</h3>
+                                <p style="margin: 0; color: #666; font-size: 0.9em;">
+                                    Mantém as regas personalizadas e adiciona o sistema automático em dias livres
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="modal-buttons">
+                    <button class="btn-modal btn-cancel" id="cancelPersonalizedConflict">
+                        Cancelar
+                    </button>
+                </div>
+            </div>
+        `;
+        
+        document.body.appendChild(modal);
+        
+        // Função para fechar modal
+        const closeModal = () => {
+            if (document.body.contains(modal)) {
+                document.body.removeChild(modal);
+            }
+        };
+        
+        // Cancelar
+        modal.querySelector('#cancelPersonalizedConflict').addEventListener('click', closeModal);
+        
+        // Click no overlay
+        modal.addEventListener('click', (e) => {
+            if (e.target === modal) {
+                closeModal();
+            }
+        });
+        
+        // Hover e click nas opções
+        const optionCards = modal.querySelectorAll('.schedule-option-card');
+        optionCards.forEach(card => {
+            card.addEventListener('mouseenter', function() {
+                this.style.transform = 'translateY(-3px)';
+                this.style.boxShadow = '0 4px 12px rgba(0, 0, 0, 0.15)';
+            });
+            
+            card.addEventListener('mouseleave', function() {
+                this.style.transform = 'translateY(0)';
+                this.style.boxShadow = 'none';
+            });
+            
+            card.addEventListener('click', function() {
+                const action = this.getAttribute('data-action');
+                
+                closeModal();
+                
+                if (action === 'remove') {
+                    // Remover todas as regas personalizadas
+                    clearPersonalizedWaterings(plantId);
+                    // Verificar e limpar personalizações do sistema
+                    if (hasIrrigationCustomizations(plantId)) {
+                        clearIrrigationOverrides(plantId);
+                    }
+                    saveConfigurationConfirmed(weeklyWatering, wateringTime);
+                } else {
+                    // Manter personalizadas e adicionar sistema
+                    // Verificar e limpar apenas personalizações do sistema
+                    if (hasIrrigationCustomizations(plantId)) {
+                        clearIrrigationOverrides(plantId);
+                    }
                     saveConfigurationConfirmed(weeklyWatering, wateringTime);
                 }
-            );
-        } else {
-            saveConfigurationConfirmed(weeklyWatering, wateringTime);
-        }
+            });
+        });
+    }
+    
+    // Limpar regas personalizadas (manuais e recorrentes)
+    function clearPersonalizedWaterings(plantId) {
+        // Remover regas manuais futuras
+        const wateringData = JSON.parse(localStorage.getItem(`watering_${plantId}`) || '[]');
+        const filtered = wateringData.filter(w => w.completed || w.date < new Date().toISOString().split('T')[0] || w.source);
+        localStorage.setItem(`watering_${plantId}`, JSON.stringify(filtered));
+        
+        // Remover recorrências
+        localStorage.removeItem(`recurrences_${plantId}`);
     }
 
     // Verificar se há personalizações no sistema de rega
@@ -200,6 +607,9 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function saveConfigurationConfirmed(weeklyWatering, wateringTime) {
+        // Ativar imediatamente para permitir verificação
+        currentEnabled = true;
+        
         const config = {
             weeklyWatering,
             wateringTime,
@@ -218,6 +628,10 @@ document.addEventListener('DOMContentLoaded', () => {
         
         // Mostrar modal de sucesso com agenda
         showSuccessScheduleModal(plant.name, weeklyWatering, wateringTime, nextWateringDates);
+        
+        // Atualizar UI
+        updateEnabledUI(currentEnabled, lastSensorStatus === 'ok');
+        loadConfiguration(selectedPlantId);
     }
 
     // NOVA FUNÇÃO: Calcular próximas datas de rega
@@ -267,12 +681,9 @@ document.addEventListener('DOMContentLoaded', () => {
         
         showModal('✅ Sistema de Rega Ativado!', message, 'success');
         
-        // Atualizar status card
-        updateStatusCard({
-            weeklyWatering,
-            wateringTime,
-            enabled: true
-        });
+        // Ativar o sistema e recarregar configuração
+        currentEnabled = true;
+        loadConfiguration(selectedPlantId);
     }
 
     // Função para limpar exceções e sobreposições do sistema de rega
@@ -322,11 +733,10 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function updateEnabledUI(enabled, sensorOk) {
-        const canEdit = enabled && sensorOk;
-        
-        weeklyWateringInput.disabled = !canEdit;
-        wateringTimeInput.disabled = !canEdit;
-        saveButton.disabled = !canEdit;
+        // Sempre permitir edição dos campos quando há planta selecionada
+        weeklyWateringInput.disabled = !selectedPlantId;
+        wateringTimeInput.disabled = !selectedPlantId;
+        saveButton.disabled = !selectedPlantId;
         viewCalendarBtn.disabled = !selectedPlantId;
     }
 
@@ -409,6 +819,140 @@ document.addEventListener('DOMContentLoaded', () => {
             if (e.target === modal) {
                 closeModal();
             }
+        });
+    }
+
+    // Modal de seleção de planta
+    function openPlantSelectionModal() {
+        const plants = JSON.parse(localStorage.getItem('myPlants') || '[]');
+        
+        const modal = document.createElement('div');
+        modal.className = 'plant-selection-overlay';
+        
+        if (plants.length === 0) {
+            modal.innerHTML = `
+                <div class="plant-selection-modal">
+                    <h2 class="modal-title">Escolha uma Planta</h2>
+                    
+                    <div class="no-plants-message">
+                        <div class="no-plants-icon">🌱</div>
+                        <p><strong>Ainda não tem plantas cadastradas.</strong></p>
+                        <p>Adicione sua primeira planta para começar!</p>
+                    </div>
+                    
+                    <div class="modal-buttons">
+                        <button class="btn-modal btn-add-plant" onclick="window.location.href='add.html'">
+                            Adicionar Planta
+                        </button>
+                        <button class="btn-modal btn-cancel" id="cancelPlantModal">
+                            Cancelar
+                        </button>
+                    </div>
+                </div>
+            `;
+        } else {
+            const plantOptions = plants.map(p => `
+                <label class="plant-option" data-plant-id="${p.id}">
+                    <input type="radio" name="plant" value="${p.id}" class="plant-radio" ${p.id == selectedPlantId ? 'checked' : ''}>
+                    <span class="plant-name">${p.name}</span>
+                    <span class="plant-icon">🌿</span>
+                </label>
+            `).join('');
+            
+            modal.innerHTML = `
+                <div class="plant-selection-modal">
+                    <h2 class="modal-title">Escolha uma Planta</h2>
+
+                    <div class="plant-list" id="plantList">
+                        ${plantOptions}
+                    </div>
+
+                    <div class="modal-buttons">
+                        <button class="btn-modal btn-confirm" id="confirmPlantBtn" ${!selectedPlantId ? 'disabled' : ''}>
+                            Confirmar Seleção
+                        </button>
+                    </div>
+
+                    <div class="modal-buttons" style="margin-top: 1em;">
+                        <button class="btn-modal btn-add-plant" onclick="window.location.href='add.html'">
+                            Adicionar Planta
+                        </button>
+                        <button class="btn-modal btn-cancel" id="cancelPlantModal">
+                            Cancelar
+                        </button>
+                    </div>
+                </div>
+            `;
+        }
+        
+        document.body.appendChild(modal);
+        
+        // Event listeners
+        const cancelBtn = modal.querySelector('#cancelPlantModal');
+        if (cancelBtn) {
+            cancelBtn.addEventListener('click', () => {
+                document.body.removeChild(modal);
+            });
+        }
+        
+        const confirmBtn = modal.querySelector('#confirmPlantBtn');
+        if (confirmBtn) {
+            confirmBtn.addEventListener('click', () => {
+                const selectedRadio = modal.querySelector('.plant-radio:checked');
+                if (selectedRadio) {
+                    const newPlantId = selectedRadio.value;
+                    selectedPlantId = newPlantId;
+                    
+                    // Atualizar botão de seleção
+                    const currentPlant = plants.find(p => p.id == newPlantId);
+                    if (currentPlant && selectedPlantNameSpan) {
+                        selectedPlantNameSpan.textContent = currentPlant.name;
+                    }
+                    
+                    // Processar a mudança de planta
+                    handlePlantChange(newPlantId);
+                    
+                    // Fechar modal
+                    document.body.removeChild(modal);
+                }
+            });
+        }
+        
+        // Adicionar classe selected ao clicar
+        const plantOptions = modal.querySelectorAll('.plant-option');
+        plantOptions.forEach(option => {
+            if (option.querySelector('.plant-radio').checked) {
+                option.classList.add('selected');
+            }
+            
+            option.addEventListener('click', function(e) {
+                if (e.target.tagName !== 'INPUT') {
+                    const radio = this.querySelector('.plant-radio');
+                    radio.checked = true;
+                }
+                
+                plantOptions.forEach(opt => opt.classList.remove('selected'));
+                this.classList.add('selected');
+                
+                if (confirmBtn) {
+                    confirmBtn.disabled = false;
+                }
+            });
+        });
+        
+        // Permitir clicar no radio button também
+        const radios = modal.querySelectorAll('.plant-radio');
+        radios.forEach(radio => {
+            radio.addEventListener('change', function() {
+                if (this.checked) {
+                    const option = this.closest('.plant-option');
+                    plantOptions.forEach(opt => opt.classList.remove('selected'));
+                    option.classList.add('selected');
+                    if (confirmBtn) {
+                        confirmBtn.disabled = false;
+                    }
+                }
+            });
         });
     }
 
