@@ -4,15 +4,11 @@
 
 // Verificar se uma data específica tem conflito
 function hasConflictOnDate(plantId, dateStr, excludeSource = null) {
-    console.log('DEBUG hasConflictOnDate:', { plantId, dateStr, excludeSource });
-    
     // Verificar sistema automático
     const irrigationConfig = JSON.parse(localStorage.getItem(`irrigation_config_${plantId}`) || '{}');
-    console.log('DEBUG - Irrigation config:', irrigationConfig);
     
     if (irrigationConfig.enabled && irrigationConfig.weeklyWatering && excludeSource !== 'irrigation') {
         if (isIrrigationDay(irrigationConfig, dateStr)) {
-            console.log('DEBUG - Conflito com sistema automático detectado!');
             return { hasConflict: true, source: 'irrigation', config: irrigationConfig };
         }
     }
@@ -20,12 +16,10 @@ function hasConflictOnDate(plantId, dateStr, excludeSource = null) {
     // Verificar recorrências
     const recurrences = JSON.parse(localStorage.getItem(`recurrences_${plantId}`) || '[]');
     const activeRecurrences = recurrences.filter(r => !r.stopped);
-    console.log('DEBUG - Recorrências ativas:', activeRecurrences);
     
     if (excludeSource !== 'recurrence') {
         for (const rec of activeRecurrences) {
             if (isRecurrenceOccurrence(rec, dateStr)) {
-                console.log('DEBUG - Conflito com recorrência detectado!', rec);
                 return { hasConflict: true, source: 'recurrence', recurrence: rec };
             }
         }
@@ -33,17 +27,14 @@ function hasConflictOnDate(plantId, dateStr, excludeSource = null) {
     
     // Verificar regas manuais
     const wateringData = JSON.parse(localStorage.getItem(`watering_${plantId}`) || '[]');
-    console.log('DEBUG - Regas manuais:', wateringData);
     
     if (excludeSource !== 'manual') {
         const manualWatering = wateringData.find(w => w.date === dateStr && !w.source);
         if (manualWatering) {
-            console.log('DEBUG - Conflito com rega manual detectado!', manualWatering);
             return { hasConflict: true, source: 'manual', watering: manualWatering };
         }
     }
     
-    console.log('DEBUG - Nenhum conflito encontrado');
     return { hasConflict: false };
 }
 
@@ -72,19 +63,29 @@ function checkIrrigationSystemConflicts(plantId, weeklyWatering) {
 }
 
 // Verificar se uma recorrência conflita com agendas existentes
-function checkRecurrenceConflicts(plantId, startDate, intervalDays) {
+function checkRecurrenceConflicts(plantId, startDate, daysPerWeek) {
     const conflicts = [];
-    const start = new Date(startDate + 'T00:00:00');
+    const today = new Date();
+    const interval = Math.floor(7 / daysPerWeek);
     
-    // Verificar próximas 10 ocorrências
-    for (let i = 0; i < 10; i++) {
-        const checkDate = new Date(start);
-        checkDate.setDate(start.getDate() + (i * intervalDays));
-        const dateStr = toDateString(checkDate);
+    const irrigationDays = [];
+    for (let i = 0; i < daysPerWeek; i++) {
+        irrigationDays.push((i * interval) % 7);
+    }
+    
+    // Verificar próximos 30 dias
+    for (let i = 0; i < 30; i++) {
+        const checkDate = new Date(today);
+        checkDate.setDate(today.getDate() + i);
+        const dayOfWeek = checkDate.getDay();
         
-        const conflict = hasConflictOnDate(plantId, dateStr, 'recurrence');
-        if (conflict.hasConflict) {
-            conflicts.push({ date: dateStr, occurrence: i + 1, ...conflict });
+        // Verificar se é dia de rega da recorrência
+        if (irrigationDays.includes(dayOfWeek)) {
+            const dateStr = toDateString(checkDate);
+            const conflict = hasConflictOnDate(plantId, dateStr, 'recurrence');
+            if (conflict.hasConflict) {
+                conflicts.push({ date: dateStr, ...conflict });
+            }
         }
     }
     
@@ -113,16 +114,33 @@ function isIrrigationDay(config, dateStr) {
     return irrigationDays.includes(dayOfWeek);
 }
 
-// Verificar se é ocorrência de recorrência
+// Verificar se é ocorrência de recorrência (agora usando dias por semana)
 function isRecurrenceOccurrence(recurrence, dateStr) {
     if (dateStr < recurrence.startDate) return false;
     if (recurrence.excludedDates && recurrence.excludedDates.includes(dateStr)) return false;
     
-    const d1 = new Date(recurrence.startDate + 'T00:00:00');
-    const d2 = new Date(dateStr + 'T00:00:00');
-    const diffDays = Math.round((d2 - d1) / (1000 * 60 * 60 * 24));
+    // Suporte para formato antigo (intervalDays) e novo (daysPerWeek)
+    if (recurrence.intervalDays) {
+        // Formato antigo: a cada X dias
+        const d1 = new Date(recurrence.startDate + 'T00:00:00');
+        const d2 = new Date(dateStr + 'T00:00:00');
+        const diffDays = Math.round((d2 - d1) / (1000 * 60 * 60 * 24));
+        return diffDays >= 0 && diffDays % recurrence.intervalDays === 0;
+    } else if (recurrence.daysPerWeek) {
+        // Formato novo: X dias por semana (igual ao sistema automático)
+        const targetDate = new Date(dateStr + 'T00:00:00');
+        const dayOfWeek = targetDate.getDay();
+        const interval = Math.floor(7 / recurrence.daysPerWeek);
+        
+        const irrigationDays = [];
+        for (let i = 0; i < recurrence.daysPerWeek; i++) {
+            irrigationDays.push((i * interval) % 7);
+        }
+        
+        return irrigationDays.includes(dayOfWeek);
+    }
     
-    return diffDays >= 0 && diffDays % recurrence.intervalDays === 0;
+    return false;
 }
 
 // Mostrar modal de conflito com opções
@@ -724,10 +742,8 @@ document.addEventListener('DOMContentLoaded', () => {
             
             // Verificar conflito antes de adicionar
             const conflict = checkManualWateringConflict(selectedPlantId, dateStr);
-            console.log('DEBUG - Verificando conflito:', { plantId: selectedPlantId, dateStr, conflict });
             
             if (conflict.hasConflict) {
-                console.log('DEBUG - Conflito detectado, mostrando modal');
                 removeModal();
                 showConflictModal(
                     selectedPlantId,
@@ -735,14 +751,12 @@ document.addEventListener('DOMContentLoaded', () => {
                     'rega manual',
                     { plantId: selectedPlantId, date: dateStr, time },
                     (data) => {
-                        console.log('DEBUG - Resolvendo conflito e adicionando rega:', data);
                         addWatering(data.plantId, data.date, data.time);
                         renderCalendar();
                         updateInfoPanel();
                     }
                 );
             } else {
-                console.log('DEBUG - Nenhum conflito, adicionando rega diretamente');
                 addWatering(selectedPlantId, dateStr, time);
                 removeModal();
                 renderCalendar();
@@ -775,7 +789,7 @@ document.addEventListener('DOMContentLoaded', () => {
         `;
 
         const contentRecurrence = existingWatering && existingWatering.source === 'recurrence' ? `
-            <p><strong>Tipo:</strong> Rega automática a cada ${existingWatering.intervalDays} dia(s)</p>
+            <p><strong>Tipo:</strong> Rega recorrente ${existingWatering.daysPerWeek ? existingWatering.daysPerWeek + ' dia(s) por semana' : 'a cada ' + existingWatering.intervalDays + ' dia(s)'}</p>
             <p><strong>Hora:</strong> ${existingWatering.time}</p>
             <div style="display:flex;gap:.5rem;flex-wrap:wrap;">
                 <button class="btn btn-danger" id="stopRecurrence">Interromper recorrência</button>
@@ -977,7 +991,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     <ul class="recurrence-list">
                         ${recurrences.map(r => `
                             <li>
-                                <span>↻ A cada ${r.intervalDays} dia(s) às ${r.time} (desde ${formatDateShort(new Date(r.startDate + 'T00:00:00'))})</span>
+                                <span>↻ ${r.daysPerWeek || r.intervalDays} ${r.daysPerWeek ? 'dia(s) por semana' : 'dia(s) de intervalo'} às ${r.time} (desde ${formatDateShort(new Date(r.startDate + 'T00:00:00'))})</span>
                                 <button class="btn btn-danger btn-small" data-stop="${r.id}">Interromper</button>
                             </li>
                         `).join('')}
@@ -994,14 +1008,14 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Recorrência helpers
     function getRecurrences(plantId) {
-        return JSON.parse(localStorage.getItem(`watering_recurrences_${plantId}`) || '[]');
+        return JSON.parse(localStorage.getItem(`recurrences_${plantId}`) || '[]');
     }
     function saveRecurrences(plantId, list) {
-        localStorage.setItem(`watering_recurrences_${plantId}`, JSON.stringify(list));
+        localStorage.setItem(`recurrences_${plantId}`, JSON.stringify(list));
     }
-    function addRecurrence(plantId, startDate, intervalDays, time) {
+    function addRecurrence(plantId, startDate, daysPerWeek, time) {
         const list = getRecurrences(plantId);
-        list.push({ id:String(Date.now()), startDate, intervalDays:Number(intervalDays), time, active:true, excludedDates:[] });
+        list.push({ id:String(Date.now()), startDate, daysPerWeek:Number(daysPerWeek), time, active:true, excludedDates:[] });
         saveRecurrences(plantId, list);
     }
     function stopRecurrence(plantId, recurrenceId) {
@@ -1020,13 +1034,31 @@ document.addEventListener('DOMContentLoaded', () => {
     function isOccurrence(recurrence, dateStr) {
         if (dateStr < recurrence.startDate) return false;
         if (recurrence.excludedDates.includes(dateStr)) return false;
-        const d1 = new Date(recurrence.startDate + 'T00:00:00');
-        const d2 = new Date(dateStr + 'T00:00:00');
-        const diffDays = Math.round((d2 - d1)/(1000*60*60*24));
-        return diffDays % recurrence.intervalDays === 0;
+        
+        // Suporte para formato antigo (intervalDays) e novo (daysPerWeek)
+        if (recurrence.intervalDays) {
+            // Formato antigo: a cada X dias
+            const d1 = new Date(recurrence.startDate + 'T00:00:00');
+            const d2 = new Date(dateStr + 'T00:00:00');
+            const diffDays = Math.round((d2 - d1)/(1000*60*60*24));
+            return diffDays % recurrence.intervalDays === 0;
+        } else if (recurrence.daysPerWeek) {
+            // Formato novo: X dias por semana
+            const targetDate = new Date(dateStr + 'T00:00:00');
+            const dayOfWeek = targetDate.getDay();
+            const interval = Math.floor(7 / recurrence.daysPerWeek);
+            
+            const irrigationDays = [];
+            for (let i = 0; i < recurrence.daysPerWeek; i++) {
+                irrigationDays.push((i * interval) % 7);
+            }
+            
+            return irrigationDays.includes(dayOfWeek);
+        }
+        return false;
     }
 
-    // Modal recorrência - modificado para aceitar parâmetro de dias
+    // Modal recorrência - modificado para "X dias por semana"
     function openRecurrenceModal(defaultDays = 2) {
         const modal = document.createElement('div');
         modal.className = 'modal-overlay';
@@ -1040,8 +1072,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 <div class="modal-body">
                     <label>Data de início:</label>
                     <input type="date" id="recStart" value="${todayStr}">
-                    <label>A cada (dias):</label>
-                    <input type="number" id="recEvery" min="1" value="${defaultDays}">
+                    <label>Dias por semana:</label>
+                    <input type="number" id="recEvery" min="1" max="7" value="${defaultDays}">
                     <label>Hora:</label>
                     <input type="time" id="recTime" value="08:00">
                     <button class="btn btn-primary" id="recConfirm">Ativar recorrência</button>
@@ -1054,37 +1086,41 @@ document.addEventListener('DOMContentLoaded', () => {
         });
         modal.querySelector('#recConfirm').addEventListener('click', () => {
             const start = document.getElementById('recStart').value;
-            const every = document.getElementById('recEvery').value;
+            const daysPerWeek = parseInt(document.getElementById('recEvery').value);
             const time = document.getElementById('recTime').value;
-            if(!start||!every||!time){
+            if(!start||!daysPerWeek||!time){
                 showAlert('⚠️ Atenção', 'Preencha todos os campos.');
+                return;
+            }
+            if(daysPerWeek < 1 || daysPerWeek > 7) {
+                showAlert('⚠️ Atenção', 'O número de dias por semana deve estar entre 1 e 7.');
                 return;
             }
             
             // Verificar conflitos antes de criar recorrência
-            const conflicts = checkRecurrenceConflicts(selectedPlantId, start, parseInt(every));
+            const conflicts = checkRecurrenceConflicts(selectedPlantId, start, daysPerWeek);
             if (conflicts.length > 0) {
                 modal.remove();
                 showConflictModal(
                     selectedPlantId,
                     conflicts,
                     'rega recorrente',
-                    { plantId: selectedPlantId, start, every, time },
+                    { plantId: selectedPlantId, start, daysPerWeek, time },
                     (data) => {
-                        addRecurrence(data.plantId, data.start, data.every, data.time);
+                        addRecurrence(data.plantId, data.start, data.daysPerWeek, data.time);
                         renderCalendar();
                         updateInfoPanel();
                         // Mostrar sucesso apenas quando substituir
-                        showAlert('✅ Sucesso', `Rega recorrente ativada: a cada ${data.every} dia(s) às ${data.time}h a partir de ${new Date(data.start+'T00:00:00').toLocaleDateString('pt-PT')}`);
+                        showAlert('✅ Sucesso', `Rega recorrente ativada: ${data.daysPerWeek} dia(s) por semana às ${data.time}h a partir de ${new Date(data.start+'T00:00:00').toLocaleDateString('pt-PT')}`);
                     }
                 );
             } else {
                 // Sem conflitos, mostrar sucesso normalmente
-                addRecurrence(selectedPlantId, start, every, time);
+                addRecurrence(selectedPlantId, start, daysPerWeek, time);
                 modal.remove();
                 renderCalendar();
                 updateInfoPanel();
-                showAlert('✅ Sucesso', `Rega recorrente ativada: a cada ${every} dia(s) às ${time}h a partir de ${new Date(start+'T00:00:00').toLocaleDateString('pt-PT')}`);
+                showAlert('✅ Sucesso', `Rega recorrente ativada: ${daysPerWeek} dia(s) por semana às ${time}h a partir de ${new Date(start+'T00:00:00').toLocaleDateString('pt-PT')}`);
             }
         });
     }

@@ -281,15 +281,38 @@ document.addEventListener('DOMContentLoaded', () => {
         const nowTime = today.toTimeString().slice(0, 5);
 
         wateredPlants.forEach(plant => {
-            if (plant.completedWatering) {
-                // Marcar como rega completada em vez de remover
+            const key = `watering_${plant.id}`;
+            const waterings = JSON.parse(localStorage.getItem(key) || '[]');
+            
+            // Verificar se há rega do sistema automático para hoje
+            const todayIrrigation = getTodayIrrigationWatering(plant.id);
+            
+            if (todayIrrigation) {
+                // É uma rega do sistema automático
+                const existingWatering = waterings.find(w => w.date === todayStr && w.source === 'irrigation');
+                
+                if (existingWatering) {
+                    // Já existe, marcar como completada
+                    existingWatering.completed = true;
+                    existingWatering.completedAt = new Date().toISOString();
+                } else {
+                    // Criar registro de rega do sistema automático como completada
+                    waterings.push({ 
+                        date: todayStr, 
+                        time: todayIrrigation.time, 
+                        source: 'irrigation',
+                        completed: true, 
+                        completedAt: new Date().toISOString() 
+                    });
+                }
+                localStorage.setItem(key, JSON.stringify(waterings));
+                completedCount++;
+            } else if (plant.completedWatering) {
+                // É uma rega manual/recorrente agendada
                 markWateringAsCompleted(plant.id, plant.completedWatering.date, plant.completedWatering.time);
                 completedCount++;
             } else {
                 // Se não há rega agendada para hoje, registar rega manual no calendário
-                // Verifica se já existe registo para hoje
-                const key = `watering_${plant.id}`;
-                const waterings = JSON.parse(localStorage.getItem(key) || '[]');
                 const alreadyToday = waterings.some(w => w.date === todayStr);
                 if (!alreadyToday) {
                     // Adiciona registo de rega manual para hoje
@@ -300,6 +323,9 @@ document.addEventListener('DOMContentLoaded', () => {
             }
             // Registrar histórico de rega
             registerWateringHistory(plant.id);
+            
+            // Remover notificações de rega para esta planta
+            removeWateringNotifications(plant.id, plant.name);
         });
         
         // Atualizar estatísticas de rega de hoje
@@ -356,8 +382,15 @@ document.addEventListener('DOMContentLoaded', () => {
             return null;
         }
         
-        // Verificar se há override de hora
+        // Verificar se há override de hora ou se já foi completada
         const waterings = JSON.parse(localStorage.getItem(`watering_${plantId}`) || '[]');
+        
+        // Verificar se já foi regada hoje (sistema automático completado)
+        const completedToday = waterings.find(w => w.date === todayStr && w.source === 'irrigation' && w.completed);
+        if (completedToday) {
+            return null; // Já foi regada, não mostrar novamente
+        }
+        
         const override = waterings.find(w => w.date === todayStr && w.source === 'irrigation_override');
         
         return {
@@ -548,5 +581,24 @@ document.addEventListener('DOMContentLoaded', () => {
         
         // Disparar evento personalizado para atualizar dashboard em tempo real
         window.dispatchEvent(new Event('regasAtualizadas'));
+    }
+    
+    // Função para remover notificações de rega para uma planta específica
+    function removeWateringNotifications(plantId, plantName) {
+        const notificacoes = JSON.parse(localStorage.getItem('notificacoes') || '[]');
+        
+        // Filtrar notificações que não sejam de rega para esta planta
+        const filteredNotifications = notificacoes.filter(notif => {
+            // Manter notificação se não for de rega OU se não mencionar o nome da planta
+            return notif.tipo !== 'rega' || !notif.mensagem.includes(`"${plantName}"`);
+        });
+        
+        // Salvar notificações filtradas
+        localStorage.setItem('notificacoes', JSON.stringify(filteredNotifications));
+        
+        // Atualizar badge de notificações
+        if (window.SmartPlantsNotifications && typeof window.SmartPlantsNotifications.atualizarBadge === 'function') {
+            window.SmartPlantsNotifications.atualizarBadge();
+        }
     }
 });

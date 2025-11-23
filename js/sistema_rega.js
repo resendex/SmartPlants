@@ -252,7 +252,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     <span class="schedule-icon">↻</span>
                     <div class="schedule-info">
                         <strong>Rega Recorrente</strong>
-                        <span>A cada ${rec.intervalDays} dia(s) às ${rec.time}</span>
+                        <span>${rec.daysPerWeek || rec.intervalDays} ${rec.daysPerWeek ? 'dia(s) por semana' : 'dia(s) de intervalo'} às ${rec.time}</span>
                     </div>
                     <button class="btn-remove-schedule" onclick="removeRecurrence(${plantId}, ${rec.id})" title="Desmarcar">
                         ✕
