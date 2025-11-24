@@ -19,73 +19,148 @@
 </header>
 
 <div class="container" id="profile-root">
-    <h1 class="page-title">Perfil</h1>
-    
-    <div class="profile-grid">
-        <aside class="profile-left">
-            <div class="photo-card">
-                <img id="pf_photo_preview" class="profile-photo" src="../multimedia/image/user-icon-placeholder.png" alt="Foto de perfil">
-                <div class="photo-actions">
-                    <label class="file-label">
-                        Alterar foto
-                        <input id="pf_photo_input" type="file" accept="image/*" style="display:none">
-                    </label>
-                    <button id="pf_remove_photo" class="btn small">Remover</button>
+    <section class="profile-hero card">
+        <div class="hero-info">
+            <span class="hero-badge">Conta ativa</span>
+            <h1 class="hero-title" id="pf_greeting">Olá, <span id="pf_greeting_name">Utilizador</span> 👋</h1>
+            <p class="hero-subtitle">Personaliza a tua conta Smart Plants, acompanha as tuas plantas e mantém os teus dados atualizados.</p>
+            <div class="hero-quick-actions">
+                <a href="minhasplantas.html" class="chip-link">📗 As minhas plantas</a>
+                <a href="notificacoes.html" class="chip-link">🔔 Notificações</a>
+                <a href="chat.html" class="chip-link">💬 Mensagens</a>
+            </div>
+        </div>
+        <div class="hero-highlight">
+            <div class="highlight-card">
+                <p class="highlight-label">Plantas monitorizadas</p>
+                <p class="highlight-value" id="pf_stat_plants">0</p>
+            </div>
+            <div class="highlight-card">
+                <p class="highlight-label">Notificações</p>
+                <p class="highlight-value" id="pf_stat_notifications">0</p>
+            </div>
+            <div class="highlight-card">
+                <p class="highlight-label">Último acesso</p>
+                <p class="highlight-value" id="pf_stat_lastlogin">—</p>
+            </div>
+        </div>
+    </section>
+
+    <div class="profile-layout">
+        <aside class="profile-sidebar">
+            <div class="photo-card card">
+                <div class="photo-wrapper">
+                    <img id="pf_photo_preview" class="profile-photo" src="../multimedia/image/user-icon-placeholder.png" alt="Foto de perfil">
+                    <button id="pf_remove_photo" class="btn-icon" title="Remover foto">✕</button>
                 </div>
+                <label class="file-label">
+                    Alterar fotografia
+                    <input id="pf_photo_input" type="file" accept="image/*" style="display:none">
+                </label>
+                <ul class="profile-meta" id="pf_meta_list">
+                    <li><span class="meta-label">Email</span><span id="pf_meta_email">—</span></li>
+                    <li><span class="meta-label">Localização</span><span id="pf_meta_location">—</span></li>
+                    <li><span class="meta-label">Género</span><span id="pf_meta_gender">—</span></li>
+                </ul>
+            </div>
+
+            <div class="card tips-card">
+                <h2>Dicas rápidas</h2>
+                <ul>
+                    <li>Reforça a segurança atualizando a password com frequência.</li>
+                    <li>Completa os teus dados para receber recomendações personalizadas.</li>
+                    <li>Mantém as notificações ativas para não falhar regas importantes.</li>
+                </ul>
             </div>
         </aside>
 
-        <section class="profile-right">
-            <form id="pf_form" class="pf-form" onsubmit="return false;">
-                <div class="form-row">
-                    <label>Username</label>
-                    <input id="pf_username" type="text" readonly>
-                </div>
-                <div class="form-row">
-                    <label>Email</label>
-                    <input id="pf_email" type="email">
-                </div>
-                <div class="form-row">
-                    <label>Idade</label>
-                    <input id="pf_age" type="number" min="1" max="120">
-                </div>
-                <div class="form-row">
-                    <label>Localização</label>
-                    <input id="pf_location" type="text">
-                </div>
-                <div class="form-row">
-                    <label>Género</label>
-                    <select id="pf_gender">
-                        <option value="">-- Selecionar --</option>
-                        <option value="M">M</option>
-                        <option value="F">F</option>
-                        <option value="Outro">Outro</option>
-                    </select>
-                </div>
+        <section class="profile-main">
+            <div class="card">
+                <h2>Informação pessoal</h2>
+                <form id="pf_form" class="pf-form" onsubmit="return false;">
+                    <div class="form-grid">
+                        <div class="form-field">
+                            <label for="pf_username">Username</label>
+                            <input id="pf_username" type="text" readonly>
+                        </div>
+                        <div class="form-field">
+                            <label for="pf_email">Email</label>
+                            <input id="pf_email" type="email" placeholder="nome@exemplo.com">
+                        </div>
+                        <div class="form-field">
+                            <label for="pf_age">Idade</label>
+                            <input id="pf_age" type="number" min="1" max="120" placeholder="25">
+                        </div>
+                        <div class="form-field">
+                            <label for="pf_location">Localização</label>
+                            <input id="pf_location" type="text" placeholder="Lisboa, Portugal">
+                        </div>
+                        <div class="form-field">
+                            <label for="pf_gender">Género</label>
+                            <select id="pf_gender">
+                                <option value="">-- Selecionar --</option>
+                                <option value="M">Masculino</option>
+                                <option value="F">Feminino</option>
+                                <option value="Outro">Outro</option>
+                            </select>
+                        </div>
+                    </div>
 
-                <div class="form-actions">
-                    <button id="pf_save" class="btn">Guardar Alterações</button>
-                    <button id="pf_logout" class="btn ghost" type="button">Sair</button>
+                    <div class="form-actions">
+                        <button id="pf_save" class="btn primary" type="button">Guardar Alterações</button>
+                        <button id="pf_logout" class="btn ghost" type="button">Sair</button>
+                    </div>
+                </form>
+            </div>
+
+            <div class="card preferences-card">
+                <h2>Preferências</h2>
+                <div class="preferences-grid">
+                    <label class="toggle">
+                        <input type="checkbox" id="pf_pref_email">
+                        <span class="toggle-slider"></span>
+                        <span class="toggle-label">Receber dicas semanais por email</span>
+                    </label>
+                    <label class="toggle">
+                        <input type="checkbox" id="pf_pref_push">
+                        <span class="toggle-slider"></span>
+                        <span class="toggle-label">Alertas de rega no dispositivo</span>
+                    </label>
                 </div>
-            </form>
+            </div>
 
-            <hr>
-
-            <div class="change-password">
-                <button id="pf_change_show" class="btn small">Mudar Password</button>
+            <div class="card security-card">
+                <div class="security-header">
+                    <div>
+                        <h2>Segurança</h2>
+                        <p>Altera a tua password regularmente para proteger a conta.</p>
+                    </div>
+                    <button id="pf_change_show" class="btn small">Mudar Password</button>
+                </div>
                 <div id="pf_change_box" class="change-box" style="display:none;">
-                    <input id="pf_current_pwd" type="password" placeholder="Password atual"><br>
-                    <input id="pf_new_pwd" type="password" placeholder="Nova password"><br>
-                    <input id="pf_confirm_new_pwd" type="password" placeholder="Confirmar nova password"><br>
-                    <div style="margin-top:0.5em;">
-                        <button id="pf_change_submit" class="btn small">Confirmar</button>
-                        <button id="pf_change_cancel" class="btn small ghost">Cancelar</button>
+                    <div class="form-field">
+                        <label for="pf_current_pwd">Password atual</label>
+                        <input id="pf_current_pwd" type="password" placeholder="Password atual">
+                    </div>
+                    <div class="form-field">
+                        <label for="pf_new_pwd">Nova password</label>
+                        <input id="pf_new_pwd" type="password" placeholder="Nova password">
+                    </div>
+                    <div class="form-field">
+                        <label for="pf_confirm_new_pwd">Confirmar nova password</label>
+                        <input id="pf_confirm_new_pwd" type="password" placeholder="Confirmar nova password">
+                    </div>
+                    <div class="form-actions">
+                        <button id="pf_change_submit" class="btn small primary" type="button">Confirmar</button>
+                        <button id="pf_change_cancel" class="btn small ghost" type="button">Cancelar</button>
                     </div>
                 </div>
             </div>
         </section>
     </div>
 </div>
+
+<div id="profile-toast" aria-live="polite"></div>
 
 <footer class="footer">
     <div class="copyright-info">
@@ -98,119 +173,7 @@
     </div>
 </footer>
 
-<!-- script local para gerir perfil (carregar / guardar / foto / password) -->
-<script>
-// Helper keys
-const USERS_KEY = 'sp_users';
-const CURRENT_KEY = 'sp_currentUser';
-
-function _getUsers(){ return JSON.parse(localStorage.getItem(USERS_KEY)||'{}'); }
-function _saveUsers(u){ localStorage.setItem(USERS_KEY, JSON.stringify(u)); }
-function _getCurrentUsername(){ return localStorage.getItem(CURRENT_KEY); }
-function _getCurrentUser(){ const users=_getUsers(); const cur=_getCurrentUsername(); return cur?users[cur]:null; }
-
-document.addEventListener('DOMContentLoaded', () => {
-    const user = _getCurrentUser();
-    const preview = document.getElementById('pf_photo_preview');
-    const inputFile = document.getElementById('pf_photo_input');
-    let photoData = null;
-
-    // Elements
-    const el = id => document.getElementById(id);
-    if (user) {
-        el('pf_username').value = user.username || '';
-        el('pf_email').value = user.email || '';
-        el('pf_age').value = user.age || '';
-        el('pf_location').value = user.location || '';
-        el('pf_gender').value = user.gender || '';
-        if (user.photo) { preview.src = user.photo; photoData = user.photo; }
-    }
-
-    // Upload preview
-    inputFile.addEventListener('change', (e)=>{
-        const f = e.target.files[0];
-        if (!f) return;
-        const reader = new FileReader();
-        reader.onload = () => {
-            photoData = reader.result;
-            preview.src = photoData;
-        };
-        reader.readAsDataURL(f);
-    });
-
-    // Remove photo
-    document.getElementById('pf_remove_photo').addEventListener('click', ()=>{
-        photoData = null;
-        preview.src = '../multimedia/image/user-icon-placeholder.png';
-    });
-
-    // clicking label triggers file input
-    document.querySelector('.file-label input')?.addEventListener('click', e => e.stopPropagation());
-
-    // Save profile
-    document.getElementById('pf_save').addEventListener('click', ()=>{
-        const users = _getUsers();
-        const cur = _getCurrentUsername();
-        if (!cur || !users[cur]) { alert('Sem utilizador ativo. Faça login.'); return; }
-        users[cur].email = el('pf_email').value.trim();
-        users[cur].age = el('pf_age').value;
-        users[cur].location = el('pf_location').value.trim();
-        users[cur].gender = el('pf_gender').value;
-        if (photoData) users[cur].photo = photoData; else delete users[cur].photo;
-        _saveUsers(users);
-        alert('Perfil guardado.');
-    });
-
-    // Change password toggle & actions
-    const changeShow = el('pf_change_show'), changeBox = el('pf_change_box');
-    changeShow.addEventListener('click', ()=> changeBox.style.display = changeBox.style.display === 'block' ? 'none' : 'block');
-    el('pf_change_cancel').addEventListener('click', ()=> { changeBox.style.display='none'; });
-    el('pf_change_submit').addEventListener('click', ()=>{
-        const users = _getUsers();
-        const cur = _getCurrentUsername();
-        const u = users[cur];
-        const current = el('pf_current_pwd').value;
-        const np = el('pf_new_pwd').value;
-        const np2 = el('pf_confirm_new_pwd').value;
-        if (!current || !np) { alert('Preencha as passwords.'); return; }
-        if (u.password !== current) { alert('Password atual incorreta.'); return; }
-        if (np !== np2) { alert('Novas passwords não coincidem.'); return; }
-        u.password = np;
-        _saveUsers(users);
-        el('pf_current_pwd').value = el('pf_new_pwd').value = el('pf_confirm_new_pwd').value = '';
-        changeBox.style.display = 'none';
-        alert('Password alterada.');
-    });
-
-    // logout (apenas remove current)
-    el('pf_logout').addEventListener('click', ()=>{
-        // Pop-up de confirmação para Log out
-        const popup = document.createElement('div');
-        popup.className = 'delete-confirm-overlay';
-        popup.innerHTML = `
-            <div class="delete-confirm-container">
-                <h3 class="delete-confirm-title">Esta página diz</h3>
-                <p class="delete-confirm-message">Tem certeza que deseja fazer logout?</p>
-                <div class="delete-confirm-buttons">
-                    <button class="delete-confirm-btn" id="confirmDeleteBtn">OK</button>
-                    <button class="delete-cancel-btn" id="cancelDeleteBtn">Cancelar</button>
-                </div>
-            </div>
-        `;
-        document.body.appendChild(popup);
-        
-        document.getElementById('confirmDeleteBtn').addEventListener('click', () => {
-            document.body.removeChild(popup);
-            localStorage.removeItem(CURRENT_KEY);
-            location.href = 'home.html';
-        });
-        
-        document.getElementById('cancelDeleteBtn').addEventListener('click', () => {
-            document.body.removeChild(popup);
-        });
-    });
-});
-</script>
+<script src="../js/perfil.js"></script>
 </body>
 
 </html>

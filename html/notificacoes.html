@@ -9,6 +9,7 @@
     <link rel="stylesheet" type="text/css" href="../css/notificacoes.css">
     <link rel="stylesheet" type="text/css" href="../css/copyright.css">
     <script src="../js/notifications-global.js"></script>
+    <script src="../js/user-avatar.js" defer></script>
     <script src="../js/notificacoes.js"></script>
 </head>
 
@@ -56,7 +57,17 @@
         </aside>
 
         <main class="content">
-            <h2 class="content-title">Notificações</h2>
+            <div class="notifications-header">
+                <h2 class="content-title">Notificações</h2>
+                <div class="notifications-actions">
+                    <button id="markAllReadButton" class="btn-mark-all" type="button">
+                        Marcar todas como lidas
+                    </button>
+                    <button id="clearAllButton" class="btn-clear-all" type="button">
+                        Eliminar todas
+                    </button>
+                </div>
+            </div>
             
             <div id="notificacoesContainer" class="notifications-list">
                 <!-- As notificações serão carregadas dinamicamente aqui -->

@@ -1,15 +1,41 @@
+/**
+ * @typedef {'planta' | 'rega' | 'calendario' | 'chat' | 'forum' | 'lembrete'} TipoNotificacao
+ */
+
+/**
+ * @typedef {Object} Notificacao
+ * @property {number} id
+ * @property {TipoNotificacao} tipo
+ * @property {string} mensagem
+ * @property {string} data
+ * @property {string} hora
+ * @property {boolean} lida
+ * @property {string | null} link
+ */
+
 // Função para obter as notificações do localStorage
+/**
+ * @returns {Notificacao[]}
+ */
 function getNotificacoes() {
     const notificacoes = localStorage.getItem('notificacoes');
     return notificacoes ? JSON.parse(notificacoes) : [];
 }
 
 // Função para salvar notificações no localStorage
+/**
+ * @param {Notificacao[]} notificacoes
+ */
 function salvarNotificacoes(notificacoes) {
     localStorage.setItem('notificacoes', JSON.stringify(notificacoes));
 }
 
 // Função para adicionar uma nova notificação
+/**
+ * @param {TipoNotificacao} tipo
+ * @param {string} mensagem
+ * @param {string | null} [link=null]
+ */
 function adicionarNotificacao(tipo, mensagem, link = null) {
     const notificacoes = getNotificacoes();
     const agora = new Date();
@@ -32,6 +58,9 @@ function adicionarNotificacao(tipo, mensagem, link = null) {
 }
 
 // Função para criar notificação de nova planta
+/**
+ * @param {string} nomePlanta
+ */
 function notificarNovaPlanta(nomePlanta) {
     adicionarNotificacao(
         'planta',
@@ -41,6 +70,9 @@ function notificarNovaPlanta(nomePlanta) {
 }
 
 // Função para criar notificação de rega
+/**
+ * @param {string} nomePlanta
+ */
 function notificarHorarioRega(nomePlanta) {
     adicionarNotificacao(
         'rega',
@@ -50,6 +82,9 @@ function notificarHorarioRega(nomePlanta) {
 }
 
 // Função para criar notificação de rega realizada
+/**
+ * @param {string} nomePlanta
+ */
 function notificarRegaRealizada(nomePlanta) {
     adicionarNotificacao(
         'rega',
@@ -59,6 +94,10 @@ function notificarRegaRealizada(nomePlanta) {
 }
 
 // Função para criar notificação de evento do calendário
+/**
+ * @param {string} titulo
+ * @param {string} data
+ */
 function notificarEventoCalendario(titulo, data) {
     adicionarNotificacao(
         'calendario',
@@ -68,6 +107,9 @@ function notificarEventoCalendario(titulo, data) {
 }
 
 // Função para criar notificação de nova mensagem no chat
+/**
+ * @param {string} usuario
+ */
 function notificarNovaMensagem(usuario) {
     adicionarNotificacao(
         'chat',
@@ -77,6 +119,10 @@ function notificarNovaMensagem(usuario) {
 }
 
 // Função para criar notificação de novo post no fórum
+/**
+ * @param {string} autor
+ * @param {string} titulo
+ */
 function notificarNovoPost(autor, titulo) {
     adicionarNotificacao(
         'forum',
@@ -86,6 +132,9 @@ function notificarNovoPost(autor, titulo) {
 }
 
 // Função para criar notificação de progresso da planta
+/**
+ * @param {string} nomePlanta
+ */
 function notificarProgressoPlanta(nomePlanta) {
     adicionarNotificacao(
         'planta',
@@ -95,6 +144,10 @@ function notificarProgressoPlanta(nomePlanta) {
 }
 
 // Função para criar notificação de comentário no fórum
+/**
+ * @param {string} autor
+ * @param {string} postTitulo
+ */
 function notificarComentarioForum(autor, postTitulo) {
     adicionarNotificacao(
         'forum',
@@ -104,6 +157,10 @@ function notificarComentarioForum(autor, postTitulo) {
 }
 
 // Função para criar notificação de lembrete
+/**
+ * @param {string} titulo
+ * @param {string} mensagem
+ */
 function notificarLembrete(titulo, mensagem) {
     adicionarNotificacao(
         'lembrete',
@@ -113,6 +170,9 @@ function notificarLembrete(titulo, mensagem) {
 }
 
 // Função para marcar notificação como lida
+/**
+ * @param {number} id
+ */
 function marcarComoLida(id) {
     const notificacoes = getNotificacoes();
     const index = notificacoes.findIndex(n => n.id === id);
@@ -123,7 +183,40 @@ function marcarComoLida(id) {
     }
 }
 
+// Função para marcar todas as notificações como lidas
+function marcarTodasComoLidas() {
+    const notificacoes = getNotificacoes();
+    let houveAtualizacao = false;
+
+    notificacoes.forEach(notificacao => {
+        if (!notificacao.lida) {
+            notificacao.lida = true;
+            houveAtualizacao = true;
+        }
+    });
+
+    if (houveAtualizacao) {
+        salvarNotificacoes(notificacoes);
+    }
+
+    atualizarListaNotificacoes();
+}
+
+// Função para eliminar todas as notificações
+function eliminarTodasNotificacoes() {
+    const notificacoes = getNotificacoes();
+    if (notificacoes.length === 0) {
+        return;
+    }
+
+    localStorage.removeItem('notificacoes');
+    atualizarListaNotificacoes();
+}
+
 // Função para excluir notificação
+/**
+ * @param {number} id
+ */
 function excluirNotificacao(id) {
     const notificacoes = getNotificacoes().filter(n => n.id !== id);
     salvarNotificacoes(notificacoes);
@@ -134,9 +227,20 @@ function excluirNotificacao(id) {
 function atualizarListaNotificacoes() {
     const container = document.getElementById('notificacoesContainer');
     const emptyState = document.getElementById('emptyState');
+    const markAllButton = /** @type {HTMLButtonElement | null} */ (document.getElementById('markAllReadButton'));
+    const clearAllButton = /** @type {HTMLButtonElement | null} */ (document.getElementById('clearAllButton'));
     if (!container || !emptyState) return; // Não atualizar se não estiver na página de notificações
     
     const notificacoes = getNotificacoes();
+    const notificacoesNaoLidas = notificacoes.filter(n => !n.lida).length;
+
+    if (markAllButton) {
+        markAllButton.disabled = notificacoesNaoLidas === 0;
+    }
+
+    if (clearAllButton) {
+        clearAllButton.disabled = notificacoes.length === 0;
+    }
 
     if (notificacoes.length === 0) {
         container.style.display = 'none';
@@ -155,7 +259,7 @@ function atualizarListaNotificacoes() {
             'calendario': '📅',
             'chat': '💬',
             'forum': '📢',
-            'lembrete': '�'
+            'lembrete': '🔔'
         };
         
         const icone = icones[notificacao.tipo] || '📌';
@@ -195,7 +299,7 @@ function atualizarBadgeNotificacoes() {
     // Atualiza badge em todas as páginas
     const menuItems = document.querySelectorAll('a[href="notificacoes.html"]');
     menuItems.forEach(item => {
-        let badge = item.querySelector('.notification-badge');
+        let badge = /** @type {HTMLSpanElement | null} */ (item.querySelector('.notification-badge'));
         
         if (naoLidas > 0) {
             if (!badge) {
@@ -203,7 +307,7 @@ function atualizarBadgeNotificacoes() {
                 badge.className = 'notification-badge';
                 item.appendChild(badge);
             }
-            badge.textContent = naoLidas > 99 ? '99+' : naoLidas;
+            badge.textContent = naoLidas > 99 ? '99+' : String(naoLidas);
             badge.style.display = 'flex';
         } else if (badge) {
             badge.style.display = 'none';
@@ -213,7 +317,7 @@ function atualizarBadgeNotificacoes() {
 
 // Verificar horários de rega periodicamente
 function verificarHorariosRega() {
-    const plantas = JSON.parse(localStorage.getItem('myPlants') || '[]');
+    const plantas = /** @type {Array<{ name: string, horarioRega?: string }>} */ (JSON.parse(localStorage.getItem('myPlants') || '[]'));
     const agora = new Date();
     
     plantas.forEach(planta => {
@@ -229,6 +333,16 @@ function verificarHorariosRega() {
 // Inicializar a página
 document.addEventListener('DOMContentLoaded', () => {
     atualizarListaNotificacoes();
+
+    const markAllButton = document.getElementById('markAllReadButton');
+    if (markAllButton) {
+        markAllButton.addEventListener('click', marcarTodasComoLidas);
+    }
+
+    const clearAllButton = document.getElementById('clearAllButton');
+    if (clearAllButton) {
+        clearAllButton.addEventListener('click', eliminarTodasNotificacoes);
+    }
     // Verificar horários de rega a cada minuto
     setInterval(verificarHorariosRega, 60000);
 });

@@ -5,7 +5,29 @@
 const inputId = "user-input";
 const historyId = "chat-history";
 
+/**
+ * @typedef {Object} ConversationMessage
+ * @property {string} sender
+ * @property {string} text
+ * @property {string} time
+ */
+
+/**
+ * @typedef {Object} ConversationData
+ * @property {string} user
+ * @property {string} avatar
+ * @property {string} meta
+ * @property {ConversationMessage[]} messages
+ */
+
+/**
+ * Referência do objeto window com suporte à função opcional de notificação global
+ * @type {Window & typeof globalThis & { notificarNovaMensagem?: (contactName: string) => void }}
+ */
+const smartPlantsWindow = window;
+
 // Dados da conversa atual
+/** @type {ConversationData | null} */
 let currentConversation = null;
 
 /**
@@ -73,18 +95,21 @@ function loadMessages() {
     chatHistory.innerHTML = '';
     
     // Adiciona cada mensagem
-    currentConversation.messages.forEach(message => {
-        addMessageToHistory(message.text, message.sender === 'me', message.time);
+    currentConversation.messages.forEach(/** @param {ConversationMessage} message */ (message) => {
+        addMessageToHistory(message.text, message.sender === 'me', message.time, false);
     });
-    
-    // Faz scroll para o final
-    chatHistory.scrollTop = chatHistory.scrollHeight;
+
+    scrollHistoryToBottom('auto');
 }
 
 /**
  * Adiciona uma mensagem ao histórico
+ * @param {string} text
+ * @param {boolean} isUser
+ * @param {string | null} [time]
+ * @param {boolean} [smoothScroll=true]
  */
-function addMessageToHistory(text, isUser, time = null) {
+function addMessageToHistory(text, isUser, time = null, smoothScroll = true) {
     const chatHistory = document.getElementById(historyId);
     if (!chatHistory) return;
     
@@ -105,15 +130,30 @@ function addMessageToHistory(text, isUser, time = null) {
     messageDiv.appendChild(messageContent);
     chatHistory.appendChild(messageDiv);
     
-    // Scroll para o final
-    chatHistory.scrollTop = chatHistory.scrollHeight;
+    scrollHistoryToBottom(smoothScroll ? 'smooth' : 'auto');
+}
+
+/**
+ * Faz scroll para o fim do histórico sem afetar o resto da página
+ * @param {'auto' | 'smooth'} [behavior='smooth']
+ */
+function scrollHistoryToBottom(behavior = 'smooth') {
+    const chatHistory = document.getElementById(historyId);
+    if (!chatHistory) return;
+
+    requestAnimationFrame(() => {
+        chatHistory.scrollTo({
+            top: chatHistory.scrollHeight,
+            behavior
+        });
+    });
 }
 
 /**
  * Processa o envio de uma nova mensagem do utilizador.
  */
 function sendMessage() {
-    const inputElement = document.getElementById(inputId);
+    const inputElement = /** @type {HTMLInputElement | null} */ (document.getElementById(inputId));
     
     // Verificação de segurança adicional
     if (!inputElement) {
@@ -132,7 +172,7 @@ function sendMessage() {
     const now = new Date();
     const timeString = `${now.getHours()}:${now.getMinutes().toString().padStart(2, '0')}`;
     
-    addMessageToHistory(message, true, timeString);
+    addMessageToHistory(message, true, timeString, true);
     
     // 3. Salva a mensagem na conversa
     if (currentConversation && currentConversation.messages) {
@@ -158,7 +198,7 @@ function sendMessage() {
         ];
         const randomResponse = responses[Math.floor(Math.random() * responses.length)];
         
-        addMessageToHistory(randomResponse, false, 'Agora');
+    addMessageToHistory(randomResponse, false, 'Agora', true);
         
         // Salva a resposta simulada
         if (currentConversation && currentConversation.messages) {
@@ -171,8 +211,8 @@ function sendMessage() {
         }
         
         // Adiciona notificação de nova mensagem recebida
-        if (typeof window.notificarNovaMensagem === 'function' && currentConversation) {
-            window.notificarNovaMensagem(currentConversation.user);
+        if (currentConversation) {
+            smartPlantsWindow.notificarNovaMensagem?.(currentConversation.user);
         }
     }, 1000);
 }

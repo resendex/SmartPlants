@@ -6,6 +6,7 @@ body {
     flex-direction: column;
     background: linear-gradient(135deg, #667eea 0%, green 100%);
     min-height: 100vh;
+    height: 100vh;
 }
 
 .header {
@@ -71,6 +72,7 @@ body {
     display: flex;
     flex: 1;
     overflow: hidden;
+    min-height: 0;
 }
 
 .sidebar {
@@ -185,6 +187,7 @@ body {
     display: flex;
     flex-direction: column;
     overflow: hidden;
+    min-height: 0;
 }
 
 /* Histórico de mensagens ajustado */
@@ -238,11 +241,11 @@ body {
 .chat-input-area {
     background: rgba(255, 255, 255, 0.95);
     padding: 1.5em 2em;
-    margin-bottom: 1em;
     border-radius: 0 0 1em 1em;
     display: flex;
     gap: 1em;
     box-shadow: 0 -0.2em 0.8em rgba(0, 0, 0, 0.1);
+    flex-shrink: 0;
 }
 
 .user-input {
@@ -252,7 +255,7 @@ body {
     border-radius: 2em;
     font-size: 1em;
     transition: all 0.3s ease;
-    margin: 0;
+    margin-bottom: 1em;
 }
 
 .user-input:focus {
@@ -265,13 +268,13 @@ body {
     background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
     color: white;
     border: none;
-    padding: 1em 2em;
+    padding: 2em 2em;
     border-radius: 2em;
     font-weight: 600;
     cursor: pointer;
     transition: all 0.3s ease;
     box-shadow: 0 0.2em 0.8em rgba(102, 126, 234, 0.3);
-    margin: 0;
+    margin-bottom: 1em;
 }
 
 .enviar:hover {
