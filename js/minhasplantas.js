@@ -392,9 +392,277 @@ function showInfoPopup(message, callback) {
 
 // Adicionar a lógica para redirecionar para o calendário
 function schedulePlant(plantId) {
-    sessionStorage.setItem('selectedPlant', plantId); // Armazenar o ID da planta
-    const url = `calendario.html?plantId=${plantId}&recurrence=4`;
-    window.location.href = url;
+    // Remover qualquer modal de agendamento anterior
+    const existingModal = document.querySelector('.schedule-selection-overlay');
+    if (existingModal) {
+        existingModal.remove();
+    }
+    
+    // Modal de escolha entre agenda personalizada e automática
+    const modal = document.createElement('div');
+    modal.className = 'schedule-selection-overlay';
+    modal.innerHTML = `
+        <div class="plant-selection-modal" style="max-width: 500px;">
+            <h2 class="modal-title">Escolha o Tipo de Agenda</h2>
+            
+            <div style="padding: 1em 0;">
+                <p style="color: #555; font-size: 1em; line-height: 1.5; margin-bottom: 1.5em;">
+                    Como deseja agendar as regas para esta planta?
+                </p>
+            </div>
+
+            <div class="schedule-options" style="display: flex; flex-direction: column; gap: 1em; margin-bottom: 1.5em;">
+                <!-- Agenda Personalizada -->
+                <div class="schedule-option-card" data-type="custom" style="border: 2px solid #28a745; border-radius: 0.8em; padding: 1.5em; cursor: pointer; transition: all 0.3s ease; background: rgba(40, 167, 69, 0.05);">
+                    <div style="display: flex; align-items: center; gap: 1em;">
+                        <div style="font-size: 2.5em;">📅</div>
+                        <div style="flex: 1;">
+                            <h3 style="margin: 0 0 0.3em 0; color: #28a745; font-size: 1.2em;">Agenda Personalizada</h3>
+                            <p style="margin: 0; color: #666; font-size: 0.95em;">
+                                Agendar rega manual conforme a recomendação ideal para sua planta
+                            </p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Agenda Automática -->
+                <div class="schedule-option-card" data-type="auto" style="border: 2px solid #667eea; border-radius: 0.8em; padding: 1.5em; cursor: pointer; transition: all 0.3s ease; background: rgba(102, 126, 234, 0.05);">
+                    <div style="display: flex; align-items: center; gap: 1em;">
+                        <div style="font-size: 2.5em;">⚙️</div>
+                        <div style="flex: 1;">
+                            <h3 style="margin: 0 0 0.3em 0; color: #667eea; font-size: 1.2em;">Sistema Automático</h3>
+                            <p style="margin: 0; color: #666; font-size: 0.95em;">
+                                Configure a rega automática semanal consoante a recomendação ideal para sua planta
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="modal-buttons">
+                <button class="btn-modal btn-cancel" id="cancelScheduleModal">
+                    Cancelar
+                </button>
+            </div>
+        </div>
+    `;
+    
+    document.body.appendChild(modal);
+    
+    // Função para limpar e fechar o modal
+    const closeScheduleModal = () => {
+        if (document.body.contains(modal)) {
+            document.body.removeChild(modal);
+        }
+        document.removeEventListener('keydown', handleEsc);
+    };
+    
+    // Event listener para cancelar
+    const cancelBtn = modal.querySelector('#cancelScheduleModal');
+    cancelBtn.addEventListener('click', closeScheduleModal);
+    
+    // Click no overlay para fechar
+    modal.addEventListener('click', (e) => {
+        if (e.target === modal) {
+            closeScheduleModal();
+        }
+    });
+    
+    // Hover effects e click nas opções
+    const optionCards = modal.querySelectorAll('.schedule-option-card');
+    optionCards.forEach(card => {
+        card.addEventListener('mouseenter', function() {
+            this.style.transform = 'translateY(-3px)';
+            this.style.boxShadow = '0 4px 12px rgba(0, 0, 0, 0.15)';
+        });
+        
+        card.addEventListener('mouseleave', function() {
+            this.style.transform = 'translateY(0)';
+            this.style.boxShadow = 'none';
+        });
+        
+        card.addEventListener('click', function() {
+            const type = this.getAttribute('data-type');
+            
+            // Guardar planta selecionada
+            sessionStorage.setItem('selectedPlant', plantId);
+            
+            if (type === 'custom') {
+                // Verificar se há sistema automático ativo
+                const irrigationConfig = JSON.parse(localStorage.getItem(`irrigation_config_${plantId}`) || '{}');
+                const hasActiveIrrigation = irrigationConfig.enabled && irrigationConfig.weeklyWatering;
+                
+                if (hasActiveIrrigation) {
+                    // Mostrar modal de conflito
+                    closeScheduleModal();
+                    showCustomScheduleConflictModal(plantId, irrigationConfig);
+                } else {
+                    // Não há conflito, ir direto para o calendário
+                    closeScheduleModal();
+                    closePlantDetails();
+                    window.location.href = `calendario.html?plantId=${plantId}&recurrence=4&fromDiagnostic=true`;
+                }
+            } else {
+                // Sistema Automático
+                closeScheduleModal();
+                closePlantDetails();
+                window.location.href = `sistema_rega.html?plantId=${plantId}&frequency=4`;
+            }
+        });
+    });
+    
+    // Permitir fechar com ESC
+    const handleEsc = (e) => {
+        if (e.key === 'Escape') {
+            closeScheduleModal();
+        }
+    };
+    document.addEventListener('keydown', handleEsc);
+}
+
+// Mostrar modal de conflito com sistema automático
+function showCustomScheduleConflictModal(plantId, irrigationConfig) {
+    const modal = document.createElement('div');
+    modal.className = 'schedule-selection-overlay';
+    
+    const currentFrequency = irrigationConfig.weeklyWatering || 0;
+    const isDifferentFromRecommendation = currentFrequency !== 4;
+    
+    modal.innerHTML = `
+        <div class="plant-selection-modal" style="max-width: 550px;">
+            <h2 class="modal-title" style="color: #ff9800;">⚠️ Sistema Automático Ativo</h2>
+            
+            <div style="padding: 1em 0;">
+                <p style="color: #555; font-size: 1em; line-height: 1.6; margin-bottom: 1em;">
+                    Esta planta possui o <strong>Sistema Automático</strong> ativo com <strong>${currentFrequency} regas por semana</strong>.
+                </p>
+                ${isDifferentFromRecommendation ? `
+                    <p style="color: #667eea; font-size: 0.95em; line-height: 1.5; margin-bottom: 1em; padding: 0.8em; background: rgba(102, 126, 234, 0.1); border-radius: 8px;">
+                        💡 <strong>Nota:</strong> O diagnóstico recomenda <strong>4 regas por semana</strong>. A configuração atual é diferente da recomendação.
+                    </p>
+                ` : ''}
+                <p style="color: #555; font-size: 1em; line-height: 1.6; margin-bottom: 1em;">
+                    O que deseja fazer?
+                </p>
+            </div>
+
+            <div style="display: flex; flex-direction: column; gap: 1em; margin-bottom: 1.5em;">
+                <!-- Opção 1: Desativar Sistema -->
+                <div class="conflict-option-card" data-action="disable" style="border: 2px solid #28a745; border-radius: 0.8em; padding: 1.2em; cursor: pointer; transition: all 0.3s ease; background: rgba(40, 167, 69, 0.05);">
+                    <div style="display: flex; align-items: center; gap: 1em;">
+                        <div style="font-size: 2em;">📅</div>
+                        <div style="flex: 1;">
+                            <h3 style="margin: 0 0 0.3em 0; color: #28a745; font-size: 1.1em;">Desativar Sistema e Usar Agenda Personalizada</h3>
+                            <p style="margin: 0; color: #666; font-size: 0.9em;">
+                                O sistema automático será desativado e você poderá agendar regas manualmente no calendário
+                            </p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Opção 2: Manter Sistema -->
+                <div class="conflict-option-card" data-action="keep" style="border: 2px solid #667eea; border-radius: 0.8em; padding: 1.2em; cursor: pointer; transition: all 0.3s ease; background: rgba(102, 126, 234, 0.05);">
+                    <div style="display: flex; align-items: center; gap: 1em;">
+                        <div style="font-size: 2em;">⚙️</div>
+                        <div style="flex: 1;">
+                            <h3 style="margin: 0 0 0.3em 0; color: #667eea; font-size: 1.1em;">Manter Sistema ${isDifferentFromRecommendation ? 'e Ajustar' : 'Ativo'}</h3>
+                            <p style="margin: 0; color: #666; font-size: 0.9em;">
+                                ${isDifferentFromRecommendation 
+                                    ? 'Ajusta automaticamente para 4 regas por semana (recomendação) e adiciona regas personalizadas' 
+                                    : 'Mantém o sistema ativo e adiciona regas personalizadas no calendário'}
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="modal-buttons">
+                <button class="btn-modal btn-cancel" id="cancelConflictModal">
+                    Cancelar
+                </button>
+            </div>
+        </div>
+    `;
+    
+    document.body.appendChild(modal);
+    
+    // Função para fechar modal
+    const closeConflictModal = () => {
+        if (document.body.contains(modal)) {
+            document.body.removeChild(modal);
+        }
+        document.removeEventListener('keydown', handleEscConflict);
+    };
+    
+    // Cancelar
+    modal.querySelector('#cancelConflictModal').addEventListener('click', closeConflictModal);
+    
+    // Click no overlay
+    modal.addEventListener('click', (e) => {
+        if (e.target === modal) {
+            closeConflictModal();
+        }
+    });
+    
+    // Hover e click nas opções
+    const optionCards = modal.querySelectorAll('.conflict-option-card');
+    optionCards.forEach(card => {
+        card.addEventListener('mouseenter', function() {
+            this.style.transform = 'translateY(-3px)';
+            this.style.boxShadow = '0 4px 12px rgba(0, 0, 0, 0.15)';
+        });
+        
+        card.addEventListener('mouseleave', function() {
+            this.style.transform = 'translateY(0)';
+            this.style.boxShadow = 'none';
+        });
+        
+        card.addEventListener('click', function() {
+            const action = this.getAttribute('data-action');
+            
+            if (action === 'disable') {
+                // Desativar sistema automático
+                irrigationConfig.enabled = false;
+                localStorage.setItem(`irrigation_config_${plantId}`, JSON.stringify(irrigationConfig));
+                
+                closeConflictModal();
+                closePlantDetails();
+                window.location.href = `calendario.html?plantId=${plantId}&recurrence=4&fromDiagnostic=true`;
+            } else {
+                // Manter sistema e NÃO criar recorrência personalizada
+                // Apenas ajustar se necessário
+                if (isDifferentFromRecommendation) {
+                    // Ajustar para recomendação do diagnóstico
+                    irrigationConfig.weeklyWatering = 4;
+                    irrigationConfig.enabled = true;
+                    if (!irrigationConfig.wateringTime) {
+                        irrigationConfig.wateringTime = '08:00';
+                    }
+                    localStorage.setItem(`irrigation_config_${plantId}`, JSON.stringify(irrigationConfig));
+                }
+                
+                closeConflictModal();
+                closePlantDetails();
+                
+                // Redirecionar para sistema de rega para mostrar configuração
+                showInfoPopup(
+                    `Sistema automático mantido${isDifferentFromRecommendation ? ' e ajustado para 4 regas por semana' : ''}.`,
+                    () => {
+                        sessionStorage.setItem('selectedPlant', plantId);
+                        window.location.href = 'sistema_rega.html';
+                    }
+                );
+            }
+        });
+    });
+    
+    // ESC para fechar
+    const handleEscConflict = (e) => {
+        if (e.key === 'Escape') {
+            closeConflictModal();
+        }
+    };
+    document.addEventListener('keydown', handleEscConflict);
 }
 
 // Editar planta

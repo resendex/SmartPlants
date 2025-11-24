@@ -327,6 +327,41 @@
     margin: 0 0 1rem 0;
 }
 
+/* Botão voltar para sistema de rega */
+.back-to-system {
+    margin-top: 2rem;
+    padding-top: 1.5rem;
+    border-top: 2px solid rgba(102, 126, 234, 0.2);
+    text-align: center;
+}
+
+.btn-back {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.875rem 1.75rem;
+    background: white;
+    color: #667eea;
+    border: 2px solid #667eea;
+    border-radius: 10px;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s;
+}
+
+.btn-back:hover {
+    background: #667eea;
+    color: white;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+}
+
+.btn-back .btn-icon {
+    font-size: 1.2rem;
+    font-weight: bold;
+}
+
 /* Ícone de recorrência no dia */
 .recurrence-icon {
     position: absolute;
@@ -581,6 +616,213 @@
     background: #d32f2f;
 }
 
+/* Modal de Escolha de Planta */
+.plant-selection-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.7);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+    animation: fadeIn 0.3s ease;
+}
+
+.plant-selection-modal {
+    background: white;
+    padding: 2.5em 3em;
+    border-radius: 1.2em;
+    box-shadow: 0 0.5em 2em rgba(0, 0, 0, 0.3);
+    max-width: 450px;
+    width: 90%;
+    text-align: center;
+    animation: slideIn 0.3s ease;
+}
+
+.modal-title {
+    color: #333;
+    font-size: 1.8em;
+    font-weight: 700;
+    margin: 0 0 1.5em 0;
+    text-align: center;
+}
+
+.plant-list {
+    margin: 2em 0;
+    display: flex;
+    flex-direction: column;
+    gap: 0.8em;
+    max-height: 300px;
+    overflow-y: auto;
+    padding: 0.5em;
+}
+
+/* Scrollbar personalizada */
+.plant-list::-webkit-scrollbar {
+    width: 8px;
+}
+
+.plant-list::-webkit-scrollbar-track {
+    background: rgba(102, 126, 234, 0.1);
+    border-radius: 10px;
+}
+
+.plant-list::-webkit-scrollbar-thumb {
+    background: linear-gradient(135deg, #667eea, #764ba2);
+    border-radius: 10px;
+}
+
+.plant-list::-webkit-scrollbar-thumb:hover {
+    background: linear-gradient(135deg, #5568d3, #6a3f8f);
+}
+
+.plant-option {
+    display: flex;
+    align-items: center;
+    padding: 0.8em 1em;
+    border: 2px solid #e0e0e0;
+    border-radius: 0.8em;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    background: white;
+}
+
+.plant-option:hover {
+    border-color: #667eea;
+    background: rgba(102, 126, 234, 0.05);
+    transform: translateX(0.3em);
+}
+
+.plant-option.selected {
+    border-color: #667eea;
+    background: rgba(102, 126, 234, 0.1);
+    box-shadow: 0 0.2em 0.5em rgba(102, 126, 234, 0.2);
+}
+
+.plant-radio {
+    margin-right: 1em;
+    width: 20px;
+    height: 20px;
+    accent-color: #667eea;
+    cursor: pointer;
+}
+
+.plant-name {
+    font-size: 1.1em;
+    font-weight: 600;
+    color: #333;
+    flex: 1;
+    text-align: left;
+}
+
+.plant-icon {
+    font-size: 1.5em;
+    margin-left: 0.5em;
+}
+
+.modal-buttons {
+    display: flex;
+    gap: 1em;
+    margin-top: 2em;
+}
+
+.btn-modal {
+    padding: 1em 2em;
+    font-size: 1.1em;
+    font-weight: 600;
+    border: none;
+    border-radius: 0.6em;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 0.25em 0.5em rgba(0, 0, 0, 0.2);
+    flex: 1;
+}
+
+.btn-confirm {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+}
+
+.btn-confirm:hover:not(:disabled) {
+    background: linear-gradient(135deg, #5568d3 0%, #6a3f8f 100%);
+    transform: translateY(-0.15em);
+    box-shadow: 0 0.4em 0.8em rgba(0, 0, 0, 0.3);
+}
+
+.btn-confirm:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.btn-add-plant {
+    background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+    color: white;
+}
+
+.btn-add-plant:hover {
+    background: linear-gradient(135deg, #218838 0%, #1aa179 100%);
+    transform: translateY(-0.15em);
+    box-shadow: 0 0.4em 0.8em rgba(0, 0, 0, 0.3);
+}
+
+.btn-cancel {
+    background: linear-gradient(135deg, #6c757d 0%, #5a6268 100%);
+    color: white;
+}
+
+.btn-cancel:hover {
+    background: linear-gradient(135deg, #5a6268 0%, #4e555b 100%);
+    transform: translateY(-0.15em);
+    box-shadow: 0 0.4em 0.8em rgba(0, 0, 0, 0.3);
+}
+
+.btn-modal:active {
+    transform: translateY(0);
+    box-shadow: 0 0.15em 0.3em rgba(0, 0, 0, 0.2);
+}
+
+/* Mensagem quando não há plantas */
+.no-plants-message {
+    padding: 2em;
+    text-align: center;
+    color: #666;
+}
+
+.no-plants-icon {
+    font-size: 3em;
+    margin-bottom: 0.5em;
+}
+
+.no-plants-message p {
+    margin: 0.5em 0;
+    font-size: 1em;
+    line-height: 1.5;
+}
+
+/* Animações */
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 1;
+    }
+}
+
+@keyframes slideIn {
+    from {
+        transform: translateY(-30px);
+        opacity: 0;
+    }
+    to {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}
+
 /* Responsive */
 @media (max-width: 768px) {
     .calendar-container {
@@ -606,5 +848,30 @@
 
     .modal-content {
         width: 95%;
+    }
+    
+    .plant-selection-modal {
+        padding: 2em 1.5em;
+        max-width: 95%;
+    }
+    
+    .modal-title {
+        font-size: 1.5em;
+    }
+    
+    .modal-buttons {
+        flex-direction: column;
+    }
+    
+    .btn-modal {
+        width: 100%;
+    }
+    
+    .plant-option {
+        padding: 1em 0.8em;
+    }
+    
+    .plant-name {
+        font-size: 1em;
     }
 }

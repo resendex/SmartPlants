@@ -61,10 +61,11 @@
             <div class="system-container">
                 <!-- Seletor de Planta -->
                 <div class="plant-selector-section">
-                    <label for="plantSelect">Selecionar Planta:</label>
-                    <select id="plantSelect" class="plant-select">
-                        <option value="">-- Escolha uma planta --</option>
-                    </select>
+                    <label for="plantSelectBtn">Planta Selecionada:</label>
+                    <button id="plantSelectBtn" class="plant-select" style="cursor: pointer; text-align: left; display: flex; justify-content: space-between; align-items: center; background: white;">
+                        <span id="selectedPlantName">-- Escolha uma planta --</span>
+                        <span style="font-size: 1.3em;">🌿</span>
+                    </button>
                 </div>
 
                 <!-- Configurações de Rega Automática -->
@@ -81,6 +82,15 @@
                             </div>
                         </div>
                         <button class="btn-status-action" id="toggleStatusBtn">Desativar</button>
+                    </div>
+
+                    <!-- Calendarização Ativa -->
+                    <div class="active-schedules-section" id="activeSchedulesSection" style="display:none;">
+                        <h4 style="margin: 0 0 1em 0; color: #333; font-size: 1.1em;">📅 Calendarização Ativa</h4>
+                        <div id="activeSchedulesList"></div>
+                        <button class="btn-clear-schedules" id="clearSchedulesBtn" style="display:none;">
+                            <span>🗑️</span> Desmarcar Todas as Regas
+                        </button>
                     </div>
 
                     <div class="config-form">
@@ -121,10 +131,18 @@
                 </div>
 
                 <!-- Mensagem quando nenhuma planta está selecionada -->
-                <div class="no-plant-message" id="noPlantMessage">
+                <div class="no-plant-message hidden" id="noPlantMessage">
                     <div class="warning-icon">⚠️</div>
                     <p>Selecione uma planta para configurar o sistema de rega automática.</p>
                 </div>
+            </div>
+
+            <!-- Botão Voltar -->
+            <div class="back-button-container">
+                <button class="btn-back" onclick="window.location.href='regar.html'">
+                    <span class="btn-icon">←</span>
+                    Voltar
+                </button>
             </div>
         </main>
     </div>
