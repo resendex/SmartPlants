@@ -129,10 +129,15 @@ const disableProfileForGuests = () => {
 };
 
 /**
+ * @typedef {{ label: string, href?: string, onClick?: () => void }} ToastAction
+ */
+
+/**
  * @param {string} message
  * @param {'info' | 'error'} [type]
+ * @param {ToastAction} [action]
  */
-const showToast = (message, type = 'info') => {
+const showToast = (message, type = 'info', action) => {
   const container = document.getElementById('profile-toast');
   if (!container) {
     window.alert(message);
@@ -153,6 +158,37 @@ const showToast = (message, type = 'info') => {
   content.appendChild(title);
   content.appendChild(text);
 
+  /**
+   * @returns {void}
+   */
+  const remove = () => {
+    if (toast.parentNode) {
+      toast.parentNode.removeChild(toast);
+    }
+  };
+
+  if (action) {
+    const actionBtn = document.createElement(action.href ? 'a' : 'button');
+    actionBtn.className = 'profile-toast-action';
+    actionBtn.textContent = action.label;
+
+    if (action.href) {
+      actionBtn.setAttribute('href', action.href);
+    } else {
+      actionBtn.setAttribute('type', 'button');
+    }
+
+    actionBtn.addEventListener('click', (event) => {
+      if (action.onClick) {
+        event.preventDefault();
+        action.onClick();
+      }
+      remove();
+    });
+
+    content.appendChild(actionBtn);
+  }
+
   const closeBtn = document.createElement('button');
   closeBtn.type = 'button';
   closeBtn.setAttribute('aria-label', 'Fechar aviso');
@@ -162,13 +198,7 @@ const showToast = (message, type = 'info') => {
   toast.appendChild(closeBtn);
   container.appendChild(toast);
 
-  const remove = () => {
-    if (toast.parentNode) {
-      toast.parentNode.removeChild(toast);
-    }
-  };
-
-  const timer = window.setTimeout(remove, 4500);
+  const timer = window.setTimeout(remove, 10500);
   closeBtn.addEventListener('click', () => {
     window.clearTimeout(timer);
     remove();
@@ -246,7 +276,12 @@ document.addEventListener('DOMContentLoaded', () => {
   let activeUser = readCurrentUser();
 
   if (!activeUser) {
-    showToast('Inicia sessão para personalizar o teu perfil.', 'error');
+    showToast('Inicia sessão para personalizar o teu perfil.', 'error', {
+      label: 'Ir para o login',
+      onClick: () => {
+        window.location.href = 'login.html';
+      },
+    });
     disableProfileForGuests();
     preview.src = DEFAULT_PHOTO;
     syncStats(null);
@@ -255,7 +290,12 @@ document.addEventListener('DOMContentLoaded', () => {
 
   const userIndex = findUserIndex(users, activeUser.username);
   if (userIndex === -1) {
-    showToast('Conta não encontrada. Faz login novamente.', 'error');
+    showToast('Conta não encontrada. Faz login novamente.', 'error', {
+      label: 'Ir para o login',
+      onClick: () => {
+        window.location.href = 'login.html';
+      },
+    });
     disableProfileForGuests();
     preview.src = DEFAULT_PHOTO;
     syncStats(null);

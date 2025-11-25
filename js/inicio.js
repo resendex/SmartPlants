@@ -1,9 +1,36 @@
+// @ts-nocheck
 // Dashboard Interativo - Smart Plants
+
+/**
+ * @typedef {Object} SmartPlant
+ * @property {string|number} id
+ * @property {string} [name]
+ */
+
+/**
+ * @typedef {Object} WateringEntry
+ * @property {string} date
+ * @property {boolean} [completed]
+ */
+
+/**
+ * @typedef {Object} RegasHoje
+ * @property {string} [data]
+ * @property {Array<string|number>} [plantas]
+ */
+
+/**
+ * @typedef {Object} NotificationEntry
+ * @property {boolean} [lida]
+ */
 
 // Função para obter estatísticas reais do localStorage
 function obterEstatisticasReais() {
+    /** @type {SmartPlant[]} */
     const plants = JSON.parse(localStorage.getItem('myPlants') || '[]');
+    /** @type {NotificationEntry[]} */
     const notificacoes = JSON.parse(localStorage.getItem('notificacoes') || '[]');
+    /** @type {RegasHoje} */
     const regasHoje = JSON.parse(localStorage.getItem('regasHoje') || '{}');
     
     const today = new Date().toISOString().split('T')[0];
@@ -17,9 +44,10 @@ function obterEstatisticasReais() {
     // Contar plantas que precisam de rega
     // Verifica calendário de cada planta e identifica as que têm rega agendada para hoje mas não foram regadas
     let precisamRegar = 0;
-    plants.forEach(plant => {
+    plants.forEach((plant) => {
+        /** @type {WateringEntry[]} */
         const wateringData = JSON.parse(localStorage.getItem(`watering_${plant.id}`) || '[]');
-        const hasWateringToday = wateringData.some(w => w.date === today && !w.completed);
+        const hasWateringToday = wateringData.some((w) => w.date === today && !w.completed);
         const wasWateredToday = regasHoje.plantas && regasHoje.plantas.includes(plant.id);
         
         if (hasWateringToday && !wasWateredToday) {
@@ -29,14 +57,15 @@ function obterEstatisticasReais() {
     
     // Se não há agendamentos, usar heurística (plantas não regadas há mais de 3 dias)
     if (precisamRegar === 0) {
-        plants.forEach(plant => {
+        plants.forEach((plant) => {
+            /** @type {WateringEntry[]} */
             const wateringData = JSON.parse(localStorage.getItem(`watering_${plant.id}`) || '[]');
             const lastWatering = wateringData
-                .filter(w => w.completed)
-                .sort((a, b) => new Date(b.date) - new Date(a.date))[0];
+                .filter((w) => w.completed)
+                .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())[0];
             
             if (lastWatering) {
-                const daysSinceWatering = Math.floor((new Date(today) - new Date(lastWatering.date)) / (1000 * 60 * 60 * 24));
+                const daysSinceWatering = Math.floor((new Date(today).getTime() - new Date(lastWatering.date).getTime()) / (1000 * 60 * 60 * 24));
                 if (daysSinceWatering >= 3) {
                     precisamRegar++;
                 }
@@ -54,8 +83,15 @@ function obterEstatisticasReais() {
         totalPlantas: plants.length,
         regadasHoje: plantasRegadasHoje,
         precisamRegar: precisamRegar,
-        notificacoes: notificacoes.filter(n => !n.lida).length
+    notificacoes: notificacoes.filter((n) => !n.lida).length
     };
+}
+
+const ATIVIDADE_SEMANAL_PRESET = [3, 7, 5, 8, 6, 4, 2];
+
+// Função para obter atividade semanal pré-configurada para cenários de teste
+function obterAtividadeSemanalPreset() {
+    return [...ATIVIDADE_SEMANAL_PRESET];
 }
 
 // Dados simulados (posteriormente podem vir de uma API/banco de dados)
@@ -84,7 +120,7 @@ const dashboardData = {
             acao: 'ver'
         }
     ],
-    atividadeSemanal: [6, 8, 4, 9, 7, 5, 4], // Segunda a Domingo
+    atividadeSemanal: obterAtividadeSemanalPreset(), // Segunda a Domingo (valores predefinidos)
     proximasRegas: [
         {
             dia: 'HOJE',
@@ -118,6 +154,7 @@ const dashboardData = {
 function atualizarEstatisticas() {
     // Recarregar estatísticas reais
     dashboardData.stats = obterEstatisticasReais();
+    dashboardData.atividadeSemanal = obterAtividadeSemanalPreset();
     const stats = dashboardData.stats;
     
     // Atualiza os números (com animação)
@@ -125,9 +162,15 @@ function atualizarEstatisticas() {
     animarNumero('.stat-card-link:nth-child(2) .stat-number', stats.regadasHoje);
     animarNumero('.stat-card-link:nth-child(3) .stat-number', stats.precisamRegar);
     animarNumero('.stat-card-link:nth-child(4) .stat-number', stats.notificacoes);
+
+    atualizarGraficoAtividade();
 }
 
 // Função para animar números
+/**
+ * @param {string} seletor
+ * @param {number} valorFinal
+ */
 function animarNumero(seletor, valorFinal) {
     const elemento = document.querySelector(seletor);
     if (!elemento) return;
@@ -193,8 +236,8 @@ function filterAlertsByUserPlants() {
         // If after filtering there are no alerts, optionally hide the alerts section
         const remaining = alertsContainer.querySelectorAll('.alert-card').length;
         if (remaining === 0) {
-            const alertsSection = document.querySelector('.alerts-section');
-            if (alertsSection) alertsSection.style.display = 'none';
+        const alertsSection = /** @type {HTMLElement | null} */ (document.querySelector('.alerts-section'));
+        if (alertsSection) alertsSection.style.display = 'none';
         }
     } catch (err) {
         console.error('Erro ao filtrar alertas por plantas do utilizador:', err);
@@ -202,6 +245,9 @@ function filterAlertsByUserPlants() {
 }
 
 // Função para mostrar notificação temporária
+/**
+ * @param {string} mensagem
+ */
 function mostrarNotificacao(mensagem) {
     // Cria elemento de notificação
     const notificacao = document.createElement('div');
@@ -232,17 +278,20 @@ function mostrarNotificacao(mensagem) {
 
 // Função para adicionar interatividade às barras do gráfico
 function configurarGrafico() {
-    const barras = document.querySelectorAll('.bar');
+    const barras = /** @type {NodeListOf<HTMLElement & { tooltip?: HTMLDivElement }>} */ (document.querySelectorAll('.bar'));
     const dias = ['Segunda', 'Terça', 'Quarta', 'Quinta', 'Sexta', 'Sábado', 'Domingo'];
     
+    atualizarGraficoAtividade();
+
     barras.forEach((barra, index) => {
         const valor = dashboardData.atividadeSemanal[index];
         
         // Adiciona tooltip ao passar o mouse
-        barra.addEventListener('mouseenter', (e) => {
+        barra.addEventListener('mouseenter', (event) => {
             const tooltip = document.createElement('div');
             tooltip.className = 'chart-tooltip';
-            tooltip.textContent = `${dias[index]}: ${valor} plantas regadas`;
+            const valorAtual = Number(barra.getAttribute('data-value') || valor || 0);
+            tooltip.textContent = `${dias[index]}: ${valorAtual} plantas regadas`;
             tooltip.style.cssText = `
                 position: absolute;
                 background: #333;
@@ -253,8 +302,8 @@ function configurarGrafico() {
                 white-space: nowrap;
                 pointer-events: none;
                 z-index: 100;
-                left: ${e.pageX}px;
-                top: ${e.pageY - 40}px;
+                left: ${/** @type {MouseEvent} */ (event).pageX}px;
+                top: ${/** @type {MouseEvent} */ (event).pageY - 40}px;
             `;
             document.body.appendChild(tooltip);
             barra.tooltip = tooltip;
@@ -266,6 +315,24 @@ function configurarGrafico() {
                 delete barra.tooltip;
             }
         });
+    });
+}
+
+function atualizarGraficoAtividade() {
+    const barras = /** @type {NodeListOf<HTMLElement>} */ (document.querySelectorAll('.bar'));
+    if (!barras.length) return;
+
+    const valores = dashboardData.atividadeSemanal;
+    const maximo = Math.max(...valores, 1);
+
+    barras.forEach((barra, index) => {
+        const valor = valores[index] ?? 0;
+        const alturaMin = valores.some((v) => v > 0) ? 30 : 8;
+        const alturaUtil = 160; // px úteis dentro dos 200px do gráfico
+        const alturaPx = valor > 0 ? (valor / maximo) * alturaUtil + alturaMin : alturaMin;
+        barra.style.height = `${Math.round(alturaPx)}px`;
+        barra.setAttribute('data-value', valor.toString());
+        barra.setAttribute('aria-label', `Regas em ${index + 1}º dia da semana: ${valor}`);
     });
 }
 

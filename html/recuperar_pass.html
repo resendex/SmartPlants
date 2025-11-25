@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="pt-pt">
+
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>Smart Plants - Recuperar Palavra-Passe</title>
+	<link rel="icon" href="../multimedia/image/logo.png" type="image/png">
+	<link rel="stylesheet" type="text/css" href="../css/login.css">
+	<link rel="stylesheet" type="text/css" href="../css/copyright.css">
+</head>
+
+<body>
+	<header class="header">
+		<div class="header-left">
+			<span class="header-title">Smart Plants</span>
+			<img class="header-logo" src="../multimedia/image/smartplants.png" alt="Smart Plants Logo" onclick="location.href='home.html'">
+		</div>
+	</header>
+
+	<div class="container">
+		<h1 class="page-title">Recuperar password</h1>
+		<p class="page-subtitle">Introduza o email associado à sua conta e enviaremos instruções de recuperação.</p>
+
+		<form class="login-form" id="recovery-form">
+			<div class="form-group">
+				<label for="recovery-email">Email</label>
+				<input type="email" id="recovery-email" name="email" required>
+			</div>
+
+			<div class="buttons-container single-button">
+				<button type="submit" class="btn btn-login">Enviar instruções</button>
+			</div>
+		</form>
+
+		<div id="recovery-message" class="form-feedback" role="status" aria-live="polite" hidden>
+			Foi enviado um email para a recuperação da palavra passe.
+		</div>
+	</div>
+
+	<footer class="footer">
+		<div class="copyright-info">
+			<span>©2025 Smart Plants Project</span>
+			<span class="divider"></span>
+			<span>Criado em contexto académico por estudantes da
+				<a href="https://ciencias.ulisboa.pt/" target="_blank" rel="noopener">FCUL</a></span>
+			<span class="divider"></span>
+			Interação com Computadores
+		</div>
+	</footer>
+
+	<script src="../js/recuperar_pass.js"></script>
+</body>
+
+</html>
