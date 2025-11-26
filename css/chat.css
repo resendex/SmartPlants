@@ -180,42 +180,125 @@ body {
 /* Search Container */
 .search-container {
     display: flex;
-    gap: 0.5em;
+    align-items: center;
+    gap: 0.75em;
     margin-bottom: 2em;
-    background: rgba(255, 255, 255, 0.95);
-    padding: 0.8em;
-    border-radius: 1em;
-    box-shadow: 0 0.3em 1em rgba(0, 0, 0, 0.1);
+    padding: 1.1em 1.4em;
+    border-radius: 1.2em;
+    background: linear-gradient(135deg, rgba(102, 126, 234, 0.95) 0%, rgba(40, 167, 69, 0.95) 100%);
+    box-shadow: 0 0.6em 1.6em rgba(102, 126, 234, 0.25), 0 0.3em 1.2em rgba(40, 167, 69, 0.2);
+    position: relative;
+    overflow: hidden;
+}
+
+.search-container::before {
+    content: '';
+    position: absolute;
+    inset: 2px;
+    border-radius: 1.1em;
+    background: linear-gradient(135deg, rgba(118, 75, 162, 0.35) 0%, rgba(102, 126, 234, 0.4) 50%, rgba(40, 167, 69, 0.25) 100%);
+    backdrop-filter: blur(7px);
+    z-index: 0;
+}
+
+.search-container > * {
+    position: relative;
+    z-index: 1;
 }
 
 .search-input {
     flex: 1;
     border: none;
-    padding: 0.8em 1em;
-    font-size: 1em;
-    border-radius: 0.6em;
-    background: rgba(102, 126, 234, 0.05);
-    transition: background 0.3s ease;
+    padding: 0.95em 1.15em;
+    font-size: 1.05em;
+    border-radius: 0.9em;
+    background: rgba(255, 255, 255, 0.9);
+    border: 2px solid rgba(118, 75, 162, 0.45);
+    box-shadow: inset 0 0.2em 0.65em rgba(102, 126, 234, 0.18), 0 0.15em 0.4em rgba(118, 75, 162, 0.25);
+    color: #2d2d2d;
+    transition: box-shadow 0.3s ease, background 0.3s ease;
 }
 
 .search-input:focus {
     outline: none;
-    background: rgba(102, 126, 234, 0.1);
+    background: #ffffff;
+    border-color: rgba(118, 75, 162, 0.7);
+    box-shadow: inset 0 0.35em 0.95em rgba(102, 126, 234, 0.22), 0 0.2em 0.45em rgba(118, 75, 162, 0.35);
+}
+
+.search-input::placeholder {
+    color: rgba(102, 126, 234, 0.6);
+    letter-spacing: 0.01em;
 }
 
 .search-btn {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    border: none;
-    padding: 0.8em 1.5em;
-    border-radius: 0.6em;
-    font-size: 1.2em;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 3.2em;
+    height: 3.2em;
+    border-radius: 50%;
+    border: 2px solid rgba(102, 126, 234, 0.2);
+    background: rgba(102, 126, 234, 0.7);
+    color: #ffffff;
+    font-size: 1.35em;
     cursor: pointer;
-    transition: all 0.3s ease;
+    transition: transform 0.3s ease, box-shadow 0.3s ease, background 0.3s ease, border-color 0.3s ease;
+    box-shadow: 0 0.4em 1.1em rgba(102, 126, 234, 0.35);
 }
 
 .search-btn:hover {
-    transform: scale(1.05);
-    box-shadow: 0 0.3em 1em rgba(102, 126, 234, 0.4);
+    transform: translateY(-0.1em) scale(1.05);
+    background: rgba(102, 126, 234, 0.85);
+    border-color: rgba(255, 255, 255, 0.6);
+    box-shadow: 0 0.5em 1.3em rgba(102, 126, 234, 0.45);
+}
+
+.search-btn:active {
+    transform: scale(0.95);
+    box-shadow: 0 0.25em 0.7em rgba(102, 126, 234, 0.35);
+}
+
+.chat-toolbar {
+    display: flex;
+    gap: 1em;
+    margin-bottom: 2em;
+    flex-wrap: wrap;
+}
+
+.chat-toolbar .toolbar-group {
+    flex: 1 1 220px;
+    background: rgba(255, 255, 255, 0.95);
+    border-radius: 1.1em;
+    padding: 0.9em 1.1em;
+    box-shadow: 0 0.3em 1em rgba(102, 126, 234, 0.18);
+    display: flex;
+    flex-direction: column;
+    gap: 0.45em;
+    backdrop-filter: blur(6px);
+}
+
+.chat-toolbar label {
+    font-weight: 600;
+    font-size: 0.9em;
+    color: #4a4a4a;
+}
+
+.chat-toolbar select {
+    border: 1px solid rgba(118, 75, 162, 0.25);
+    border-radius: 0.8em;
+    padding: 0.7em 1em;
+    font-size: 0.95em;
+    background: rgba(102, 126, 234, 0.08);
+    color: #2d2d2d;
+    transition: border-color 0.3s ease, box-shadow 0.3s ease, background 0.3s ease;
+}
+
+.chat-toolbar select:focus {
+    outline: none;
+    border-color: rgba(118, 75, 162, 0.6);
+    box-shadow: 0 0.2em 0.6em rgba(118, 75, 162, 0.25);
+    background: rgba(255, 255, 255, 0.95);
 }
 
 /* Conversations List */
@@ -370,36 +453,6 @@ body {
     font-weight: 600;
 }
 
-/* Floating Action Button */
-.fab-button {
-    position: fixed;
-    bottom: 2em;
-    right: 2em;
-    width: 3.5em;
-    height: 3.5em;
-    border-radius: 50%;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    border: none;
-    box-shadow: 0 0.5em 2em rgba(102, 126, 234, 0.4);
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    transition: all 0.3s ease;
-    z-index: 100;
-    margin-bottom: 1em;
-}
-
-.fab-button:hover {
-    transform: scale(1.1) rotate(90deg);
-    box-shadow: 0 0.6em 2.5em rgba(102, 126, 234, 0.5);
-}
-
-.fab-icon {
-    font-size: 1.5em;
-    color: white;
-}
-
 /* Responsive */
 @media (max-width: 768px) {
     .conversation-card {
@@ -417,12 +470,5 @@ body {
 
     .conversation-meta {
         display: none;
-    }
-
-    .fab-button {
-        bottom: 1.5em;
-        right: 1.5em;
-        width: 3em;
-        height: 3em;
     }
 }

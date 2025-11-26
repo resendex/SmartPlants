@@ -1,20 +1,126 @@
+// @ts-nocheck
 // Fórum Interativo - Smart Plants
 
-// Função para filtrar posts por categoria
-function filterPosts(category) {
-    const posts = document.querySelectorAll('.forum-post');
-    
-    posts.forEach(post => {
+let currentCategoryFilter = 'all';
+let currentForumSortOrder = 'recent';
+let currentForumPhotoFilter = 'all';
+let currentForumStatusFilter = 'all';
+
+let activeReactionPicker = null;
+
+function applyPostFilters() {
+    const forumPostsContainer = document.querySelector('.forum-posts');
+    if (!forumPostsContainer) return;
+
+    const posts = Array.from(forumPostsContainer.querySelectorAll('.forum-post'));
+    if (!posts.length) return;
+
+    const sortedPosts = posts.slice().sort((a, b) => {
+        const aPinned = a.dataset.pinned === 'true';
+        const bPinned = b.dataset.pinned === 'true';
+
+        if (aPinned !== bPinned) {
+            return aPinned ? -1 : 1;
+        }
+
+        const aTime = Date.parse(a.dataset.timestamp || '') || 0;
+        const bTime = Date.parse(b.dataset.timestamp || '') || 0;
+        return currentForumSortOrder === 'recent' ? bTime - aTime : aTime - bTime;
+    });
+
+    sortedPosts.forEach(post => forumPostsContainer.appendChild(post));
+
+    sortedPosts.forEach(post => {
         const postCategory = post.getAttribute('data-category');
-        
-        if (category === 'all' || postCategory === category || postCategory === 'all') {
+        const hasPhotos = post.dataset.hasPhotos === 'true';
+
+        post.classList.toggle('is-pinned', post.dataset.pinned === 'true');
+
+        const matchesCategory = currentCategoryFilter === 'all' || postCategory === currentCategoryFilter || postCategory === 'all';
+        const matchesPhotoFilter =
+            currentForumPhotoFilter === 'all' ||
+            (currentForumPhotoFilter === 'with-photos' && hasPhotos) ||
+            (currentForumPhotoFilter === 'without-photos' && !hasPhotos);
+
+        const matchesStatus =
+            currentForumStatusFilter === 'all' ||
+            (currentForumStatusFilter === 'pinned' && post.dataset.pinned === 'true') ||
+            (currentForumStatusFilter === 'saved' && post.dataset.saved === 'true');
+
+        if (matchesCategory && matchesPhotoFilter && matchesStatus) {
             post.style.display = 'block';
-            // Animação de entrada
             post.style.animation = 'fadeIn 0.5s ease';
         } else {
             post.style.display = 'none';
         }
     });
+}
+
+// Função para filtrar posts por categoria
+function filterPosts(category) {
+    currentCategoryFilter = category;
+    applyPostFilters();
+}
+
+function setupForumToolbar() {
+    const sortSelect = document.getElementById('forumSortSelect');
+    const mediaFilterSelect = document.getElementById('forumMediaFilter');
+    const statusFilterSelect = document.getElementById('forumStatusFilter');
+
+    if (sortSelect) {
+        sortSelect.addEventListener('change', (event) => {
+            currentForumSortOrder = event.target.value === 'oldest' ? 'oldest' : 'recent';
+            applyPostFilters();
+        });
+    }
+
+    if (mediaFilterSelect) {
+        mediaFilterSelect.addEventListener('change', (event) => {
+            currentForumPhotoFilter = event.target.value || 'all';
+            applyPostFilters();
+        });
+    }
+
+    if (statusFilterSelect) {
+        statusFilterSelect.addEventListener('change', (event) => {
+            currentForumStatusFilter = event.target.value || 'all';
+            applyPostFilters();
+        });
+    }
+}
+
+function ensureCommentList(post) {
+    let section = post.querySelector('.comments-section');
+    if (!section) {
+        section = document.createElement('div');
+        section.className = 'comments-section';
+
+        const title = document.createElement('div');
+        title.className = 'comments-title';
+        title.textContent = '💬 Comentários';
+        section.appendChild(title);
+
+        const list = document.createElement('div');
+        list.className = 'comment-list';
+        section.appendChild(list);
+
+        const footer = post.querySelector('.post-footer');
+        if (footer && footer.nextSibling) {
+            post.insertBefore(section, footer.nextSibling);
+        } else {
+            post.appendChild(section);
+        }
+
+        return list;
+    }
+
+    let commentList = section.querySelector('.comment-list');
+    if (!commentList) {
+        commentList = document.createElement('div');
+        commentList.className = 'comment-list';
+        section.appendChild(commentList);
+    }
+    return commentList;
 }
 
 // Função para configurar botões de categoria
@@ -36,50 +142,276 @@ function setupCategoryButtons() {
     });
 }
 
-// Função para configurar botões de interação (like, comentar, guardar)
-function setupInteractionButtons() {
-    const interactionButtons = document.querySelectorAll('.interaction-btn');
-    
+// Função para configurar botões de interação (reagir, comentar, guardar, fixar)
+function setupInteractionButtons(scope = document) {
+    const container = scope instanceof Element ? scope : document;
+    const interactionButtons = container.querySelectorAll('.interaction-btn');
+
     interactionButtons.forEach(button => {
-        button.addEventListener('click', (e) => {
-            e.stopPropagation();
+        if (button.dataset.bound === 'true') return;
+        button.dataset.bound = 'true';
 
+        if (!button.dataset.defaultReaction) {
             const iconEl = button.querySelector('.interaction-icon');
-            const icon = iconEl ? iconEl.textContent : '';
-
-            // If this is the comment icon, open the comment box for this post
-            if (icon === '💬') {
-                const post = button.closest('.forum-post');
-                if (post) openCommentBox(post, button);
-                return;
+            if (iconEl) {
+                button.dataset.defaultReaction = iconEl.textContent.trim() || '👍';
             }
+        }
 
-            // For other interaction types (like/guardar) toggle active state
-            button.classList.toggle('active');
-
-            // Incrementa/decrementa contador se existir
-            const countElement = button.querySelector('.interaction-count');
-            if (countElement) {
-                let count = parseInt(countElement.textContent) || 0;
-
-                if (button.classList.contains('active')) {
-                    count++;
-                    showNotification(`Ação realizada com sucesso! ${icon}`);
-                } else {
-                    count--;
-                }
-
-                countElement.textContent = count;
-            }
-
-            // Adiciona animação
-            button.style.transform = 'scale(0.9)';
-            setTimeout(() => {
-                button.style.transform = 'scale(1)';
-            }, 100);
-        });
+        button.addEventListener('click', handleInteractionButton);
     });
 }
+
+function handleInteractionButton(event) {
+    const button = event.currentTarget;
+    const action = button.dataset.action || '';
+    const post = button.closest('.forum-post');
+    event.stopPropagation();
+
+    if (!post) return;
+
+    switch (action) {
+        case 'comment':
+            openCommentBox(post, button);
+            break;
+        case 'react':
+            handleReaction(button);
+            break;
+        case 'save':
+            toggleSave(button, post);
+            break;
+        case 'pin':
+            togglePin(button, post);
+            break;
+        default:
+            button.classList.toggle('active');
+            break;
+    }
+
+    if (action !== 'comment') {
+        button.style.transform = 'scale(0.92)';
+        setTimeout(() => {
+            button.style.transform = 'scale(1)';
+        }, 140);
+    }
+}
+
+function handleReaction(button) {
+    if (activeReactionPicker && activeReactionPicker.parentElement === button) {
+        closeReactionPicker();
+        return;
+    }
+
+    openReactionPicker(button);
+}
+
+function openReactionPicker(button) {
+    const options = (button.dataset.reactionOptions || '👍|❤️')
+        .split('|')
+        .map(option => option.trim())
+        .filter(Boolean);
+
+    if (!options.length) {
+        showNotification('Sem reações disponíveis.');
+        return;
+    }
+
+    closeReactionPicker();
+
+    const picker = document.createElement('div');
+    picker.className = 'reaction-picker';
+
+    options.forEach(option => {
+        const optionBtn = document.createElement('button');
+        optionBtn.type = 'button';
+        optionBtn.className = 'reaction-option';
+        optionBtn.textContent = option;
+        optionBtn.addEventListener('click', (event) => {
+            event.stopPropagation();
+            selectReaction(button, option);
+            closeReactionPicker();
+        });
+        picker.appendChild(optionBtn);
+    });
+
+    if (button.dataset.userReacted === 'true') {
+        const clearBtn = document.createElement('button');
+        clearBtn.type = 'button';
+        clearBtn.className = 'reaction-option reaction-clear';
+        clearBtn.textContent = '❌';
+        clearBtn.setAttribute('aria-label', 'Remover reação');
+        clearBtn.addEventListener('click', (event) => {
+            event.stopPropagation();
+            removeReaction(button);
+            closeReactionPicker();
+        });
+        picker.appendChild(clearBtn);
+    }
+
+    button.appendChild(picker);
+    activeReactionPicker = picker;
+
+    requestAnimationFrame(() => {
+        picker.classList.add('visible');
+    });
+}
+
+function closeReactionPicker() {
+    if (!activeReactionPicker) return;
+    activeReactionPicker.classList.remove('visible');
+    const pickerToRemove = activeReactionPicker;
+    activeReactionPicker = null;
+    setTimeout(() => pickerToRemove.remove(), 120);
+}
+
+function selectReaction(button, reaction) {
+    const iconEl = button.querySelector('.interaction-icon');
+    const countEl = button.querySelector('.interaction-count');
+
+    if (!button.dataset.defaultReaction && iconEl) {
+        button.dataset.defaultReaction = iconEl.textContent.trim() || '👍';
+    }
+
+    if (iconEl) {
+        iconEl.textContent = reaction;
+    }
+
+    if (button.dataset.userReacted !== 'true' && countEl) {
+        const current = parseInt(countEl.textContent) || 0;
+        countEl.textContent = (current + 1).toString();
+    }
+
+    button.dataset.userReacted = 'true';
+    button.dataset.reaction = reaction;
+    button.classList.add('active');
+
+    showNotification(`Reação ${reaction} adicionada!`);
+}
+
+function removeReaction(button) {
+    if (button.dataset.userReacted !== 'true') return;
+
+    const countEl = button.querySelector('.interaction-count');
+    const iconEl = button.querySelector('.interaction-icon');
+
+    if (countEl) {
+        const current = parseInt(countEl.textContent) || 0;
+        countEl.textContent = Math.max(0, current - 1).toString();
+    }
+
+    if (iconEl) {
+        iconEl.textContent = button.dataset.defaultReaction || '👍';
+    }
+
+    button.dataset.userReacted = 'false';
+    button.dataset.reaction = 'none';
+    button.classList.remove('active');
+
+    showNotification('Reação removida.');
+}
+
+function toggleSave(button, post) {
+    const isSaved = button.classList.toggle('active');
+    const labelEl = button.querySelector('.interaction-label');
+
+    post.dataset.saved = isSaved ? 'true' : 'false';
+
+    if (labelEl) {
+        const defaultLabel = button.dataset.labelDefault || 'Guardar';
+        const savedLabel = button.dataset.labelSaved || 'Guardado';
+        labelEl.textContent = isSaved ? savedLabel : defaultLabel;
+    }
+
+    showNotification(isSaved ? 'Post guardado na sua coleção.' : 'Post removido dos guardados.');
+    applyPostFilters();
+}
+
+function togglePin(button, post) {
+    const isPinned = button.classList.toggle('active');
+    const labelEl = button.querySelector('.interaction-label');
+
+    post.dataset.pinned = isPinned ? 'true' : 'false';
+    post.classList.toggle('is-pinned', isPinned);
+
+    if (labelEl) {
+        const defaultLabel = button.dataset.labelDefault || 'Fixar';
+        const pinnedLabel = button.dataset.labelPinned || 'Fixado';
+        labelEl.textContent = isPinned ? pinnedLabel : defaultLabel;
+    }
+
+    showNotification(isPinned ? 'Post fixado no topo.' : 'Post desafixado.');
+    applyPostFilters();
+}
+
+function updateCommentCount(post) {
+    const list = post.querySelector('.comment-list');
+    const commentBtn = post.querySelector('.interaction-btn[data-action="comment"]');
+    const countEl = commentBtn ? commentBtn.querySelector('.interaction-count') : null;
+    if (countEl) {
+        const total = list ? list.children.length : 0;
+        countEl.textContent = total.toString();
+    }
+}
+
+function populateInitialComments() {
+    const posts = document.querySelectorAll('.forum-post');
+
+    posts.forEach(post => {
+        const rawComments = post.dataset.initialComments;
+        if (!rawComments) {
+            updateCommentCount(post);
+            return;
+        }
+
+        const entries = rawComments.split('|').map(entry => {
+            const [author, ...messageParts] = entry.split('::');
+            return {
+                author: (author || '').trim(),
+                message: (messageParts.join('::') || '').trim()
+            };
+        }).filter(item => item.author && item.message);
+
+        if (!entries.length) {
+            updateCommentCount(post);
+            return;
+        }
+
+        const list = ensureCommentList(post);
+        list.innerHTML = '';
+
+        entries.forEach((entry, index) => {
+            const commentItem = document.createElement('div');
+            commentItem.className = 'comment-item';
+            const relativeTime = index % 2 === 0 ? 'há 1 dia' : 'há 3 horas';
+            commentItem.innerHTML = `
+                <strong>${escapeHtml(entry.author)}</strong>
+                <span>${escapeHtml(entry.message)}</span>
+                <time>${relativeTime}</time>
+            `;
+            list.appendChild(commentItem);
+        });
+
+        updateCommentCount(post);
+    });
+}
+
+document.addEventListener('click', (event) => {
+    if (!activeReactionPicker) return;
+
+    const picker = activeReactionPicker;
+    const parentBtn = picker.parentElement;
+
+    if (picker.contains(event.target)) return;
+    if (parentBtn && parentBtn.contains(event.target)) return;
+
+    closeReactionPicker();
+});
+
+document.addEventListener('keydown', (event) => {
+    if (event.key === 'Escape') {
+        closeReactionPicker();
+    }
+});
 
 // Abre uma caixa de comentário dentro do post e foca o textarea
 function openCommentBox(post, triggerButton) {
@@ -95,12 +427,12 @@ function openCommentBox(post, triggerButton) {
 
     const commentBox = document.createElement('div');
     commentBox.className = 'comment-box';
-    commentBox.style.cssText = 'margin-top:12px; display:flex; gap:8px; align-items:flex-start;';
+    commentBox.style.cssText = 'margin-top:16px; display:flex; gap:12px; align-items:flex-end; flex-wrap:wrap;';
     commentBox.innerHTML = `
-        <textarea placeholder="Escreve um comentário..." rows="2" style="flex:1;padding:0.6em;border:1px solid #ddd;border-radius:0.4em;font-family:inherit;"></textarea>
-        <div style="display:flex;flex-direction:column;gap:8px;">
-            <button class="btn-comment-submit" style="background:linear-gradient(135deg,#28a745 0%,#20c997 100%);color:white;border:none;padding:0.5em 0.8em;border-radius:0.4em;cursor:pointer;">Comentar</button>
-            <button class="btn-comment-cancel" style="background:#f0f0f0;border:none;padding:0.4em 0.6em;border-radius:0.4em;cursor:pointer;">Cancelar</button>
+        <textarea placeholder="Escreve um comentário..." rows="3" style="flex:1;min-width:240px;min-height:4.2em;padding:0.8em;border:1px solid #d4d4d4;border-radius:0.6em;font-family:inherit;box-shadow:0 0.2em 0.6em rgba(0,0,0,0.05);"></textarea>
+        <div style="display:flex;flex-direction:column;gap:8px;min-width:120px;">
+            <button class="btn-comment-submit" style="background:linear-gradient(135deg,#28a745 0%,#20c997 100%);color:white;border:none;padding:0.55em 0.9em;border-radius:0.55em;cursor:pointer;font-weight:600;">Comentar</button>
+            <button class="btn-comment-cancel" style="background:#f6f7fb;border:none;padding:0.45em 0.75em;border-radius:0.55em;cursor:pointer;font-weight:600;color:#555;">Cancelar</button>
         </div>
     `;
 
@@ -113,7 +445,14 @@ function openCommentBox(post, triggerButton) {
     // Auto-focus
     setTimeout(() => textarea.focus(), 50);
 
-    // Submit handler: add a simple comment element and increment count
+    textarea.addEventListener('keydown', (event) => {
+        if (event.key === 'Enter' && !event.shiftKey) {
+            event.preventDefault();
+            submitBtn.click();
+        }
+    });
+
+    // Submit handler: adiciona o comentário e atualiza o contador
     submitBtn.addEventListener('click', (e) => {
         e.stopPropagation();
         const text = textarea.value.trim();
@@ -122,36 +461,20 @@ function openCommentBox(post, triggerButton) {
             return;
         }
 
-        // Append simple comment under the post (after footer)
-        const commentList = post.querySelector('.comment-list') || document.createElement('div');
-        commentList.className = 'comment-list';
-        commentList.style.cssText = 'margin-top:12px; padding-left:12px; border-left:2px solid rgba(0,0,0,0.04);';
+        const commentList = ensureCommentList(post);
 
         const commentItem = document.createElement('div');
         commentItem.className = 'comment-item';
-        commentItem.style.cssText = 'margin-bottom:8px;';
-        commentItem.innerHTML = `<strong>Tu:</strong> <span>${escapeHtml(text)}</span>`;
+        commentItem.innerHTML = `
+            <strong>Tu</strong>
+            <span>${escapeHtml(text)}</span>
+            <time>${new Date().toLocaleTimeString('pt-PT', { hour: '2-digit', minute: '2-digit' })}</time>
+        `;
 
         commentList.appendChild(commentItem);
+        commentList.scrollTop = commentList.scrollHeight;
 
-        // If commentList was just created, append it after footer
-        if (!post.querySelector('.comment-list')) {
-            footer.parentElement.appendChild(commentList);
-        }
-
-        // Update comment count on the interaction button if present
-        const commentBtn = Array.from(post.querySelectorAll('.interaction-btn')).find(b => {
-            const ic = b.querySelector('.interaction-icon');
-            return ic && ic.textContent === '💬';
-        });
-
-        if (commentBtn) {
-            const countEl = commentBtn.querySelector('.interaction-count');
-            if (countEl) {
-                let count = parseInt(countEl.textContent) || 0;
-                countEl.textContent = (count + 1).toString();
-            }
-        }
+        updateCommentCount(post);
 
         showNotification('Comentário adicionado!');
 
@@ -167,35 +490,15 @@ function openCommentBox(post, triggerButton) {
 
 // Pequena função para escapar HTML em comentários
 function escapeHtml(unsafe) {
-    return unsafe.replace(/[&<>\"]/g, function(m) {
+    return unsafe.replace(/[&<>"']/g, function(m) {
         switch (m) {
             case '&': return '&amp;';
             case '<': return '&lt;';
             case '>': return '&gt;';
             case '"': return '&quot;';
+            case "'": return '&#39;';
             default: return m;
         }
-    });
-}
-
-// Função para configurar botão de juntar-se ao grupo
-function setupJoinButtons() {
-    const joinButtons = document.querySelectorAll('.join-btn');
-    
-    joinButtons.forEach(button => {
-        button.addEventListener('click', (e) => {
-            e.stopPropagation();
-            
-            if (button.textContent.includes('Juntar-se')) {
-                button.textContent = '✓ Membro do Grupo';
-                button.style.background = 'linear-gradient(135deg, #28a745 0%, #20c997 100%)';
-                showNotification('Juntou-se ao grupo com sucesso! 🎉');
-            } else {
-                button.textContent = 'Juntar-se ao Grupo';
-                button.style.background = 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)';
-                showNotification('Saiu do grupo');
-            }
-        });
     });
 }
 
@@ -352,8 +655,14 @@ function addPostToForum(plant, title, description) {
     
     const newPost = document.createElement('div');
     newPost.className = 'forum-post progress-post';
-    newPost.setAttribute('data-category', 'progress');
+    newPost.dataset.category = 'progress';
     newPost.style.animation = 'fadeIn 0.5s ease';
+
+    const hasProgressPhotos = Array.isArray(plant.progressPhotos) && plant.progressPhotos.length > 0;
+    newPost.dataset.hasPhotos = hasProgressPhotos ? 'true' : 'false';
+    newPost.dataset.timestamp = new Date().toISOString();
+    newPost.dataset.saved = 'false';
+    newPost.dataset.pinned = 'false';
     
     // Verifica se tem fotos de progresso
     let progressGalleryHTML = '';
@@ -419,13 +728,17 @@ function addPostToForum(plant, title, description) {
         
         <div class="post-footer">
             <div class="post-interactions">
-                <button class="interaction-btn">
+                <button class="interaction-btn" data-action="react" data-reaction-options="👍|❤️" data-reaction="none">
                     <span class="interaction-icon">👍</span>
                     <span class="interaction-count">0</span>
                 </button>
-                <button class="interaction-btn">
+                <button class="interaction-btn" data-action="comment">
                     <span class="interaction-icon">💬</span>
                     <span class="interaction-count">0</span>
+                </button>
+                <button class="interaction-btn" data-action="save" data-label-default="Guardar" data-label-saved="Guardado">
+                    <span class="interaction-icon">🔖</span>
+                    <span class="interaction-label">Guardar</span>
                 </button>
             </div>
         </div>
@@ -435,7 +748,11 @@ function addPostToForum(plant, title, description) {
     forumPosts.insertBefore(newPost, forumPosts.firstChild);
     
     // Reconfigura botões de interação
-    setupInteractionButtons();
+    setupInteractionButtons(newPost);
+
+    updateCommentCount(newPost);
+
+    applyPostFilters();
 }
 
 // Função para configurar FAB
@@ -630,15 +947,20 @@ document.addEventListener('DOMContentLoaded', () => {
     
     // Configura botões de categoria
     setupCategoryButtons();
+
+    // Configura barra de ferramentas de filtros/ordenação
+    setupForumToolbar();
     
     // Configura botões de interação
     setupInteractionButtons();
     
-    // Configura botões de juntar-se ao grupo
-    setupJoinButtons();
+    // Preenche comentários presentes nos atributos de dados
+    populateInitialComments();
     
     // Configura FAB
     setupFAB();
+
+    applyPostFilters();
 });
 
 // Exporta funções para uso global

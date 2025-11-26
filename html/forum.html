@@ -70,6 +70,33 @@
                 </a>
             </div>
 
+            <!-- Ordenação e filtros adicionais -->
+            <div class="forum-toolbar" aria-label="Ferramentas de ordenação e filtros do fórum">
+                <div class="toolbar-group">
+                    <label for="forumSortSelect">Ordenar por</label>
+                    <select id="forumSortSelect" aria-label="Ordenar posts do fórum">
+                        <option value="recent" selected>Mais recentes</option>
+                        <option value="oldest">Mais antigos</option>
+                    </select>
+                </div>
+                <div class="toolbar-group">
+                    <label for="forumMediaFilter">Conteúdo</label>
+                    <select id="forumMediaFilter" aria-label="Filtrar posts por presença de fotografias">
+                        <option value="all" selected>Todos os posts</option>
+                        <option value="with-photos">Com fotografias</option>
+                        <option value="without-photos">Sem fotografias</option>
+                    </select>
+                </div>
+                <div class="toolbar-group">
+                    <label for="forumStatusFilter">Estado</label>
+                    <select id="forumStatusFilter" aria-label="Filtrar posts fixados ou guardados">
+                        <option value="all" selected>Todos</option>
+                        <option value="pinned">Fixados</option>
+                        <option value="saved">Guardados</option>
+                    </select>
+                </div>
+            </div>
+
             <!-- Filtros de Categoria -->
             <div class="categories-container">
                 <button class="category-btn active" data-category="all">
@@ -93,7 +120,7 @@
             <!-- Posts do Fórum -->
             <div class="forum-posts">
                 <!-- Post 1: Progresso de Planta -->
-                <div class="forum-post progress-post" data-category="progress">
+                <div class="forum-post progress-post" data-category="progress" data-has-photos="true" data-timestamp="2025-11-26T11:00:00Z" data-saved="false" data-pinned="false" data-initial-comments="Ana::Parabéns pela tulipa! Está maravilhosa.|Miguel::Que progresso em tão pouco tempo!|Lúcia::Inspiração para cuidar das minhas 🌷.|Tiago::Estou a acompanhar desde o início, que orgulho!">
                     <div class="post-header">
                         <div class="post-author">
                             <div class="author-avatar">🌷</div>
@@ -108,12 +135,11 @@
                     <div class="post-content">
                         <h2 class="post-title">Minha tulipa após 2 meses! 🌷✨</h2>
                         <p class="post-text">
-                            Olá pessoal! Venho compartilhar o incrível progresso da minha tulipa. 
-                            Comecei com apenas um bolbo e agora está linda! Seguindo as dicas de rega 
+                            Olá pessoal! Venho compartilhar o incrível progresso da minha tulipa.
+                            Comecei com apenas um bolbo e agora está linda! Seguindo as dicas de rega
                             da comunidade, ela cresceu super saudável.
                         </p>
 
-                        <!-- Galeria de Progresso -->
                         <div class="progress-gallery">
                             <div class="progress-item">
                                 <div class="progress-photo" style="display: flex; align-items: center; justify-content: center; background: linear-gradient(135deg, #e8f5e9, #c8e6c9); font-size: 4em;">🌱</div>
@@ -138,24 +164,24 @@
 
                     <div class="post-footer">
                         <div class="post-interactions">
-                            <button class="interaction-btn">
+                            <button class="interaction-btn" data-action="react" data-reaction-options="👍|❤️" data-reaction="none">
                                 <span class="interaction-icon">👍</span>
                                 <span class="interaction-count">24</span>
                             </button>
-                            <button class="interaction-btn">
+                            <button class="interaction-btn" data-action="comment">
                                 <span class="interaction-icon">💬</span>
-                                <span class="interaction-count">8</span>
+                                <span class="interaction-count">0</span>
                             </button>
-                            <button class="interaction-btn">
+                            <button class="interaction-btn" data-action="save" data-label-default="Guardar" data-label-saved="Guardado">
                                 <span class="interaction-icon">🔖</span>
-                                <span>Guardar</span>
+                                <span class="interaction-label">Guardar</span>
                             </button>
                         </div>
                     </div>
                 </div>
 
                 <!-- Post 2: Pedido de Ajuda -->
-                <div class="forum-post help-post" data-category="help">
+                <div class="forum-post help-post" data-category="help" data-has-photos="true" data-timestamp="2025-11-26T08:00:00Z" data-saved="false" data-pinned="false" data-initial-comments="Fernanda::Verifica se há excesso de água nas raízes.|Carlos::Pode ser falta de luz indireta.|Especialista SmartPlants::Recomendo fertilizante equilibrado a cada 15 dias.|Mariana::Confere se o substrato não está compacto.|Rui::Usa perlita extra para melhorar a drenagem.">
                     <div class="post-header">
                         <div class="post-author">
                             <div class="author-avatar">😟</div>
@@ -182,13 +208,17 @@
 
                     <div class="post-footer">
                         <div class="post-interactions">
-                            <button class="interaction-btn">
+                            <button class="interaction-btn" data-action="react" data-reaction-options="👍|❤️" data-reaction="none">
                                 <span class="interaction-icon">👍</span>
                                 <span class="interaction-count">12</span>
                             </button>
-                            <button class="interaction-btn active">
+                            <button class="interaction-btn" data-action="comment">
                                 <span class="interaction-icon">💬</span>
-                                <span class="interaction-count">15</span>
+                                <span class="interaction-count">0</span>
+                            </button>
+                            <button class="interaction-btn" data-action="save" data-label-default="Guardar" data-label-saved="Guardado">
+                                <span class="interaction-icon">🔖</span>
+                                <span class="interaction-label">Guardar</span>
                             </button>
                         </div>
                         <div class="help-badge">
@@ -198,7 +228,7 @@
                 </div>
 
                 <!-- Post 3: Dica da Comunidade -->
-                <div class="forum-post tips-post" data-category="tips">
+                <div class="forum-post tips-post" data-category="tips" data-has-photos="false" data-timestamp="2025-11-25T16:00:00Z" data-saved="false" data-pinned="false" data-initial-comments="João::Obrigado pela dica!|Sara::Adorei o lembrete para o inverno.|Beatriz::Já testei e funciona super bem.|Clara::Vou experimentar com as minhas suculentas.">
                     <div class="post-header">
                         <div class="post-author">
                             <div class="author-avatar">🌵</div>
@@ -226,24 +256,28 @@
 
                     <div class="post-footer">
                         <div class="post-interactions">
-                            <button class="interaction-btn">
+                            <button class="interaction-btn" data-action="react" data-reaction-options="👍|❤️" data-reaction="none">
                                 <span class="interaction-icon">👍</span>
                                 <span class="interaction-count">45</span>
                             </button>
-                            <button class="interaction-btn">
+                            <button class="interaction-btn" data-action="comment">
                                 <span class="interaction-icon">💬</span>
-                                <span class="interaction-count">6</span>
+                                <span class="interaction-count">0</span>
                             </button>
-                            <button class="interaction-btn">
+                            <button class="interaction-btn" data-action="save" data-label-default="Guardar" data-label-saved="Guardado">
+                                <span class="interaction-icon">🔖</span>
+                                <span class="interaction-label">Guardar</span>
+                            </button>
+                            <button class="interaction-btn" data-action="pin" data-label-default="Fixar" data-label-pinned="Fixado">
                                 <span class="interaction-icon">📌</span>
-                                <span>Fixar</span>
+                                <span class="interaction-label">Fixar</span>
                             </button>
                         </div>
                     </div>
                 </div>
 
                 <!-- Post 4: Outro Progresso -->
-                <div class="forum-post progress-post" data-category="progress">
+                <div class="forum-post progress-post" data-category="progress" data-has-photos="false" data-timestamp="2025-11-24T12:00:00Z" data-saved="false" data-pinned="false" data-initial-comments="Maria::Parabéns pela floração!|Bruno::Qual fertilizante utilizaste?|Helena::Estou a tentar fazer o mesmo com a minha.|Nuno::Que combinação de luz estás a usar?">
                     <div class="post-header">
                         <div class="post-author">
                             <div class="author-avatar">🌺</div>
@@ -273,53 +307,19 @@
 
                     <div class="post-footer">
                         <div class="post-interactions">
-                            <button class="interaction-btn">
+                            <button class="interaction-btn" data-action="react" data-reaction-options="👍|❤️" data-reaction="none">
                                 <span class="interaction-icon">❤️</span>
                                 <span class="interaction-count">67</span>
                             </button>
-                            <button class="interaction-btn">
+                            <button class="interaction-btn" data-action="comment">
                                 <span class="interaction-icon">💬</span>
-                                <span class="interaction-count">23</span>
+                                <span class="interaction-count">0</span>
+                            </button>
+                            <button class="interaction-btn" data-action="save" data-label-default="Guardar" data-label-saved="Guardado">
+                                <span class="interaction-icon">🔖</span>
+                                <span class="interaction-label">Guardar</span>
                             </button>
                         </div>
-                    </div>
-                </div>
-
-                <!-- Post 5: Grupo Ativo -->
-                <div class="forum-post community-post" data-category="all">
-                    <div class="post-header">
-                        <div class="post-author">
-                            <div class="author-avatar">🌻</div>
-                            <div class="author-info">
-                                <h3 class="author-name">Amantes_de_Flores</h3>
-                                <span class="post-time">3 dias</span>
-                            </div>
-                        </div>
-                        <span class="post-category community">🌿 Grupo</span>
-                    </div>
-
-                    <div class="post-content">
-                        <h2 class="post-title">Grupo: Amantes de Flores 🌺</h2>
-                        <p class="post-text">
-                            Comunidade dedicada a plantas floríferas! Compartilhe fotos, dicas e experiências.
-                        </p>
-
-                        <div class="community-stats">
-                            <div class="community-stat">
-                                <span class="stat-number">156</span>
-                                <span class="stat-label">Membros</span>
-                            </div>
-                            <div class="community-stat">
-                                <span class="stat-number">8</span>
-                                <span class="stat-label">Online agora</span>
-                            </div>
-                            <div class="community-stat">
-                                <span class="stat-number">342</span>
-                                <span class="stat-label">Posts</span>
-                            </div>
-                        </div>
-
-                        <button class="join-btn">Juntar-se ao Grupo</button>
                     </div>
                 </div>
             </div>

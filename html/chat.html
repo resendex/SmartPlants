@@ -76,10 +76,29 @@
                 <button class="search-btn">🔍</button>
             </div>
 
+            <!-- Ordenação e filtros -->
+            <div class="chat-toolbar" aria-label="Ferramentas de ordenação e filtros do chat">
+                <div class="toolbar-group">
+                    <label for="chatSortSelect">Ordenar por</label>
+                    <select id="chatSortSelect" aria-label="Ordenar conversas">
+                        <option value="recent" selected>Mais recentes</option>
+                        <option value="oldest">Mais antigas</option>
+                    </select>
+                </div>
+                <div class="toolbar-group">
+                    <label for="chatMediaFilter">Conteúdo</label>
+                    <select id="chatMediaFilter" aria-label="Filtrar conversas por fotografias partilhadas">
+                        <option value="all" selected>Todas as conversas</option>
+                        <option value="with-photos">Com fotografias</option>
+                        <option value="without-photos">Sem fotografias</option>
+                    </select>
+                </div>
+            </div>
+
             <!-- Lista de Conversas -->
             <div class="conversations-list">
                 <!-- Conversa 1 -->
-                <a href="mensagemExemplo.html" class="conversation-card unread">
+                <a href="mensagemExemplo.html" class="conversation-card unread" data-conversation-id="1" data-timestamp="2025-11-26T10:30:00Z" data-has-photos="false">
                     <div class="conversation-avatar">
                         <img src="../multimedia/image/user-icon-placeholder.png" alt="PedroFlores328" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
                         <div class="avatar-placeholder">🌸</div>
@@ -100,7 +119,7 @@
                 </a>
 
                 <!-- Conversa 2 -->
-                <a href="mensagemExemplo.html" class="conversation-card">
+                <a href="mensagemExemplo.html" class="conversation-card" data-conversation-id="2" data-timestamp="2025-11-25T14:10:00Z" data-has-photos="false">
                     <div class="conversation-avatar">
                         <div class="avatar-placeholder">🌿</div>
                     </div>
@@ -119,7 +138,7 @@
                 </a>
 
                 <!-- Conversa 3 -->
-                <a href="mensagemExemplo.html" class="conversation-card">
+                <a href="mensagemExemplo.html" class="conversation-card" data-conversation-id="3" data-timestamp="2025-11-25T16:40:00Z" data-has-photos="true">
                     <div class="conversation-avatar">
                         <div class="avatar-placeholder">🌵</div>
                     </div>
@@ -138,7 +157,7 @@
                 </a>
 
                 <!-- Conversa 4 -->
-                <a href="mensagemExemplo.html" class="conversation-card">
+                <a href="mensagemExemplo.html" class="conversation-card" data-conversation-id="4" data-timestamp="2025-11-24T11:00:00Z" data-has-photos="true">
                     <div class="conversation-avatar">
                         <div class="avatar-placeholder">🌺</div>
                     </div>
@@ -157,7 +176,7 @@
                 </a>
 
                 <!-- Conversa 5 -->
-                <a href="mensagemExemplo.html" class="conversation-card">
+                <a href="mensagemExemplo.html" class="conversation-card" data-conversation-id="5" data-timestamp="2025-11-23T15:30:00Z" data-has-photos="false">
                     <div class="conversation-avatar">
                         <div class="avatar-placeholder">🪴</div>
                     </div>
@@ -170,13 +189,13 @@
                             <p class="last-message">Vamos trocar mudas? 😊</p>
                         </div>
                         <div class="conversation-meta">
-                            <span class="meta-item">� Lisboa</span>
+                            <span class="meta-item">📍 Lisboa</span>
                         </div>
                     </div>
                 </a>
 
                 <!-- Conversa 6 -->
-                <a href="mensagemExemplo.html" class="conversation-card">
+                <a href="mensagemExemplo.html" class="conversation-card" data-conversation-id="6" data-timestamp="2025-11-19T13:00:00Z" data-has-photos="false">
                     <div class="conversation-avatar">
                         <div class="avatar-placeholder">🌻</div>
                     </div>
@@ -194,11 +213,6 @@
                     </div>
                 </a>
             </div>
-
-            <!-- Botão Flutuante para Nova Conversa -->
-            <button class="fab-button" title="Nova conversa">
-                <span class="fab-icon">✏️</span>
-            </button>
         </main>
     </div>
 

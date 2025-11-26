@@ -1,3 +1,4 @@
+// @ts-nocheck
 // Chat Interativo - Smart Plants
 
 // Dados simulados de conversas (em produção viriam de um servidor)
@@ -89,24 +90,69 @@ const conversationsData = [
     }
 ];
 
+let currentChatSortOrder = 'recent';
+let currentChatMediaFilter = 'all';
+let currentSearchTerm = '';
+
 // Função para buscar conversas
 function searchConversations() {
     const searchInput = document.getElementById('searchInput');
     if (!searchInput) return;
 
-    const searchTerm = searchInput.value.toLowerCase();
-    const conversationCards = document.querySelectorAll('.conversation-card');
+    currentSearchTerm = searchInput.value.toLowerCase();
+    applyConversationFilters();
+}
 
-    conversationCards.forEach(card => {
-        const userName = card.querySelector('.conversation-name').textContent.toLowerCase();
-        const message = card.querySelector('.last-message').textContent.toLowerCase();
+function applyConversationFilters() {
+    const list = document.querySelector('.conversations-list');
+    if (!list) return;
 
-        if (userName.includes(searchTerm) || message.includes(searchTerm)) {
-            card.style.display = 'flex';
-        } else {
-            card.style.display = 'none';
-        }
+    const cards = Array.from(list.querySelectorAll('.conversation-card'));
+    if (!cards.length) return;
+
+    const sortedCards = cards.slice().sort((a, b) => {
+        const aTime = Date.parse(a.dataset.timestamp || '') || 0;
+        const bTime = Date.parse(b.dataset.timestamp || '') || 0;
+        return currentChatSortOrder === 'recent' ? bTime - aTime : aTime - bTime;
     });
+
+    sortedCards.forEach(card => list.appendChild(card));
+
+    sortedCards.forEach(card => {
+        const hasPhotos = card.dataset.hasPhotos === 'true';
+        const matchesMedia =
+            currentChatMediaFilter === 'all' ||
+            (currentChatMediaFilter === 'with-photos' && hasPhotos) ||
+            (currentChatMediaFilter === 'without-photos' && !hasPhotos);
+
+        const name = card.querySelector('.conversation-name')?.textContent.toLowerCase() || '';
+        const message = card.querySelector('.last-message')?.textContent.toLowerCase() || '';
+        const matchesSearch =
+            !currentSearchTerm ||
+            name.includes(currentSearchTerm) ||
+            message.includes(currentSearchTerm);
+
+        card.style.display = matchesMedia && matchesSearch ? 'flex' : 'none';
+    });
+}
+
+function setupChatToolbar() {
+    const sortSelect = document.getElementById('chatSortSelect');
+    const mediaSelect = document.getElementById('chatMediaFilter');
+
+    if (sortSelect) {
+        sortSelect.addEventListener('change', (event) => {
+            currentChatSortOrder = event.target.value === 'oldest' ? 'oldest' : 'recent';
+            applyConversationFilters();
+        });
+    }
+
+    if (mediaSelect) {
+        mediaSelect.addEventListener('change', (event) => {
+            currentChatMediaFilter = event.target.value || 'all';
+            applyConversationFilters();
+        });
+    }
 }
 
 // Função para abrir conversa específica
@@ -130,11 +176,13 @@ function openConversation(conversationId) {
 function setupConversationCards() {
     const conversationCards = document.querySelectorAll('.conversation-card');
     
-    conversationCards.forEach((card, index) => {
+    conversationCards.forEach((card) => {
+        const conversationId = parseInt(card.getAttribute('data-conversation-id'), 10);
+        if (!conversationId) return;
+
         card.addEventListener('click', (e) => {
             e.preventDefault();
-            // Usa o índice + 1 como ID
-            openConversation(index + 1);
+            openConversation(conversationId);
         });
     });
 }
@@ -240,6 +288,12 @@ document.addEventListener('DOMContentLoaded', () => {
     if (searchBtn) {
         searchBtn.addEventListener('click', searchConversations);
     }
+
+    // Configura barra de ferramentas
+    setupChatToolbar();
+
+    // Aplica filtros/ordenação iniciais
+    applyConversationFilters();
     
     // Configura cards de conversa
     setupConversationCards();

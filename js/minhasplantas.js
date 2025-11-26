@@ -73,6 +73,35 @@ function createPlantCard(plant) {
     return card;
 }
 
+const PLANT_HEALTH_VARIANTS = [
+    {
+        status: 'healthy',
+        healthStatusText: 'Saudável',
+        diagnosis: 'A {plant} está vigorosa. Continue com o esquema atual de rega e garanta luz indireta suave.'
+    },
+    {
+        status: 'needs-water',
+        healthStatusText: 'Precisa de água',
+        diagnosis: 'A {plant} apresenta sinais de sede. Faça uma rega completa e verifique o solo dentro de 48 horas.'
+    },
+    {
+        status: 'unhealthy',
+        healthStatusText: 'Sob stress',
+        diagnosis: 'Detectámos folhas amareladas em {plant}. Afrouxe a terra, reduza sol direto e avalie pragas.'
+    }
+];
+
+function generateRandomHealthState(currentStatus) {
+    if (!Array.isArray(PLANT_HEALTH_VARIANTS) || PLANT_HEALTH_VARIANTS.length === 0) {
+        return null;
+    }
+
+    const availableVariants = PLANT_HEALTH_VARIANTS.filter(variant => variant.status !== currentStatus);
+    const pool = availableVariants.length ? availableVariants : PLANT_HEALTH_VARIANTS;
+    const randomIndex = Math.floor(Math.random() * pool.length);
+    return pool[randomIndex];
+}
+
 // Ver detalhes da planta
 function viewPlantDetails(id) {
     const plants = JSON.parse(localStorage.getItem('myPlants') || '[]');
@@ -230,6 +259,16 @@ function addProgressPhoto(plantId) {
                     image: ev.target.result,
                     date: new Date().toISOString()
                 });
+
+                const simulatedState = generateRandomHealthState(plants[plantIndex].healthStatus);
+                if (simulatedState) {
+                    const plantName = plants[plantIndex].name || 'a planta';
+                    const diagnosisText = simulatedState.diagnosis.replace(/\{plant\}/g, plantName);
+                    plants[plantIndex].healthStatus = simulatedState.status;
+                    plants[plantIndex].healthStatusText = simulatedState.healthStatusText;
+                    plants[plantIndex].diagnosis = diagnosisText;
+                    plants[plantIndex].healthStatusUpdatedAt = new Date().toISOString();
+                }
                 
                 console.log(`Foto de progresso adicionada. Total: ${plants[plantIndex].progressPhotos.length}`);
                 
@@ -242,6 +281,10 @@ function addProgressPhoto(plantId) {
                 
                 closePlantDetails();
                 viewPlantDetails(plantId);
+
+                if (simulatedState) {
+                    showInfoPopup(`Estado atualizado para "${simulatedState.healthStatusText}". Diagnóstico: ${plants[plantIndex].diagnosis}`);
+                }
             }
         };
         reader.readAsDataURL(file);
@@ -336,11 +379,25 @@ function importPlantPhoto(plantId) {
                     date: new Date().toISOString()
                 });
                 
+                const simulatedState = generateRandomHealthState(plants[plantIndex].healthStatus);
+                if (simulatedState) {
+                    const plantName = plants[plantIndex].name || 'a planta';
+                    const diagnosisText = simulatedState.diagnosis.replace(/\{plant\}/g, plantName);
+                    plants[plantIndex].healthStatus = simulatedState.status;
+                    plants[plantIndex].healthStatusText = simulatedState.healthStatusText;
+                    plants[plantIndex].diagnosis = diagnosisText;
+                    plants[plantIndex].healthStatusUpdatedAt = new Date().toISOString();
+                }
+
                 console.log(`Foto importada. Total: ${plants[plantIndex].progressPhotos.length}`);
                 
                 localStorage.setItem('myPlants', JSON.stringify(plants));
                 closePlantDetails();
                 viewPlantDetails(plantId);
+
+                if (simulatedState) {
+                    showInfoPopup(`Estado atualizado para "${simulatedState.healthStatusText}". Diagnóstico: ${plants[plantIndex].diagnosis}`);
+                }
             }
         };
         reader.readAsDataURL(file);
