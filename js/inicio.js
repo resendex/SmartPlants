@@ -501,9 +501,179 @@ style.textContent = `
 `;
 document.head.appendChild(style);
 
+// Função para obter saudação baseada na hora do dia
+function obterSaudacao() {
+    const hora = new Date().getHours();
+    const currentUser = JSON.parse(localStorage.getItem('sp_currentUser') || '{}');
+    const nome = currentUser.username || '';
+    
+    let saudacao = '';
+    let emoji = '';
+    
+    if (hora >= 5 && hora < 12) {
+        saudacao = 'Bom dia';
+        emoji = '☀️';
+    } else if (hora >= 12 && hora < 19) {
+        saudacao = 'Boa tarde';
+        emoji = '🌤️';
+    } else {
+        saudacao = 'Boa noite';
+        emoji = '🌙';
+    }
+    
+    if (nome) {
+        return `${saudacao}, ${nome}! ${emoji}`;
+    }
+    return `${saudacao}! ${emoji}`;
+}
+
+// Função para atualizar a saudação
+function atualizarSaudacao() {
+    const greetingElement = document.getElementById('greeting-message');
+    if (greetingElement) {
+        greetingElement.textContent = obterSaudacao();
+    }
+}
+
+// Função para obter ícone do tempo baseado na condição
+function obterIconeClima(weatherCode) {
+    // Códigos da API Open-Meteo
+    const iconMap = {
+        0: '☀️',   // Céu limpo
+        1: '🌤️',   // Principalmente limpo
+        2: '⛅',   // Parcialmente nublado
+        3: '☁️',   // Nublado
+        45: '🌫️',  // Nevoeiro
+        48: '🌫️',  // Nevoeiro com geada
+        51: '🌧️',  // Chuviscos leves
+        53: '🌧️',  // Chuviscos moderados
+        55: '🌧️',  // Chuviscos intensos
+        56: '🌧️',  // Chuviscos gelados leves
+        57: '🌧️',  // Chuviscos gelados intensos
+        61: '🌧️',  // Chuva leve
+        63: '🌧️',  // Chuva moderada
+        65: '🌧️',  // Chuva intensa
+        66: '🌧️',  // Chuva gelada leve
+        67: '🌧️',  // Chuva gelada intensa
+        71: '❄️',  // Neve leve
+        73: '❄️',  // Neve moderada
+        75: '❄️',  // Neve intensa
+        77: '❄️',  // Grãos de neve
+        80: '🌦️',  // Aguaceiros leves
+        81: '🌦️',  // Aguaceiros moderados
+        82: '🌦️',  // Aguaceiros violentos
+        85: '🌨️',  // Aguaceiros de neve leves
+        86: '🌨️',  // Aguaceiros de neve intensos
+        95: '⛈️',  // Trovoada
+        96: '⛈️',  // Trovoada com granizo leve
+        99: '⛈️',  // Trovoada com granizo intenso
+    };
+    return iconMap[weatherCode] || '🌡️';
+}
+
+// Função para obter coordenadas de uma cidade usando API de geocoding
+async function obterCoordenadasCidade(cidade) {
+    try {
+        const response = await fetch(
+            `https://geocoding-api.open-meteo.com/v1/search?name=${encodeURIComponent(cidade)}&count=1&language=pt`
+        );
+        const data = await response.json();
+        
+        if (data.results && data.results.length > 0) {
+            return {
+                latitude: data.results[0].latitude,
+                longitude: data.results[0].longitude,
+                nome: data.results[0].name,
+                pais: data.results[0].country
+            };
+        }
+        return null;
+    } catch (error) {
+        console.error('Erro ao obter coordenadas:', error);
+        return null;
+    }
+}
+
+// Função para obter temperatura atual
+async function obterTemperatura(latitude, longitude) {
+    try {
+        const response = await fetch(
+            `https://api.open-meteo.com/v1/forecast?latitude=${latitude}&longitude=${longitude}&current=temperature_2m,weather_code`
+        );
+        const data = await response.json();
+        
+        if (data.current) {
+            return {
+                temperatura: Math.round(data.current.temperature_2m),
+                weatherCode: data.current.weather_code
+            };
+        }
+        return null;
+    } catch (error) {
+        console.error('Erro ao obter temperatura:', error);
+        return null;
+    }
+}
+
+// Função principal para atualizar o widget de temperatura
+async function atualizarTemperatura() {
+    const weatherWidget = document.getElementById('weather-widget');
+    const weatherIcon = document.getElementById('weather-icon');
+    const weatherTemp = document.getElementById('weather-temp');
+    const weatherLocation = document.getElementById('weather-location');
+    
+    if (!weatherWidget || !weatherIcon || !weatherTemp || !weatherLocation) return;
+    
+    weatherWidget.classList.add('loading');
+    
+    // Obter localização do perfil do utilizador
+    const currentUser = JSON.parse(localStorage.getItem('sp_currentUser') || '{}');
+    let cidade = currentUser.location;
+    
+    if (!cidade) {
+        // Localização padrão se não tiver configurada
+        cidade = 'Lisboa';
+        weatherLocation.textContent = 'Lisboa (padrão)';
+    }
+    
+    try {
+        // Obter coordenadas da cidade
+        const coordenadas = await obterCoordenadasCidade(cidade);
+        
+        if (!coordenadas) {
+            throw new Error('Cidade não encontrada');
+        }
+        
+        // Obter temperatura
+        const clima = await obterTemperatura(coordenadas.latitude, coordenadas.longitude);
+        
+        if (!clima) {
+            throw new Error('Não foi possível obter temperatura');
+        }
+        
+        // Atualizar widget
+        weatherIcon.textContent = obterIconeClima(clima.weatherCode);
+        weatherTemp.textContent = `${clima.temperatura}°C`;
+        weatherLocation.textContent = coordenadas.nome;
+        weatherWidget.classList.remove('loading', 'error');
+        
+    } catch (error) {
+        console.error('Erro ao atualizar temperatura:', error);
+        weatherWidget.classList.add('error');
+        weatherWidget.classList.remove('loading');
+        weatherIcon.textContent = '🌡️';
+        weatherTemp.textContent = 'Indisponível';
+        weatherLocation.textContent = cidade || 'Defina a localização no perfil';
+    }
+}
+
 // Inicializa tudo quando a página carregar
 document.addEventListener('DOMContentLoaded', () => {
     console.log('🌱 Smart Plants Dashboard inicializado!');
+    
+    // Atualizar saudação e temperatura
+    atualizarSaudacao();
+    atualizarTemperatura();
     
     atualizarEstatisticas();
     configurarBotoesAlerta();
@@ -515,9 +685,16 @@ document.addEventListener('DOMContentLoaded', () => {
     // Atualiza horários a cada minuto
     setInterval(atualizarHorarios, 60000);
     
+    // Atualiza saudação a cada minuto (para mudanças de período)
+    setInterval(atualizarSaudacao, 60000);
+    
+    // Atualiza temperatura a cada 30 minutos
+    setInterval(atualizarTemperatura, 30 * 60 * 1000);
+    
     // Atualiza estatísticas quando a página volta ao foco
     window.addEventListener('focus', () => {
         atualizarEstatisticas();
+        atualizarSaudacao();
     });
     
     // Atualiza estatísticas quando há mudanças no localStorage (de outras abas)
