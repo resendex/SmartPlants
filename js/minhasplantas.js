@@ -126,6 +126,9 @@ function viewPlantDetails(id) {
     }
 
     // Criar modal de detalhes
+    // Ordenar fotos de progresso da mais recente para a mais antiga
+    const sortedPhotos = [...plant.progressPhotos].reverse();
+    
     const detailsHTML = `
         <div class="plant-details-overlay" id="plantDetailsOverlay">
             <div class="plant-details-container">
@@ -138,15 +141,18 @@ function viewPlantDetails(id) {
                     <div class="progress-section">
                         <h2 class="section-header">Progresso</h2>
                         <div class="progress-photos">
-                            ${plant.progressPhotos.map((photo, index) => `
+                            ${sortedPhotos.map((photo, index) => {
+                                // Calcular o índice real no array original (para delete)
+                                const realIndex = plant.progressPhotos.length - 1 - index;
+                                return `
                                 <div class="progress-photo-item">
                                     <div class="progress-photo-wrapper">
                                         <img src="${photo.image}" alt="Progresso ${index + 1}" class="progress-photo">
-                                        <button class="delete-progress-photo" onclick="deleteProgressPhoto(${id}, ${index})" title="Remover foto">✕</button>
+                                        <button class="delete-progress-photo" onclick="deleteProgressPhoto(${id}, ${realIndex})" title="Remover foto">✕</button>
                                     </div>
                                     <p class="progress-date">${new Date(photo.date).toLocaleDateString('pt-PT')}</p>
                                 </div>
-                            `).join('')}
+                            `}).join('')}
                             <div class="progress-photo-item add-photo-item" onclick="addProgressPhoto(${id})">
                                 <div class="add-photo-button">
                                     <span class="add-icon">+</span>
@@ -165,7 +171,7 @@ function viewPlantDetails(id) {
                         <div class="verification-content">
                             <button class="camera-button" onclick="importPlantPhoto(${id})">
                                 <span class="camera-icon">📷</span>
-                                <span>Importar Foto</span>
+                                <span>Importar Foto (Análise por IA)</span>
                             </button>
                             
                             <div class="health-status ${plant.healthStatus || 'healthy'}">
@@ -246,6 +252,8 @@ function addProgressPhoto(plantId) {
             const plantIndex = plants.findIndex(p => p.id === plantId);
             
             if (plantIndex !== -1) {
+                const imageBase64 = ev.target.result;
+                
                 // Garantir que progressPhotos existe e é um array
                 if (!plants[plantIndex].progressPhotos || !Array.isArray(plants[plantIndex].progressPhotos)) {
                     plants[plantIndex].progressPhotos = [{
@@ -256,9 +264,12 @@ function addProgressPhoto(plantId) {
                 
                 // Adicionar nova foto ao array (não sobrescrever)
                 plants[plantIndex].progressPhotos.push({
-                    image: ev.target.result,
+                    image: imageBase64,
                     date: new Date().toISOString()
                 });
+                
+                // Atualizar a foto de capa para a nova foto (mais recente)
+                plants[plantIndex].image = imageBase64;
 
                 const simulatedState = generateRandomHealthState(plants[plantIndex].healthStatus);
                 if (simulatedState) {
@@ -339,6 +350,10 @@ function proceedDeleteProgressPhoto(plantId, photoIndex) {
         // Remover a foto no índice especificado
         plants[plantIndex].progressPhotos.splice(photoIndex, 1);
         
+        // Atualizar a foto de capa para a última foto (mais recente)
+        const lastPhoto = plants[plantIndex].progressPhotos[plants[plantIndex].progressPhotos.length - 1];
+        plants[plantIndex].image = lastPhoto.image;
+        
         console.log(`Foto ${photoIndex} removida. Total restante: ${plants[plantIndex].progressPhotos.length}`);
         
         localStorage.setItem('myPlants', JSON.stringify(plants));
@@ -347,12 +362,12 @@ function proceedDeleteProgressPhoto(plantId, photoIndex) {
     }
 }
 
-// Importar foto da planta (adicionar ao progresso)
+// Importar foto da planta (adicionar ao progresso) com diagnóstico por IA
 function importPlantPhoto(plantId) {
     const input = document.createElement('input');
     input.type = 'file';
     input.accept = 'image/*';
-    input.onchange = (e) => {
+    input.onchange = async (e) => {
         const file = e.target.files[0];
         if (!file || !file.type.startsWith('image/')) {
             alert('Por favor, selecione uma imagem válida.');
@@ -360,49 +375,117 @@ function importPlantPhoto(plantId) {
         }
         
         const reader = new FileReader();
-        reader.onload = (ev) => {
+        reader.onload = async (ev) => {
             let plants = JSON.parse(localStorage.getItem('myPlants') || '[]');
             const plantIndex = plants.findIndex(p => p.id === plantId);
             
             if (plantIndex !== -1) {
+                const plant = plants[plantIndex];
+                const imageBase64 = ev.target.result;
+                
                 // Garantir que progressPhotos existe e é um array
-                if (!plants[plantIndex].progressPhotos || !Array.isArray(plants[plantIndex].progressPhotos)) {
-                    plants[plantIndex].progressPhotos = [{
-                        image: plants[plantIndex].image,
-                        date: plants[plantIndex].addedDate || new Date().toISOString()
+                if (!plant.progressPhotos || !Array.isArray(plant.progressPhotos)) {
+                    plant.progressPhotos = [{
+                        image: plant.image,
+                        date: plant.addedDate || new Date().toISOString()
                     }];
                 }
                 
                 // Adicionar nova foto ao array
-                plants[plantIndex].progressPhotos.push({
-                    image: ev.target.result,
+                plant.progressPhotos.push({
+                    image: imageBase64,
                     date: new Date().toISOString()
                 });
                 
-                const simulatedState = generateRandomHealthState(plants[plantIndex].healthStatus);
-                if (simulatedState) {
-                    const plantName = plants[plantIndex].name || 'a planta';
-                    const diagnosisText = simulatedState.diagnosis.replace(/\{plant\}/g, plantName);
-                    plants[plantIndex].healthStatus = simulatedState.status;
-                    plants[plantIndex].healthStatusText = simulatedState.healthStatusText;
-                    plants[plantIndex].diagnosis = diagnosisText;
-                    plants[plantIndex].healthStatusUpdatedAt = new Date().toISOString();
-                }
-
-                console.log(`Foto importada. Total: ${plants[plantIndex].progressPhotos.length}`);
+                // Atualizar a foto de capa com a última foto importada
+                plant.image = imageBase64;
                 
+                // Guardar imediatamente a nova foto de capa e progresso
                 localStorage.setItem('myPlants', JSON.stringify(plants));
-                closePlantDetails();
-                viewPlantDetails(plantId);
-
-                if (simulatedState) {
-                    showInfoPopup(`Estado atualizado para "${simulatedState.healthStatusText}". Diagnóstico: ${plants[plantIndex].diagnosis}`);
+                
+                console.log(`Foto importada. Total: ${plant.progressPhotos.length}`);
+                
+                // Verificar se o módulo de diagnóstico por IA está disponível
+                if (typeof PlantDiagnosis !== 'undefined') {
+                    try {
+                        // Mostrar loading
+                        PlantDiagnosis.showAnalysisLoading('A analisar a saúde da sua planta...');
+                        
+                        // Usar diagnóstico por IA
+                        const aiResult = await PlantDiagnosis.analyzePlantHealth(imageBase64);
+                        
+                        // Esconder loading
+                        PlantDiagnosis.hideAnalysisLoading();
+                        
+                        if (aiResult && aiResult.status) {
+                            // Atualizar planta com resultado da IA
+                            plant.healthStatus = aiResult.status;
+                            plant.healthStatusText = aiResult.statusText;
+                            plant.diagnosis = aiResult.diagnosis;
+                            plant.healthStatusUpdatedAt = new Date().toISOString();
+                            plant.lastAIAnalysis = {
+                                date: new Date().toISOString(),
+                                diseases: aiResult.rawDiseases || [],
+                                confidence: aiResult.confidence || 0,
+                                isHealthy: aiResult.isHealthy,
+                                treatments: aiResult.treatments || []
+                            };
+                            
+                            localStorage.setItem('myPlants', JSON.stringify(plants));
+                            closePlantDetails();
+                            viewPlantDetails(plantId);
+                            
+                            // Mostrar resultado detalhado da IA
+                            PlantDiagnosis.showDiagnosisResult(aiResult, () => {
+                                // Callback para agendar rega
+                                schedulePlant(plantId);
+                            }, () => {
+                                // Callback para dispensar
+                                console.log('Diagnóstico dispensado');
+                            });
+                        } else {
+                            // Se a análise falhar, usar simulação como fallback
+                            useFallbackDiagnosis(plants, plantIndex, plantId);
+                        }
+                    } catch (error) {
+                        console.error('Erro na análise por IA:', error);
+                        PlantDiagnosis.hideAnalysisLoading();
+                        // Usar simulação como fallback em caso de erro
+                        useFallbackDiagnosis(plants, plantIndex, plantId);
+                        alert('Erro ao analisar: ' + error.message);
+                    }
+                } else {
+                    // Se o módulo de IA não estiver disponível, usar simulação
+                    useFallbackDiagnosis(plants, plantIndex, plantId);
                 }
             }
         };
         reader.readAsDataURL(file);
     };
     input.click();
+}
+
+// Fallback para diagnóstico simulado quando a IA não está disponível
+function useFallbackDiagnosis(plants, plantIndex, plantId) {
+    const plant = plants[plantIndex];
+    const simulatedState = generateRandomHealthState(plant.healthStatus);
+    
+    if (simulatedState) {
+        const plantName = plant.name || 'a planta';
+        const diagnosisText = simulatedState.diagnosis.replace(/\{plant\}/g, plantName);
+        plant.healthStatus = simulatedState.status;
+        plant.healthStatusText = simulatedState.healthStatusText;
+        plant.diagnosis = diagnosisText;
+        plant.healthStatusUpdatedAt = new Date().toISOString();
+    }
+    
+    localStorage.setItem('myPlants', JSON.stringify(plants));
+    closePlantDetails();
+    viewPlantDetails(plantId);
+    
+    if (simulatedState) {
+        showInfoPopup(`Estado atualizado para "${simulatedState.healthStatusText}". Diagnóstico: ${plant.diagnosis}`);
+    }
 }
 
 // Dispensar diagnóstico
