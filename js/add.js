@@ -240,7 +240,7 @@ if (btnYes) {
             // Remover modal
             document.querySelector('.plant-form-overlay').remove();
             
-            // Verificar se deve retornar para calendário
+            // Verificar se veio de outra página (ex: página Regar quando não tinha plantas)
             const returnTo = sessionStorage.getItem('returnTo');
             
             if (returnTo) {
@@ -250,8 +250,8 @@ if (btnYes) {
                 // Limpar o returnTo
                 sessionStorage.removeItem('returnTo');
                 
-                // Mostrar confirmação e redirecionar para calendário
-                showSuccessPopup('Planta adicionada com sucesso! Redirecionando para o calendário...', () => {
+                // Mostrar confirmação e redirecionar para a página de origem
+                showSuccessPopup('Planta adicionada com sucesso!', () => {
                     window.location.href = returnTo;
                 });
             } else {
