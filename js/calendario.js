@@ -776,7 +776,7 @@ document.addEventListener('DOMContentLoaded', () => {
             <p><strong>Hora da rega:</strong> ${existingWatering.time}</p>
             <div style="display:flex;gap:.5rem;flex-wrap:wrap;">
                 <button class="btn btn-primary" id="editWatering">Editar hora</button>
-                <button class="btn btn-danger" id="removeWatering">${existingWatering.completed ? 'Remover Registro' : 'Desmarcar Rega'}</button>
+                <button class="btn btn-danger" id="removeWatering">${existingWatering.completed ? 'Remover Registo' : 'Desmarcar Rega'}</button>
             </div>
             <div id="editForm" style="display:none;margin-top:.5rem;">
                 <label for="editTime">Nova hora:</label>
@@ -952,9 +952,14 @@ document.addEventListener('DOMContentLoaded', () => {
         if (!selectedPlantId) { infoPanel.innerHTML = ''; return; }
         const plant = plants.find(p => p.id == selectedPlantId);
         const wateringData = getWateringData(selectedPlantId);
+        
+        // Obter data de hoje no formato correto (YYYY-MM-DD) sem problemas de fuso horário
+        const now = new Date();
+        const todayStr = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
+        
         const upcoming = wateringData
-            .filter(w => !w.completed && new Date(w.date + 'T00:00:00') >= new Date(new Date().setHours(0,0,0,0)))
-            .sort((a,b)=> new Date(a.date)-new Date(b.date))
+            .filter(w => !w.completed && w.date >= todayStr)
+            .sort((a,b)=> a.date.localeCompare(b.date))
             .slice(0,5);
 
         const recurrences = getRecurrences(selectedPlantId).filter(r => r.active);

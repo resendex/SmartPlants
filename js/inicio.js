@@ -24,6 +24,63 @@
  * @property {boolean} [lida]
  */
 
+// Função auxiliar para obter data de hoje no formato YYYY-MM-DD (sem problemas de fuso horário)
+function getTodayDateString() {
+    const now = new Date();
+    return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
+}
+
+// Função auxiliar para verificar se é dia de rega do sistema automático
+function isIrrigationDayForPlant(plantId, dateStr) {
+    const config = JSON.parse(localStorage.getItem(`irrigation_config_${plantId}`) || '{}');
+    if (!config || !config.enabled) return false;
+    
+    // Verificar exceções
+    const exceptions = JSON.parse(localStorage.getItem(`irrigation_exceptions_${plantId}`) || '[]');
+    if (exceptions.includes(dateStr)) return false;
+    
+    const targetDate = new Date(dateStr + 'T00:00:00');
+    const dayOfWeek = targetDate.getDay();
+    const weeklyWatering = config.weeklyWatering || 3;
+    const interval = Math.floor(7 / weeklyWatering);
+    
+    const irrigationDays = [];
+    for (let i = 0; i < weeklyWatering; i++) {
+        irrigationDays.push((i * interval) % 7);
+    }
+    
+    return irrigationDays.includes(dayOfWeek);
+}
+
+// Função auxiliar para verificar se há recorrência ativa para hoje
+function hasRecurrenceToday(plantId, dateStr) {
+    const recurrences = JSON.parse(localStorage.getItem(`recurrences_${plantId}`) || '[]');
+    const activeRecurrences = recurrences.filter((r) => r.active !== false && !r.stopped);
+    
+    for (const rec of activeRecurrences) {
+        if (dateStr < rec.startDate) continue;
+        if (rec.excludedDates && rec.excludedDates.includes(dateStr)) continue;
+        
+        // Verificar se é ocorrência da recorrência
+        if (rec.daysPerWeek) {
+            const targetDate = new Date(dateStr + 'T00:00:00');
+            const dayOfWeek = targetDate.getDay();
+            const interval = Math.floor(7 / rec.daysPerWeek);
+            const recDays = [];
+            for (let i = 0; i < rec.daysPerWeek; i++) {
+                recDays.push((i * interval) % 7);
+            }
+            if (recDays.includes(dayOfWeek)) return true;
+        } else if (rec.intervalDays) {
+            const start = new Date(rec.startDate + 'T00:00:00');
+            const target = new Date(dateStr + 'T00:00:00');
+            const diffDays = Math.floor((target.getTime() - start.getTime()) / (1000 * 60 * 60 * 24));
+            if (diffDays >= 0 && diffDays % rec.intervalDays === 0) return true;
+        }
+    }
+    return false;
+}
+
 // Função para obter estatísticas reais do localStorage
 function obterEstatisticasReais() {
     /** @type {SmartPlant[]} */
@@ -33,7 +90,8 @@ function obterEstatisticasReais() {
     /** @type {RegasHoje} */
     const regasHoje = JSON.parse(localStorage.getItem('regasHoje') || '{}');
     
-    const today = new Date().toISOString().split('T')[0];
+    // Usar formato de data correto (sem problemas de fuso horário)
+    const today = getTodayDateString();
     
     // Contar plantas regadas hoje (dados reais do sistema de rega)
     let plantasRegadasHoje = 0;
@@ -41,40 +99,54 @@ function obterEstatisticasReais() {
         plantasRegadasHoje = regasHoje.plantas.length;
     }
     
-    // Contar plantas que precisam de rega
-    // Verifica calendário de cada planta e identifica as que têm rega agendada para hoje mas não foram regadas
+    // Contar plantas que precisam de rega hoje
+    // Verifica: 1) regas manuais agendadas, 2) sistema automático, 3) recorrências
     let precisamRegar = 0;
     plants.forEach((plant) => {
-        /** @type {WateringEntry[]} */
-        const wateringData = JSON.parse(localStorage.getItem(`watering_${plant.id}`) || '[]');
-        const hasWateringToday = wateringData.some((w) => w.date === today && !w.completed);
         const wasWateredToday = regasHoje.plantas && regasHoje.plantas.includes(plant.id);
         
-        if (hasWateringToday && !wasWateredToday) {
+        // Se já foi regada hoje, não precisa
+        if (wasWateredToday) return;
+        
+        /** @type {WateringEntry[]} */
+        const wateringData = JSON.parse(localStorage.getItem(`watering_${plant.id}`) || '[]');
+        
+        // Verificar rega manual agendada para hoje
+        const hasManualWateringToday = wateringData.some((w) => w.date === today && !w.completed);
+        
+        // Verificar sistema de rega automático
+        const hasIrrigationToday = isIrrigationDayForPlant(plant.id, today);
+        
+        // Verificar recorrências
+        const hasRecurrenceWateringToday = hasRecurrenceToday(plant.id, today);
+        
+        if (hasManualWateringToday || hasIrrigationToday || hasRecurrenceWateringToday) {
             precisamRegar++;
         }
     });
     
-    // Se não há agendamentos, usar heurística (plantas não regadas há mais de 3 dias)
+    // Se não há agendamentos para hoje, usar heurística (plantas não regadas há mais de 3 dias)
     if (precisamRegar === 0) {
         plants.forEach((plant) => {
+            const wasWateredToday = regasHoje.plantas && regasHoje.plantas.includes(plant.id);
+            if (wasWateredToday) return;
+            
             /** @type {WateringEntry[]} */
             const wateringData = JSON.parse(localStorage.getItem(`watering_${plant.id}`) || '[]');
             const lastWatering = wateringData
                 .filter((w) => w.completed)
-                .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())[0];
+                .sort((a, b) => b.date.localeCompare(a.date))[0];
             
             if (lastWatering) {
-                const daysSinceWatering = Math.floor((new Date(today).getTime() - new Date(lastWatering.date).getTime()) / (1000 * 60 * 60 * 24));
+                const lastDate = new Date(lastWatering.date + 'T00:00:00');
+                const todayDate = new Date(today + 'T00:00:00');
+                const daysSinceWatering = Math.floor((todayDate.getTime() - lastDate.getTime()) / (1000 * 60 * 60 * 24));
                 if (daysSinceWatering >= 3) {
                     precisamRegar++;
                 }
             } else {
                 // Planta nunca foi regada, precisa de rega
-                const wasWateredToday = regasHoje.plantas && regasHoje.plantas.includes(plant.id);
-                if (!wasWateredToday) {
-                    precisamRegar++;
-                }
+                precisamRegar++;
             }
         });
     }
