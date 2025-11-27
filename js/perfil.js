@@ -392,6 +392,7 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 
   getEl('pf_save')?.addEventListener('click', () => {
+    const usernameInput = /** @type {HTMLInputElement} */ (getEl('pf_username'));
     const emailInput = /** @type {HTMLInputElement} */ (getEl('pf_email'));
     const ageInput = /** @type {HTMLInputElement} */ (getEl('pf_age'));
     const locationInput = /** @type {HTMLInputElement} */ (getEl('pf_location'));
@@ -399,15 +400,32 @@ document.addEventListener('DOMContentLoaded', () => {
     const emailPref = /** @type {HTMLInputElement} */ (getEl('pf_pref_email'));
     const pushPref = /** @type {HTMLInputElement} */ (getEl('pf_pref_push'));
 
-    if (!emailInput || !ageInput || !locationInput || !genderSelect || !emailPref || !pushPref) {
+    if (!usernameInput || !emailInput || !ageInput || !locationInput || !genderSelect || !emailPref || !pushPref) {
       showToast('Formulário inválido.', 'error');
       return;
     }
 
+    const newUsername = usernameInput.value.trim();
     const email = emailInput.value.trim().toLowerCase();
     const ageValue = ageInput.value.trim();
     const location = locationInput.value.trim();
     const gender = genderSelect.value;
+
+    // Validar username
+    if (!newUsername || newUsername.length < 3) {
+      showToast('O username deve ter pelo menos 3 caracteres.', 'error');
+      return;
+    }
+
+    // Verificar se o novo username já existe (se for diferente do atual)
+    const oldUsername = activeUser.username;
+    if (newUsername !== oldUsername) {
+      const usernameExists = users.some((u, idx) => idx !== userIndex && u.username.toLowerCase() === newUsername.toLowerCase());
+      if (usernameExists) {
+        showToast('Este username já está em uso.', 'error');
+        return;
+      }
+    }
 
     if (!validateEmail(email)) {
       showToast('Introduz um email válido.', 'error');
@@ -427,6 +445,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const updatedUser = {
       ...users[userIndex],
+      username: newUsername,
       email,
       age: ageNumber,
       location,
@@ -436,6 +455,10 @@ document.addEventListener('DOMContentLoaded', () => {
         pushAlerts: pushPref.checked,
       },
     };
+
+    // Atualizar o greeting com o novo username
+    const greeting = getEl('pf_greeting_name');
+    if (greeting) greeting.textContent = newUsername;
 
     if (photoState.value) {
       updatedUser.photo = photoState.value;
