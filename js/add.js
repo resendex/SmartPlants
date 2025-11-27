@@ -266,7 +266,7 @@ if (btnYes) {
 
 if (btnNo) {
     btnNo.addEventListener('click', () => {
-        window.location.href = 'add.html';
+        window.location.href = 'inicio.html';
     });
 }
 

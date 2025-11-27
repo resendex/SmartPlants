@@ -362,9 +362,9 @@ body {
 }
 
 .btn.ghost {
-    background: transparent;
+    background: red;
     border: 1px solid rgba(148, 163, 184, 0.35);
-    color: var(--text-secondary);
+    color: white;
 }
 
 .btn.small {
