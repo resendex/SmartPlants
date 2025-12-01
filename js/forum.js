@@ -849,6 +849,8 @@ style.textContent = `
         border-radius: 1em;
         max-width: 500px;
         width: 90%;
+        max-height: 85vh;
+        overflow-y: auto;
         position: relative;
         box-shadow: 0 0.5em 2em rgba(0, 0, 0, 0.3);
     }

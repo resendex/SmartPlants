@@ -68,14 +68,35 @@
                     </button>
                 </div>
             </div>
+
+            <!-- Tabs para Ativas e Histórico -->
+            <div class="notif-tabs">
+                <button class="notif-tab active" data-tab="ativas">
+                    <span class="tab-icon">🔔</span>
+                    <span>Ativas</span>
+                </button>
+                <button class="notif-tab" data-tab="historico">
+                    <span class="tab-icon">📜</span>
+                    <span>Histórico</span>
+                </button>
+            </div>
             
             <div id="notificacoesContainer" class="notifications-list">
                 <!-- As notificações serão carregadas dinamicamente aqui -->
+            </div>
+
+            <div id="historicoContainer" class="notifications-list" style="display: none;">
+                <!-- O histórico será carregado dinamicamente aqui -->
             </div>
             
             <div id="emptyState" class="empty-state" style="display: none;">
                 <p>Você não tem notificações no momento.</p>
                 <div class="notification-icon">🔔</div>
+            </div>
+
+            <div id="emptyHistorico" class="empty-state" style="display: none;">
+                <p>O histórico de notificações está vazio.</p>
+                <div class="notification-icon">📜</div>
             </div>
         </main>
     </div>

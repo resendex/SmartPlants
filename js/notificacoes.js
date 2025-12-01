@@ -281,6 +281,7 @@ function atualizarListaNotificacoes() {
                 ${!notificacao.lida ? 
                     `<button onclick="event.stopPropagation(); marcarComoLida(${notificacao.id})" class="btn-mark-read" title="Marcar como lida">✓</button>` : 
                     ''}
+                <button onclick="event.stopPropagation(); arquivarNotificacao(${notificacao.id})" class="btn-archive" title="Arquivar">📜</button>
                 <button onclick="event.stopPropagation(); excluirNotificacao(${notificacao.id})" class="btn-delete" title="Excluir">🗑️</button>
             </div>
         `;
@@ -343,6 +344,107 @@ document.addEventListener('DOMContentLoaded', () => {
     if (clearAllButton) {
         clearAllButton.addEventListener('click', eliminarTodasNotificacoes);
     }
+
+    // Configurar tabs
+    configurarTabs();
+
     // Verificar horários de rega a cada minuto
     setInterval(verificarHorariosRega, 60000);
 });
+
+// Configurar sistema de tabs
+function configurarTabs() {
+    const tabs = document.querySelectorAll('.notif-tab');
+    
+    tabs.forEach(tab => {
+        tab.addEventListener('click', () => {
+            const tabName = tab.getAttribute('data-tab');
+            
+            // Atualizar tabs ativas
+            tabs.forEach(t => t.classList.remove('active'));
+            tab.classList.add('active');
+            
+            // Mostrar/esconder containers
+            const notifContainer = document.getElementById('notificacoesContainer');
+            const historicoContainer = document.getElementById('historicoContainer');
+            const emptyState = document.getElementById('emptyState');
+            const emptyHistorico = document.getElementById('emptyHistorico');
+            const actionsDiv = document.querySelector('.notifications-actions');
+            
+            if (tabName === 'ativas') {
+                if (notifContainer) notifContainer.style.display = 'flex';
+                if (historicoContainer) historicoContainer.style.display = 'none';
+                if (emptyHistorico) emptyHistorico.style.display = 'none';
+                if (actionsDiv) actionsDiv.style.display = 'flex';
+                atualizarListaNotificacoes();
+            } else {
+                if (notifContainer) notifContainer.style.display = 'none';
+                if (historicoContainer) historicoContainer.style.display = 'flex';
+                if (emptyState) emptyState.style.display = 'none';
+                if (actionsDiv) actionsDiv.style.display = 'none';
+                atualizarListaHistorico();
+            }
+        });
+    });
+}
+
+// Função para atualizar lista de histórico
+function atualizarListaHistorico() {
+    const container = document.getElementById('historicoContainer');
+    const emptyHistorico = document.getElementById('emptyHistorico');
+    
+    if (!container) return;
+    
+    const historico = JSON.parse(localStorage.getItem('notificacoesHistorico') || '[]');
+    
+    if (historico.length === 0) {
+        container.style.display = 'none';
+        if (emptyHistorico) emptyHistorico.style.display = 'block';
+        return;
+    }
+    
+    container.style.display = 'flex';
+    if (emptyHistorico) emptyHistorico.style.display = 'none';
+    
+    const icones = {
+        'planta': '🌱',
+        'rega': '💧',
+        'calendario': '📅',
+        'chat': '💬',
+        'forum': '📢',
+        'lembrete': '🔔'
+    };
+    
+    container.innerHTML = historico.map(n => {
+        const icone = icones[n.tipo] || '📌';
+        return `
+            <div class="notification-item lida historico-item">
+                <div class="notification-icon">${icone}</div>
+                <div class="notification-content">
+                    <p class="notification-message">${n.mensagem}</p>
+                    <p class="notification-time">${n.data} às ${n.hora}</p>
+                    <span class="notification-archived">Arquivada em ${n.dataArquivamento || n.data}</span>
+                </div>
+                <div class="notification-actions">
+                    <button onclick="removerDoHistorico(${n.id})" class="btn-delete" title="Remover do histórico">🗑️</button>
+                </div>
+            </div>
+        `;
+    }).join('');
+}
+
+// Função para arquivar notificação
+function arquivarNotificacao(id) {
+    if (window.SmartPlantsNotifications) {
+        window.SmartPlantsNotifications.arquivar(id);
+    }
+    atualizarListaNotificacoes();
+}
+
+// Função para remover do histórico
+function removerDoHistorico(id) {
+    const historico = JSON.parse(localStorage.getItem('notificacoesHistorico') || '[]');
+    const novoHistorico = historico.filter(n => n.id !== id);
+    localStorage.setItem('notificacoesHistorico', JSON.stringify(novoHistorico));
+    atualizarListaHistorico();
+}

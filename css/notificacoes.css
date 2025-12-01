@@ -396,6 +396,84 @@ body {
     margin-top: auto;
 }
 
+/* Tabs de notificações */
+.notif-tabs {
+    display: flex;
+    gap: 0.5em;
+    margin-bottom: 1.5em;
+    background: rgba(255, 255, 255, 0.95);
+    padding: 0.5em;
+    border-radius: 1em;
+    box-shadow: 0 0.3em 1em rgba(0, 0, 0, 0.1);
+}
+
+.notif-tab {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5em;
+    padding: 0.8em 1.2em;
+    border: none;
+    border-radius: 0.7em;
+    background: transparent;
+    font-weight: 600;
+    font-size: 1em;
+    color: #666;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.notif-tab:hover {
+    background: rgba(102, 126, 234, 0.1);
+    color: #667eea;
+}
+
+.notif-tab.active {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    box-shadow: 0 0.2em 0.8em rgba(102, 126, 234, 0.3);
+}
+
+.notif-tab .tab-icon {
+    font-size: 1.2em;
+}
+
+/* Botão de arquivar */
+.btn-archive {
+    padding: 0.6em;
+    border: none;
+    border-radius: 0.5em;
+    font-size: 1.2em;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    width: 2.5em;
+    height: 2.5em;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(135deg, #ffc107 0%, #ffca2c 100%);
+    color: white;
+}
+
+.btn-archive:hover {
+    background: linear-gradient(135deg, #e0a800 0%, #d4a017 100%);
+    transform: scale(1.1);
+}
+
+/* Item de histórico */
+.historico-item {
+    border-left: 0.4em solid #6c757d;
+}
+
+.notification-archived {
+    display: block;
+    font-size: 0.8em;
+    color: #999;
+    font-style: italic;
+    margin-top: 0.3em;
+}
+
 @media (max-width: 768px) {
     .sidebar {
         width: 80px;
@@ -434,5 +512,9 @@ body {
     
     .notification-icon {
         margin-bottom: 0.5em;
+    }
+
+    .notif-tabs {
+        flex-direction: column;
     }
 }

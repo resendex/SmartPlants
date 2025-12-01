@@ -360,7 +360,47 @@ document.addEventListener('DOMContentLoaded', () => {
     syncStats(activeUser);
   }
 
-  inputFile.addEventListener('change', (event) => {
+  /**
+   * Comprime e redimensiona uma imagem para evitar exceder o limite do localStorage
+   * @param {string} base64 - A imagem em base64
+   * @param {number} maxWidth - Largura máxima
+   * @param {number} quality - Qualidade da compressão (0-1)
+   * @returns {Promise<string>} - A imagem comprimida em base64
+   */
+  const compressImage = (base64, maxWidth = 400, quality = 0.7) => {
+    return new Promise((resolve, reject) => {
+      const img = new Image();
+      img.onload = () => {
+        const canvas = document.createElement('canvas');
+        let { width, height } = img;
+        
+        // Redimensionar mantendo a proporção
+        if (width > maxWidth) {
+          height = (height * maxWidth) / width;
+          width = maxWidth;
+        }
+        
+        canvas.width = width;
+        canvas.height = height;
+        
+        const ctx = canvas.getContext('2d');
+        if (!ctx) {
+          reject(new Error('Não foi possível criar contexto canvas'));
+          return;
+        }
+        
+        ctx.drawImage(img, 0, 0, width, height);
+        
+        // Converter para JPEG com compressão
+        const compressedBase64 = canvas.toDataURL('image/jpeg', quality);
+        resolve(compressedBase64);
+      };
+      img.onerror = () => reject(new Error('Erro ao carregar imagem'));
+      img.src = base64;
+    });
+  };
+
+  inputFile.addEventListener('change', async (event) => {
     const target = event.target;
     if (!(target instanceof HTMLInputElement)) return;
     const file = target.files?.[0];
@@ -372,11 +412,34 @@ document.addEventListener('DOMContentLoaded', () => {
       return;
     }
 
+    // Verificar tamanho máximo (5MB)
+    if (file.size > 5 * 1024 * 1024) {
+      showToast('A imagem é muito grande. Máximo 5MB.', 'error');
+      inputFile.value = '';
+      return;
+    }
+
     const reader = new FileReader();
-    reader.onload = () => {
-  photoState.value = typeof reader.result === 'string' ? reader.result : null;
-  preview.src = photoState.value || DEFAULT_PHOTO;
-      showToast('Pré-visualização atualizada. Guarda para confirmar.');
+    reader.onload = async () => {
+      try {
+        const originalBase64 = typeof reader.result === 'string' ? reader.result : null;
+        if (!originalBase64) {
+          showToast('Erro ao ler a imagem.', 'error');
+          return;
+        }
+        
+        // Comprimir a imagem para evitar problemas de localStorage
+        const compressedBase64 = await compressImage(originalBase64, 400, 0.7);
+        photoState.value = compressedBase64;
+        preview.src = compressedBase64;
+        showToast('Pré-visualização atualizada. Guarda para confirmar.');
+      } catch (error) {
+        console.error('Erro ao processar imagem:', error);
+        showToast('Erro ao processar a imagem. Tenta outra.', 'error');
+      }
+    };
+    reader.onerror = () => {
+      showToast('Erro ao ler o ficheiro.', 'error');
     };
     reader.readAsDataURL(file);
   });
@@ -392,6 +455,11 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 
   getEl('pf_save')?.addEventListener('click', () => {
+    if (!activeUser) {
+      showToast('Sessão expirada. Faz login novamente.', 'error');
+      return;
+    }
+
     const usernameInput = /** @type {HTMLInputElement} */ (getEl('pf_username'));
     const emailInput = /** @type {HTMLInputElement} */ (getEl('pf_email'));
     const ageInput = /** @type {HTMLInputElement} */ (getEl('pf_age'));
@@ -417,10 +485,19 @@ document.addEventListener('DOMContentLoaded', () => {
       return;
     }
 
+    // Re-ler os dados mais recentes do localStorage para evitar conflitos
+    users = readUsers();
+    const currentUserIndex = findUserIndex(users, activeUser.username);
+    
+    if (currentUserIndex === -1) {
+      showToast('Erro ao guardar. Tenta novamente.', 'error');
+      return;
+    }
+
     // Verificar se o novo username já existe (se for diferente do atual)
     const oldUsername = activeUser.username;
-    if (newUsername !== oldUsername) {
-      const usernameExists = users.some((u, idx) => idx !== userIndex && u.username.toLowerCase() === newUsername.toLowerCase());
+    if (newUsername.toLowerCase() !== oldUsername.toLowerCase()) {
+      const usernameExists = users.some((u, idx) => idx !== currentUserIndex && u.username.toLowerCase() === newUsername.toLowerCase());
       if (usernameExists) {
         showToast('Este username já está em uso.', 'error');
         return;
@@ -444,7 +521,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     const updatedUser = {
-      ...users[userIndex],
+      ...users[currentUserIndex],
       username: newUsername,
       email,
       age: ageNumber,
@@ -460,19 +537,32 @@ document.addEventListener('DOMContentLoaded', () => {
     const greeting = getEl('pf_greeting_name');
     if (greeting) greeting.textContent = newUsername;
 
+    // Guardar foto se existir
     if (photoState.value) {
       updatedUser.photo = photoState.value;
     } else {
       delete updatedUser.photo;
     }
 
-    users[userIndex] = updatedUser;
+    // Atualizar arrays e localStorage
+    users[currentUserIndex] = updatedUser;
     activeUser = updatedUser;
-    writeUsers(users);
-    writeCurrentUser(updatedUser);
-    updateMetaFromUser(updatedUser);
-    syncStats(updatedUser);
-    showToast('Alterações guardadas com sucesso!');
+    
+    try {
+      writeUsers(users);
+      writeCurrentUser(updatedUser);
+      updateMetaFromUser(updatedUser);
+      syncStats(updatedUser);
+      showToast('Alterações guardadas com sucesso!');
+    } catch (error) {
+      console.error('Erro ao guardar perfil:', error);
+      // Verificar se é erro de quota do localStorage
+      if (error instanceof DOMException && error.name === 'QuotaExceededError') {
+        showToast('Armazenamento cheio. Tenta uma foto mais pequena.', 'error');
+      } else {
+        showToast('Erro ao guardar alterações. Tenta novamente.', 'error');
+      }
+    }
   });
 
   const changeBox = getEl('pf_change_box');

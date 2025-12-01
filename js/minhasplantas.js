@@ -56,21 +56,118 @@ function createPlantCard(plant) {
     const locationInfo = plant.location ? `<p class="plant-location">📍 ${plant.location}</p>` : '';
     const notesInfo = plant.notes ? `<p class="plant-notes">📝 ${plant.notes}</p>` : '';
     
+    // Calcular alertas de cuidados
+    const careAlerts = getPlantCareAlerts(plant);
+    const alertsHTML = careAlerts.length > 0 ? `
+        <div class="plant-care-alerts">
+            ${careAlerts.map(alert => `<span class="care-alert ${alert.type}">${alert.icon} ${alert.text}</span>`).join('')}
+        </div>
+    ` : '';
+
+    // Informação de quantidade de água recomendada
+    const waterAmount = getWaterAmountRecommendation(plant);
+    const waterInfo = waterAmount ? `<p class="plant-water-info">💧 ${waterAmount}</p>` : '';
+    
     card.innerHTML = `
-        <img src="${plant.image}" alt="${plant.name}" class="plant-image" onclick="viewPlantDetails(${plant.id})">
+        <div class="plant-image-container" onclick="viewPlantDetails(${plant.id})">
+            <img src="${plant.image}" alt="${plant.name}" class="plant-image">
+            <div class="plant-overlay">
+                <span class="overlay-text">👁️ Ver detalhes</span>
+            </div>
+        </div>
         <div class="plant-info">
             <h3 class="plant-name">${plant.name}</h3>
             <p class="plant-date">🌱 Plantada em: ${formattedDate}</p>
+            ${waterInfo}
             ${locationInfo}
             ${notesInfo}
+            ${alertsHTML}
             <div class="plant-actions">
-                <button class="btn-edit" onclick="editPlant(${plant.id})">Editar</button>
-                <button class="btn-delete" onclick="deletePlant(${plant.id})">Remover</button>
+                <button class="btn-edit" onclick="event.stopPropagation(); editPlant(${plant.id})">Editar</button>
+                <button class="btn-delete" onclick="event.stopPropagation(); deletePlant(${plant.id})">Remover</button>
             </div>
         </div>
     `;
     
     return card;
+}
+
+// Obter alertas de cuidados da planta
+function getPlantCareAlerts(plant) {
+    const alerts = [];
+    const now = new Date();
+    
+    // Verificar mudança de vaso (sugerir a cada 12-18 meses ou se planta cresceu muito)
+    if (plant.lastRepotDate) {
+        const lastRepot = new Date(plant.lastRepotDate);
+        const monthsSinceRepot = Math.floor((now - lastRepot) / (1000 * 60 * 60 * 24 * 30));
+        if (monthsSinceRepot >= 12) {
+            alerts.push({
+                type: 'warning',
+                icon: '🪴',
+                text: `Mudar de vaso (${monthsSinceRepot} meses)`
+            });
+        }
+    } else if (plant.plantDate) {
+        // Se nunca mudou de vaso, verificar desde a data de plantio
+        const plantDate = new Date(plant.plantDate);
+        const monthsSincePlant = Math.floor((now - plantDate) / (1000 * 60 * 60 * 24 * 30));
+        if (monthsSincePlant >= 12) {
+            alerts.push({
+                type: 'warning',
+                icon: '🪴',
+                text: `Considere mudar de vaso`
+            });
+        }
+    }
+    
+    // Verificar excesso de rega
+    if (plant.lastWatered) {
+        const lastWatered = new Date(plant.lastWatered);
+        const hoursSinceWatered = (now - lastWatered) / (1000 * 60 * 60);
+        const wateringFrequency = plant.wateringFrequency || 72; // 3 dias por defeito
+        
+        if (hoursSinceWatered < wateringFrequency * 0.5) {
+            alerts.push({
+                type: 'danger',
+                icon: '⚠️',
+                text: 'Cuidado: excesso de rega!'
+            });
+        }
+    }
+    
+    // Verificar se precisa de água
+    if (plant.lastWatered) {
+        const lastWatered = new Date(plant.lastWatered);
+        const hoursSinceWatered = (now - lastWatered) / (1000 * 60 * 60);
+        const wateringFrequency = plant.wateringFrequency || 72;
+        
+        if (hoursSinceWatered > wateringFrequency) {
+            alerts.push({
+                type: 'info',
+                icon: '💧',
+                text: 'Precisa de água'
+            });
+        }
+    }
+    
+    return alerts;
+}
+
+// Obter recomendação de quantidade de água
+function getWaterAmountRecommendation(plant) {
+    // Baseado no tipo/tamanho da planta
+    const waterAmounts = {
+        'pequena': '50-100ml',
+        'média': '150-250ml', 
+        'grande': '300-500ml',
+        'muito grande': '500ml-1L'
+    };
+    
+    const plantSize = plant.size || 'média';
+    const amount = waterAmounts[plantSize] || '150-250ml';
+    
+    return `Regar com ${amount}`;
 }
 
 const PLANT_HEALTH_VARIANTS = [

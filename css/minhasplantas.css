@@ -154,17 +154,53 @@ body {
     box-shadow: 0 0.8em 2em rgba(0, 0, 0, 0.3);
 }
 
+/* Container da imagem com overlay */
+.plant-image-container {
+    position: relative;
+    overflow: hidden;
+    cursor: pointer;
+}
+
+.plant-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(135deg, rgba(102, 126, 234, 0.7) 0%, rgba(118, 75, 162, 0.7) 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.plant-image-container:hover .plant-overlay {
+    opacity: 1;
+}
+
+.overlay-text {
+    color: white;
+    font-size: 1.2em;
+    font-weight: 700;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+    padding: 0.8em 1.5em;
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: 2em;
+    backdrop-filter: blur(5px);
+}
+
 /* Cursor pointer para imagem clicável */
 .plant-image {
     width: 100%;
     height: 200px;
     object-fit: cover;
     cursor: pointer;
-    transition: opacity 0.3s ease;
+    transition: transform 0.3s ease;
 }
 
-.plant-image:hover {
-    opacity: 0.9;
+.plant-image-container:hover .plant-image {
+    transform: scale(1.05);
 }
 
 .plant-info {
@@ -203,6 +239,60 @@ body {
     line-clamp: 2;
     -webkit-line-clamp: 2;
     -webkit-box-orient: vertical;
+}
+
+/* Informação de quantidade de água */
+.plant-water-info {
+    font-size: 0.9em;
+    color: #1e90ff;
+    margin: 0.5em 0 0 0;
+    font-weight: 600;
+    background: rgba(30, 144, 255, 0.1);
+    padding: 0.3em 0.6em;
+    border-radius: 0.5em;
+    display: inline-block;
+}
+
+/* Alertas de cuidados */
+.plant-care-alerts {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.4em;
+    margin-top: 0.8em;
+}
+
+.care-alert {
+    font-size: 0.75em;
+    padding: 0.3em 0.6em;
+    border-radius: 1em;
+    font-weight: 600;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.3em;
+}
+
+.care-alert.warning {
+    background: rgba(255, 193, 7, 0.15);
+    color: #856404;
+    border: 1px solid rgba(255, 193, 7, 0.3);
+}
+
+.care-alert.danger {
+    background: rgba(220, 53, 69, 0.15);
+    color: #721c24;
+    border: 1px solid rgba(220, 53, 69, 0.3);
+    animation: pulse-alert 1.5s infinite;
+}
+
+.care-alert.info {
+    background: rgba(23, 162, 184, 0.15);
+    color: #0c5460;
+    border: 1px solid rgba(23, 162, 184, 0.3);
+}
+
+@keyframes pulse-alert {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.02); }
 }
 
 .plant-actions {

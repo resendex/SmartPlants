@@ -123,6 +123,8 @@ body {
     flex: 1;
     padding: 2em;
     overflow-y: auto;
+    display: flex;
+    flex-direction: column;
 }
 
 .content-title {
@@ -131,6 +133,7 @@ body {
     font-weight: 700;
     margin: 0 0 1.5em 0;
     text-shadow: 0.1em 0.1em 0.2em rgba(0, 0, 0, 0.3);
+    flex-shrink: 0;
 }
 
 /* Plants Container */
@@ -140,6 +143,28 @@ body {
     padding: 2rem;
     margin-bottom: 2rem;
     box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+    max-height: 55vh;
+    overflow-y: auto;
+    flex-shrink: 1;
+}
+
+/* Scrollbar personalizada para o container de plantas */
+#plantsContainer::-webkit-scrollbar {
+    width: 8px;
+}
+
+#plantsContainer::-webkit-scrollbar-track {
+    background: rgba(102, 126, 234, 0.1);
+    border-radius: 4px;
+}
+
+#plantsContainer::-webkit-scrollbar-thumb {
+    background: linear-gradient(135deg, #667eea, #764ba2);
+    border-radius: 4px;
+}
+
+#plantsContainer::-webkit-scrollbar-thumb:hover {
+    background: linear-gradient(135deg, #5568d3, #6a3f8f);
 }
 
 #plantsContainer h3 {
@@ -279,6 +304,11 @@ body {
     display: flex;
     gap: 1rem;
     align-items: center;
+    flex-shrink: 0;
+    padding-top: 1rem;
+    position: sticky;
+    bottom: 0;
+    background: transparent;
 }
 
 .ButtonVoltar {
@@ -339,6 +369,9 @@ body {
     border-radius: 16px;
     width: 90%;
     max-width: 550px;
+    max-height: 85vh;
+    display: flex;
+    flex-direction: column;
     box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
     overflow: hidden;
     animation: modalSlideIn 0.3s ease;
@@ -361,6 +394,7 @@ body {
     justify-content: space-between;
     align-items: center;
     border-bottom: 2px solid rgba(0, 0, 0, 0.1);
+    flex-shrink: 0;
 }
 
 .modal-header.warning {
@@ -396,6 +430,28 @@ body {
 
 .modal-body {
     padding: 2rem;
+    overflow-y: auto;
+    flex: 1;
+    max-height: 50vh;
+}
+
+/* Scrollbar personalizada para o modal */
+.modal-body::-webkit-scrollbar {
+    width: 6px;
+}
+
+.modal-body::-webkit-scrollbar-track {
+    background: rgba(0, 0, 0, 0.05);
+    border-radius: 3px;
+}
+
+.modal-body::-webkit-scrollbar-thumb {
+    background: rgba(102, 126, 234, 0.5);
+    border-radius: 3px;
+}
+
+.modal-body::-webkit-scrollbar-thumb:hover {
+    background: rgba(102, 126, 234, 0.7);
 }
 
 .modal-message {
@@ -533,6 +589,7 @@ body {
     gap: 1rem;
     background: rgba(0, 0, 0, 0.02);
     border-top: 2px solid rgba(0, 0, 0, 0.1);
+    flex-shrink: 0;
 }
 
 .btn {

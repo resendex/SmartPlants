@@ -801,11 +801,11 @@ body {
 
 /* Estilos para preview de fotos no modal */
 .progress-preview {
-    margin: 1.5em 0;
+    margin: 1em 0;
     background: #f8f9fa;
     border-radius: 0.8em;
-    padding: 1.5em;
-    max-height: 400px;
+    padding: 1em;
+    max-height: 200px;
     overflow-y: auto;
 }
 
