@@ -13,7 +13,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const passwordInput = /** @type {HTMLInputElement | null} */ (form.querySelector('#password'));
     const confirmInput = /** @type {HTMLInputElement | null} */ (form.querySelector('#confirm-password'));
     const genderEl = /** @type {HTMLInputElement | null} */ (form.querySelector('input[name="gender"]:checked'));
-  const locationInput = /** @type {HTMLInputElement | null} */ (form.querySelector('#location'));
+    const locationInput = /** @type {HTMLInputElement | null} */ (form.querySelector('#location'));
 
     if (!usernameInput || !emailInput || !ageInput || !passwordInput || !confirmInput || !locationInput) {
       msg.style.color = 'red';
@@ -27,7 +27,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const password = passwordInput.value;
     const confirm = confirmInput.value;
     const gender = genderEl ? genderEl.value : '';
-  const locationValue = locationInput.value.trim();
+    const locationValue = locationInput.value.trim();
 
     msg.textContent = '';
 
@@ -81,7 +81,7 @@ document.addEventListener('DOMContentLoaded', () => {
       email,
       age: age ? Number(age) : null,
       gender,
-  location: locationValue,
+      location: locationValue,
       password,
       preferences: {
         emailTips: true,

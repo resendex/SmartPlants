@@ -480,8 +480,8 @@ document.addEventListener('DOMContentLoaded', () => {
     const gender = genderSelect.value;
 
     // Validar username
-    if (!newUsername || newUsername.length < 3) {
-      showToast('O username deve ter pelo menos 3 caracteres.', 'error');
+    if (!newUsername || newUsername.length < 2) {
+      showToast('O username deve ter pelo menos 2 caracteres.', 'error');
       return;
     }
 
@@ -513,7 +513,7 @@ document.addEventListener('DOMContentLoaded', () => {
     let ageNumber = null;
     if (ageValue !== '') {
       const parsedAge = Number(ageValue);
-      if (Number.isNaN(parsedAge) || parsedAge < 0 || parsedAge > 120) {
+      if (Number.isNaN(parsedAge) || parsedAge < 6 || parsedAge > 120) {
         showToast('Idade inválida.', 'error');
         return;
       }
