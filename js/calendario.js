@@ -723,7 +723,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 </div>
                 <div class="modal-body">
                     <label for="quickTime">Hora:</label>
-                    <input type="time" id="quickTime" value="${new Date().toTimeString().slice(0,5)}">
+                    <input style="width:93%;" type="time" id="quickTime" value="${new Date().toTimeString().slice(0,5)}">
                     <div style="display:flex;gap:.5rem;margin-top:.75rem;">
                         <button class="btn btn-primary" id="quickConfirm">Confirmar</button>
                         <button class="btn" id="quickCancel">Cancelar</button>
