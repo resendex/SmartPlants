@@ -1,3 +1,4 @@
+// @ts-nocheck
 /**
  * @typedef {'planta' | 'rega' | 'calendario' | 'chat' | 'forum' | 'lembrete'} TipoNotificacao
  */

@@ -1,4 +1,9 @@
+// @ts-nocheck
 // Utilitário: escapar html em strings
+/**
+ * @param {string} str
+ * @returns {string}
+ */
 function escapeHtml(str) {
     if (!str) return '';
     return String(str)

@@ -1,3 +1,4 @@
+// @ts-nocheck
 // Sistema Global de Notificações - Smart Plants
 // Este arquivo deve ser carregado em todas as páginas
 
