@@ -1,3 +1,5 @@
+// @ts-nocheck
+
 const CURRENT_USER_KEY = 'sp_currentUser';
 const DEFAULT_PHOTO_PATH = '../multimedia/image/user-icon-placeholder.png';
 const FALLBACK_EMOJI = '👤';

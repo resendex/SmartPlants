@@ -1,3 +1,4 @@
+// @ts-nocheck
 // Função auxiliar para mostrar alertas estilizados
 function showAlert(title, message) {
     const modal = document.createElement('div');

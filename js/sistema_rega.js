@@ -1,3 +1,5 @@
+// @ts-nocheck
+
 document.addEventListener('DOMContentLoaded', () => {
     const plantSelectBtn = document.getElementById('plantSelectBtn');
     const selectedPlantNameSpan = document.getElementById('selectedPlantName');

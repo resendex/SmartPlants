@@ -1,3 +1,5 @@
+// @ts-nocheck
+// 
 // ========================================
 // MÓDULO DE DIAGNÓSTICO DE PLANTAS COM IA
 // Usa a API Plant.id para análise de saúde

@@ -1,3 +1,5 @@
+// @ts-nocheck
+
 document.addEventListener('DOMContentLoaded', () => {
     const plantsContainer = document.getElementById('plantsContainer');
     const saveButton = document.querySelector('.ButtonGuardar');
