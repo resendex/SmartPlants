@@ -61,6 +61,7 @@ function handleFile(file) {
 function showSuccessPopup(message, callback) {
     const popup = document.createElement('div');
     popup.className = 'success-popup-overlay';
+    console.info('[add.js] script loaded');
     popup.innerHTML = `
         <div class="success-popup-container">
             <div class="success-icon">✓</div>
@@ -68,18 +69,34 @@ function showSuccessPopup(message, callback) {
             <button class="success-btn">OK</button>
         </div>
     `;
+            console.info('[add.js] uploadArea clicked');
     document.body.appendChild(popup);
     
-    popup.querySelector('.success-btn').addEventListener('click', () => {
+    const btn = popup.querySelector('.success-btn');
+    if (!btn) {
+        console.error('Botão OK não encontrado no popup!');
+        return;
+    }
+    
+    btn.addEventListener('click', () => {
         document.body.removeChild(popup);
         if (callback) callback();
     });
+    
+    // Auto-redirecionar após 5 segundos se o usuário não clicar
+    setTimeout(() => {
+        if (document.body.contains(popup)) {
+            document.body.removeChild(popup);
+            if (callback) callback();
+        }
+    }, 5000);
 }
 
 // Função para mostrar pop-up de aviso
 function showWarningPopup(message) {
     const popup = document.createElement('div');
     popup.className = 'warning-popup-overlay';
+                console.info('[add.js] file input change detected', e.target.files[0].name);
     popup.innerHTML = `
         <div class="warning-popup-container">
             <p class="warning-message">${message}</p>
@@ -183,6 +200,7 @@ if (btnYes) {
         
         // Submeter formulário
         document.getElementById('plantForm').addEventListener('submit', (e) => {
+            console.log('Formulário submetido');
             e.preventDefault();
             
             const plantName = document.getElementById('plantName').value.trim();
@@ -190,6 +208,7 @@ if (btnYes) {
             const futureDate = document.getElementById('futureDate').value;
             const plantLocation = document.getElementById('plantLocation').value.trim();
             const plantNotes = document.getElementById('plantNotes').value.trim();
+                console.info('[add.js] plantForm submitted');
             
             // Validação: pelo menos uma data deve ser preenchida
             if (!plantDate && !futureDate) {
@@ -225,20 +244,57 @@ if (btnYes) {
             
             // Salvar no localStorage
             let plants = JSON.parse(localStorage.getItem('myPlants') || '[]');
-            console.log('Plantas existentes:', plants);
             
             plants.push(newPlant);
+                console.info('[add.js] Salvando nova planta no localStorage com id', newPlant.id);
             localStorage.setItem('myPlants', JSON.stringify(plants));
-            
-            console.log('Plantas após salvar:', JSON.parse(localStorage.getItem('myPlants')));
             
             // Adicionar notificação
             if (typeof notificarNovaPlanta === 'function') {
                 notificarNovaPlanta(plantName);
             }
             
+            // Adicionar atividade recente
+            // Adicionar atividade: tentar várias abordagens (função direta, SmartPlantsActivities, e com retry)
+            const callAddActivity = (name) => {
+                try {
+                    console.info('[add.js] Tentando adicionar atividade para:', name);
+                    if (typeof adicionarAtividadeNovaPlanta === 'function') {
+                        console.info('[add.js] adicionarAtividadeNovaPlanta existe, chamando');
+                        adicionarAtividadeNovaPlanta(name);
+                        return true;
+                    } else {
+                        console.warn('[add.js] adicionarAtividadeNovaPlanta não existe:', typeof adicionarAtividadeNovaPlanta);
+                    }
+                    if (window.SmartPlantsActivities && typeof window.SmartPlantsActivities.adicionar === 'function') {
+                        console.info('[add.js] SmartPlantsActivities.adicionar existe, chamando');
+                        window.SmartPlantsActivities.adicionar('add', `Adicionou <strong>${name}</strong> às ${new Date().toLocaleTimeString('pt-PT', { hour: '2-digit', minute: '2-digit' })}`);
+                        return true;
+                    } else {
+                        console.warn('[add.js] SmartPlantsActivities.adicionar não existe');
+                    }
+                } catch (e) {
+                    console.error('[add.js] Erro ao tentar adicionar atividade:', e);
+                }
+                return false;
+            };
+
+            if (!callAddActivity(plantName)) {
+                // Tentar novamente após um pequeno atraso caso o script global ainda não esteja pronto
+                setTimeout(() => {
+                    if (!callAddActivity(plantName)) {
+                        console.warn('[add.js] Falha em registar atividade após retries');
+                    } else {
+                        console.info('[add.js] Atividade registada após retry');
+                    }
+                }, 300);
+            }
+            
             // Remover modal
             document.querySelector('.plant-form-overlay').remove();
+            
+            // Redirecionar para inicio.html para atualizar atividades
+            window.location.href = '../html/inicio.html';
             
             // Verificar se veio de outra página (ex: página Regar quando não tinha plantas)
             const returnTo = sessionStorage.getItem('returnTo');
@@ -259,6 +315,12 @@ if (btnYes) {
                 showSuccessPopup('Planta adicionada com sucesso!', () => {
                     window.location.href = 'minhasplantas.html';
                 });
+                // Fallback: redirecionar diretamente após 3 segundos se o popup não funcionar
+                setTimeout(() => {
+                    if (window.location.pathname.includes('add.html')) {
+                        window.location.href = 'minhasplantas.html';
+                    }
+                }, 3000);
             }
         });
     });

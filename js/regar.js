@@ -1,4 +1,10 @@
 // @ts-nocheck
+
+// Função auxiliar para obter data de hoje no formato YYYY-MM-DD (sem problemas de fuso horário)
+function getTodayDateString() {
+    const now = new Date();
+    return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
+}
 // Função auxiliar para mostrar alertas estilizados
 function showAlert(title, message) {
     const modal = document.createElement('div');
@@ -211,7 +217,7 @@ document.addEventListener('DOMContentLoaded', function () {
         
         // Verificar agendamentos manuais
         const waterings = JSON.parse(localStorage.getItem(`watering_${plantId}`) || '[]');
-        const futureWaterings = waterings.filter(w => !w.completed && w.date >= new Date().toISOString().split('T')[0]);
+        const futureWaterings = waterings.filter(w => !w.completed && w.date >= getTodayDateString());
         
         // Verificar recorrências
         const recurrences = JSON.parse(localStorage.getItem(`recurrences_${plantId}`) || '[]');

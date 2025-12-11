@@ -1,3 +1,4 @@
+@import url('theme.css');
 body {
     font-family: Arial, sans-serif;
     margin: 0;
@@ -78,6 +79,13 @@ body {
     background: rgba(255, 255, 255, 0.95);
     box-shadow: 0.2em 0 0.5em rgba(0, 0, 0, 0.1);
     padding: 2em 0;
+    position: fixed;
+    top: -5em;
+    left: 0;
+    height: calc(100vh - 70px);
+    min-height: 100vh;
+    overflow-y: auto;
+    padding-top: 10em;
 }
 
 .menu {
@@ -123,6 +131,7 @@ body {
     flex: 1;
     padding: 2em;
     overflow-y: auto;
+    margin-left: 250px;
 }
 
 .content-title {
@@ -139,4 +148,90 @@ body {
     font-weight: 550;
     margin: 0 0 1.5em 0;
     text-shadow: 0.05em 0.05em 0.1em rgba(0, 0, 0, 0.3);
+}
+
+/* Dark Mode Styles for lembretes.css */
+body.dark-mode {
+    background: #181818;
+}
+
+body.dark-mode .header {
+    background: rgba(35, 35, 35, 0.95);
+    box-shadow: 0 0.2em 0.5em rgba(0, 0, 0, 0.3);
+}
+
+body.dark-mode .header-title {
+    color: #ffffff;
+}
+
+body.dark-mode .sidebar {
+    background: rgba(35, 35, 35, 0.95);
+    box-shadow: 0.2em 0 0.5em rgba(0, 0, 0, 0.3);
+}
+
+body.dark-mode .menu-item {
+    color: #ffffff;
+}
+
+body.dark-mode .menu-item:hover {
+    background: rgba(102, 126, 234, 0.2);
+}
+
+body.dark-mode .menu-item.active {
+    background: rgba(102, 126, 234, 0.3);
+    border-left-color: #667eea;
+}
+
+body.dark-mode .menu-icon-placeholder {
+    background: rgba(102, 126, 234, 0.2);
+}
+
+body.dark-mode .content {
+    background: rgba(35, 35, 35, 0.95);
+}
+
+body.dark-mode .content-title {
+    color: #ffffff;
+}
+
+body.dark-mode .reminder-card,
+body.dark-mode .reminder-form {
+    background: rgba(35, 35, 35, 0.95);
+    color: #ffffff;
+    border-color: #333;
+}
+
+body.dark-mode .reminder-title,
+body.dark-mode .reminder-description,
+body.dark-mode .reminder-date {
+    color: #ffffff;
+}
+
+body.dark-mode .btn,
+body.dark-mode .reminder-btn {
+    background: #81c784;
+    color: #181818;
+}
+
+body.dark-mode .btn:hover,
+body.dark-mode .reminder-btn:hover {
+    background: #4caf50;
+}
+
+body.dark-mode .reminder-form input,
+body.dark-mode .reminder-form textarea,
+body.dark-mode .reminder-form select {
+    background: #232323;
+    color: #ffffff;
+    border-color: #555;
+}
+
+body.dark-mode .reminder-form input:focus,
+body.dark-mode .reminder-form textarea:focus,
+body.dark-mode .reminder-form select:focus {
+    border-color: #667eea;
+}
+
+body.dark-mode .ButtonGuardar {
+    color: #ffffff;
 }

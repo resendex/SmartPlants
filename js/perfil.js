@@ -496,8 +496,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Verificar se o novo username já existe (se for diferente do atual)
     const oldUsername = activeUser.username;
-    if (newUsername.toLowerCase() !== oldUsername.toLowerCase()) {
-      const usernameExists = users.some((u, idx) => idx !== currentUserIndex && u.username.toLowerCase() === newUsername.toLowerCase());
+    const normalize = (str) => str.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+    if (normalize(newUsername) !== normalize(oldUsername)) {
+      const usernameExists = users.some((u, idx) => idx !== currentUserIndex && normalize(u.username) === normalize(newUsername));
       if (usernameExists) {
         showToast('Este username já está em uso.', 'error');
         return;
@@ -623,33 +624,13 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 
   getEl('pf_logout')?.addEventListener('click', () => {
-    const popup = document.createElement('div');
-    popup.className = 'delete-confirm-overlay';
-    popup.innerHTML = `
-      <div class="delete-confirm-container">
-        <h3 class="delete-confirm-title">Esta página diz</h3>
-        <p class="delete-confirm-message">Tem a certeza que quer terminar sessão?</p>
-        <div class="delete-confirm-buttons">
-          <button class="delete-confirm-btn" id="confirmLogoutBtn">OK</button>
-          <button class="delete-cancel-btn" id="cancelLogoutBtn">Cancelar</button>
-        </div>
-      </div>
-    `;
-
-    document.body.appendChild(popup);
-
-    popup.querySelector('#confirmLogoutBtn')?.addEventListener('click', () => {
-      document.body.removeChild(popup);
+    if (window.confirm('Tem a certeza que quer terminar sessão?')) {
       localStorage.removeItem(CURRENT_KEY);
       localStorage.setItem('sp_isLoggedIn', 'false');
       showToast('Sessão terminada. Até já!');
       window.setTimeout(() => {
         window.location.href = 'home.html';
       }, 300);
-    });
-
-    popup.querySelector('#cancelLogoutBtn')?.addEventListener('click', () => {
-      document.body.removeChild(popup);
-    });
+    }
   });
 });

@@ -1,3 +1,4 @@
+@import url('theme.css');
 body {
     font-family: Arial, sans-serif;
     margin: 0;
@@ -78,6 +79,13 @@ body {
     background: rgba(255, 255, 255, 0.95);
     box-shadow: 0.2em 0 0.5em rgba(0, 0, 0, 0.1);
     padding: 2em 0;
+    position: fixed;
+    top: -5em;
+    left: 0;
+    height: calc(100vh - 70px);
+    min-height: 100vh;
+    overflow-y: auto;
+    padding-top: 10em;
 }
 
 .menu {
@@ -123,6 +131,7 @@ body {
     flex: 1;
     padding: 2em;
     overflow-y: auto;
+    margin-left: 250px;
 }
 
 .content-title {
@@ -482,6 +491,17 @@ body {
 .plant-image {
     font-size: 3em;
     margin-bottom: 0.3em;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 3em;
+}
+
+.plant-image img {
+    width: 3em;
+    height: 3em;
+    object-fit: cover;
+    border-radius: 0.5em;
 }
 
 .plant-name {
@@ -506,6 +526,16 @@ body {
 .plant-status.needs-water {
     background: #fff3cd;
     color: #856404;
+}
+
+.plant-item.empty {
+    opacity: 0.6;
+    cursor: default;
+}
+
+.plant-item.empty:hover {
+    background: rgba(102, 126, 234, 0.05);
+    transform: none;
 }
 
 /* Schedule List */
@@ -585,6 +615,8 @@ body {
     display: flex;
     flex-direction: column;
     gap: 0.8em;
+    max-height: 400px; /* Limite para aproximadamente 5 atividades */
+    overflow-y: auto;
 }
 
 .activity-item {
@@ -815,4 +847,139 @@ body {
     .time-label, .time-value {
         display: inline;
     }
+}
+
+/* Dark Mode Styles */
+body.dark-mode {
+    background: #181818;
+}
+
+body.dark-mode .header {
+    background: rgba(35, 35, 35, 0.95);
+}
+
+body.dark-mode .sidebar {
+    background: #232323;
+}
+
+body.dark-mode .weather-widget {
+    background: #232323;
+}
+
+body.dark-mode .header-title,
+body.dark-mode .menu-item,
+body.dark-mode .weather-temp {
+    color: #ffffff;
+}
+
+body.dark-mode .weather-location {
+    color: #cccccc;
+}
+
+body.dark-mode .weather-widget.loading .weather-temp,
+body.dark-mode .weather-widget.loading .weather-location {
+    color: #cccccc;
+}
+
+body.dark-mode .weather-widget.error .weather-temp {
+    color: #cccccc;
+}
+
+/* Additional dark mode rules for inicio page */
+body.dark-mode .alert-card {
+    background: #232323 !important;
+    color: #ffffff !important;
+    border-color: #333 !important;
+}
+
+body.dark-mode .alert-title,
+body.dark-mode .alert-time {
+    color: #ffffff !important;
+}
+
+body.dark-mode .alert-action {
+    background: #81c784 !important;
+    color: #181818 !important;
+}
+
+body.dark-mode .alert-action:hover {
+    background: #4caf50 !important;
+}
+
+body.dark-mode .stat-card-link {
+    background: #232323 !important;
+    color: #ffffff !important;
+    border-color: #333 !important;
+}
+
+body.dark-mode .stat-label,
+body.dark-mode .stat-number {
+    color: #ffffff !important;
+}
+
+body.dark-mode .dashboard-card {
+    background: rgba(35, 35, 35, 0.95) !important;
+    color: #ffffff !important;
+    border-color: #333 !important;
+}
+
+body.dark-mode .plant-item {
+    background: #232323 !important;
+    color: #ffffff !important;
+    border-color: #333 !important;
+}
+
+body.dark-mode .plant-name,
+body.dark-mode .plant-info {
+    color: #ffffff !important;
+}
+
+body.dark-mode .tip-text {
+    color: #555 !important;
+}
+
+body.dark-mode .tip-card {
+    background: linear-gradient(135deg, #ffeaa7 0%, #fdcb6e 100%) !important;
+    color: #333 !important;
+    border-color: #333 !important;
+}
+
+body.dark-mode .card-title {
+    color: #ffffff !important;
+}
+
+body.dark-mode .tip-title {
+    color: #333 !important;
+}
+
+body.dark-mode .schedule-item,
+body.dark-mode .activity-item {
+    background: rgba(35, 35, 35, 0.9) !important;
+    color: #ffffff !important;
+    border-color: #333 !important;
+}
+
+body.dark-mode .schedule-time,
+body.dark-mode .schedule-plant,
+body.dark-mode .activity-time,
+body.dark-mode .activity-desc {
+    color: #cccccc !important;
+}
+
+body.dark-mode .schedule-item {
+    background: #232323;
+    color: #ffffff;
+    border-color: #333;
+}
+
+body.dark-mode .time-label,
+body.dark-mode .time-value,
+body.dark-mode .schedule-plant,
+body.dark-mode .schedule-details {
+    color: #ffffff;
+}
+
+body.dark-mode .chart-tooltip {
+    background: #333;
+    color: #ffffff;
 }

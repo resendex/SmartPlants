@@ -1,8 +1,15 @@
+@import url('theme.css');
+
+/* Ajuste para footer fixo */
+body {
+    padding-bottom: 3rem; /* Espaço para o footer não cobrir o conteúdo */
+}
+
 /* Plant Selector */
 .plant-selector {
     margin-bottom: 2rem;
     padding: 1.5rem;
-    background: rgba(255, 255, 255, 0.05);
+    background: white;
     border-radius: 12px;
     backdrop-filter: blur(10px);
 }
@@ -152,6 +159,16 @@
     border-radius: 6px;
     font-size: 0.7rem;
     margin-top: 4px;
+    font-weight: 600;
+}
+
+.completed-time {
+    background: rgba(76, 175, 80, 0.9);
+    color: white;
+    padding: 1px 4px;
+    border-radius: 4px;
+    font-size: 0.6rem;
+    margin-top: 2px;
     font-weight: 600;
 }
 
@@ -327,8 +344,8 @@
     margin: 0 0 1rem 0;
 }
 
-/* Botão voltar para sistema de rega */
-.back-to-system {
+/* Removido: CSS do botão voltar dinâmico não utilizado */
+/* .back-to-system {
     margin-top: 2rem;
     padding-top: 1.5rem;
     border-top: 2px solid rgba(102, 126, 234, 0.2);
@@ -360,7 +377,7 @@
 .btn-back .btn-icon {
     font-size: 1.2rem;
     font-weight: bold;
-}
+} */
 
 /* Ícone de recorrência no dia */
 .recurrence-icon {
@@ -874,4 +891,192 @@
     .plant-name {
         font-size: 1em;
     }
+}
+
+/* Dark Mode Styles for calendario.css */
+body.dark-mode {
+    background: #181818;
+}
+
+body.dark-mode .header {
+    background: rgba(35, 35, 35, 0.95);
+    box-shadow: 0 0.2em 0.5em rgba(0, 0, 0, 0.3);
+}
+
+body.dark-mode .header-title {
+    color: #ffffff;
+}
+
+body.dark-mode .sidebar {
+    background: rgba(35, 35, 35, 0.95);
+    box-shadow: 0.2em 0 0.5em rgba(0, 0, 0, 0.3);
+}
+
+body.dark-mode .menu-item {
+    color: #ffffff;
+}
+
+body.dark-mode .menu-item:hover {
+    background: rgba(102, 126, 234, 0.2);
+}
+
+body.dark-mode .menu-item.active {
+    background: rgba(102, 126, 234, 0.3);
+    border-left-color: #667eea;
+}
+
+body.dark-mode .menu-icon-placeholder {
+    background: rgba(102, 126, 234, 0.2);
+}
+
+body.dark-mode .calendar-container,
+body.dark-mode .event-form,
+body.dark-mode .event-details,
+body.dark-mode .plant-selector {
+    background: rgba(35, 35, 35, 0.95);
+    color: #ffffff;
+    border-color: #333;
+}
+
+body.dark-mode .calendar-header h2,
+body.dark-mode .event-title,
+body.dark-mode .event-description,
+body.dark-mode .plant-name {
+    color: #ffffff;
+}
+
+body.dark-mode .calendar-day,
+body.dark-mode .calendar-day-header {
+    background: rgba(35, 35, 35, 0.8);
+    color: #ffffff;
+    border-color: #333;
+}
+
+body.dark-mode .calendar-day.today {
+    background: rgba(102, 126, 234, 0.3);
+}
+
+body.dark-mode .calendar-day.has-events {
+    background: rgba(76, 175, 80, 0.3);
+}
+
+body.dark-mode .event-item {
+    background: rgba(102, 126, 234, 0.2);
+    color: #ffffff;
+    border-color: #333;
+}
+
+body.dark-mode .event-time,
+body.dark-mode .event-plant {
+    color: #cccccc;
+}
+
+body.dark-mode .btn,
+body.dark-mode .calendar-nav-btn,
+body.dark-mode .event-btn {
+    background: #81c784;
+    color: #181818;
+}
+
+body.dark-mode .btn:hover,
+body.dark-mode .calendar-nav-btn:hover,
+body.dark-mode .event-btn:hover {
+    background: #4caf50;
+}
+
+body.dark-mode .event-form input,
+body.dark-mode .event-form select,
+body.dark-mode .event-form textarea {
+    background: #232323;
+    color: #ffffff;
+    border-color: #555;
+}
+
+body.dark-mode .event-form input:focus,
+body.dark-mode .event-form select:focus,
+body.dark-mode .event-form textarea:focus {
+    border-color: #667eea;
+}
+
+body.dark-mode .plant-option {
+    background: rgba(35, 35, 35, 0.9);
+    color: #ffffff;
+    border-color: #333;
+}
+
+body.dark-mode .completed-time {
+    background: rgba(76, 175, 80, 0.9);
+    color: white;
+}
+
+body.dark-mode .plant-option:hover {
+    background: rgba(102, 126, 234, 0.2);
+}
+
+body.dark-mode .time-badge {
+    background: rgba(0, 150, 70, 0.8);
+}
+
+/* Sidebar */
+.sidebar {
+    width: 250px;
+    background: rgba(255, 255, 255, 0.95);
+    box-shadow: 0.2em 0 0.5em rgba(0, 0, 0, 0.1);
+    padding: 2em 0;
+    position: fixed;
+    top: -5em;
+    left: 0;
+    height: calc(100vh - 70px);
+    min-height: 100vh;
+    overflow-y: auto;
+    padding-top: 10em;
+}
+
+.main-container {
+    display: flex;
+    flex: 1;
+    overflow: hidden;
+}
+
+.content {
+    flex: 1;
+    padding: 2em;
+    overflow-y: auto;
+    margin-left: 250px;
+}
+
+/* Botão Voltar - Estilo Uniforme */
+.back-button-container {
+    margin-top: 0.5rem; /* Reduzido para subir o botão */
+    padding-top: 0.5rem; /* Reduzido para subir o botão */
+    text-align: left;
+    margin-left: 250px; /* Mesma margem do conteúdo principal */
+    margin-right: 2rem; /* Margem direita para alinhamento */
+}
+
+.btn-back {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.75rem 1.5rem; /* Padding um pouco menor */
+    background: white;
+    color: #667eea;
+    border: 2px solid #667eea;
+    border-radius: 10px;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s;
+}
+
+.btn-back:hover {
+    background: #667eea;
+    color: white;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+}
+
+.btn-back .btn-icon {
+    font-size: 1.2rem;
+    font-weight: bold;
 }

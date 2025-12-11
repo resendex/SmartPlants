@@ -1,3 +1,4 @@
+@import url('theme.css');
 body {
     font-family: Arial, sans-serif;
     margin: 0;
@@ -78,6 +79,13 @@ body {
     background: rgba(255, 255, 255, 0.95);
     box-shadow: 0.2em 0 0.5em rgba(0, 0, 0, 0.1);
     padding: 2em 0;
+    position: fixed;
+    top: -5em;
+    left: 0;
+    height: calc(100vh - 70px);
+    min-height: 100vh;
+    overflow-y: auto;
+    padding-top: 10em;
 }
 
 .menu {
@@ -123,6 +131,7 @@ body {
     flex: 1;
     padding: 2em;
     overflow-y: auto;
+    margin-left: 250px;
 }
 
 .content-title {
@@ -180,20 +189,25 @@ body {
 .forum-toolbar {
     display: flex;
     gap: 1em;
-    margin-bottom: 1.5em;
+    margin-bottom: 2em;
     flex-wrap: wrap;
 }
 
 .forum-toolbar .toolbar-group {
     flex: 1 1 220px;
     background: rgba(255, 255, 255, 0.95);
+    border-radius: 1.1em;
     padding: 0.9em 1.1em;
-    border-radius: 1em;
-    box-shadow: 0 0.3em 1em rgba(0, 0, 0, 0.08);
+    box-shadow: 0 0.3em 1em rgba(102, 126, 234, 0.18);
     display: flex;
     flex-direction: column;
-    gap: 0.5em;
+    gap: 0.45em;
     backdrop-filter: blur(6px);
+}
+
+.forum-toolbar .toolbar-group:hover {
+    transform: translateY(-0.2em);
+    box-shadow: 0 0.5em 1.5em rgba(102, 126, 234, 0.25);
 }
 
 .forum-toolbar label {
@@ -203,19 +217,19 @@ body {
 }
 
 .forum-toolbar select {
-    background: rgba(102, 126, 234, 0.08);
-    border: 1px solid rgba(102, 126, 234, 0.25);
+    border: 1px solid rgba(118, 75, 162, 0.25);
     border-radius: 0.8em;
     padding: 0.7em 1em;
     font-size: 0.95em;
-    color: #333;
-    transition: border-color 0.3s ease, box-shadow 0.3s ease;
+    background: rgba(102, 126, 234, 0.08);
+    color: #2d2d2d;
+    transition: border-color 0.3s ease, box-shadow 0.3s ease, background 0.3s ease;
 }
 
 .forum-toolbar select:focus {
     outline: none;
-    border-color: rgba(102, 126, 234, 0.6);
-    box-shadow: 0 0.2em 0.6em rgba(102, 126, 234, 0.25);
+    border-color: rgba(118, 75, 162, 0.6);
+    box-shadow: 0 0.2em 0.6em rgba(118, 75, 162, 0.25);
     background: rgba(255, 255, 255, 0.95);
 }
 
@@ -225,7 +239,6 @@ body {
     gap: 1em;
     margin-bottom: 2em;
     overflow-x: auto;
-    padding-bottom: 0.5em;
 }
 
 .category-btn {
@@ -234,20 +247,20 @@ body {
     gap: 0.5em;
     padding: 0.8em 1.5em;
     background: rgba(255, 255, 255, 0.95);
-    border: 0.15em solid transparent;
     border-radius: 2em;
     font-weight: 600;
-    color: #666;
+    color: #333;
     cursor: pointer;
     transition: all 0.3s ease;
     white-space: nowrap;
-    box-shadow: 0 0.2em 0.5em rgba(0, 0, 0, 0.1);
+    border: 1px solid rgba(118, 75, 162, 0.25);
+    box-shadow: 0 0.2em 0.5em rgba(102, 126, 234, 0.1);
 }
 
 .category-btn:hover {
-    transform: translateY(-0.2em);
-    box-shadow: 0 0.3em 0.8em rgba(0, 0, 0, 0.15);
-    border-color: #667eea;
+    transform: translateY(-0.1em);
+    box-shadow: 0 0.3em 0.8em rgba(102, 126, 234, 0.2);
+    background: rgba(102, 126, 234, 0.1);
 }
 
 .category-btn.active {
@@ -910,4 +923,236 @@ body {
         width: 3em;
         height: 3em;
     }
+}
+
+/* Dark Mode Styles for forum.css */
+body.dark-mode {
+    background: #181818;
+}
+
+body.dark-mode .header {
+    background: rgba(35, 35, 35, 0.95);
+    box-shadow: 0 0.2em 0.5em rgba(0, 0, 0, 0.3);
+}
+
+body.dark-mode .header-title {
+    color: #ffffff;
+}
+
+body.dark-mode .sidebar {
+    background: rgba(35, 35, 35, 0.95);
+    box-shadow: 0.2em 0 0.5em rgba(0, 0, 0, 0.3);
+}
+
+body.dark-mode .menu-item {
+    color: #ffffff;
+}
+
+body.dark-mode .menu-item:hover {
+    background: rgba(102, 126, 234, 0.2);
+}
+
+body.dark-mode .menu-item.active {
+    background: rgba(102, 126, 234, 0.3);
+    border-left-color: #667eea;
+}
+
+body.dark-mode .menu-icon-placeholder {
+    background: rgba(102, 126, 234, 0.2);
+}
+
+body.dark-mode .content-title {
+    color: #ffffff;
+}
+
+body.dark-mode .forum-stats,
+body.dark-mode .forum-card,
+body.dark-mode .post-card,
+body.dark-mode .comment-card,
+body.dark-mode .new-post-form,
+body.dark-mode .post-detail,
+body.dark-mode .comment-form,
+body.dark-mode .forum-post {
+    background: rgba(35, 35, 35, 0.95) !important;
+    color: #ffffff !important;
+    border-color: #333 !important;
+}
+
+body.dark-mode .forum-title,
+body.dark-mode .post-title,
+body.dark-mode .comment-author,
+body.dark-mode .post-author,
+body.dark-mode .stat-label,
+body.dark-mode .post-content,
+body.dark-mode .comment-content,
+body.dark-mode .post-text,
+body.dark-mode .post-author-name {
+    color: #ffffff !important;
+}
+
+body.dark-mode .stat-value,
+body.dark-mode .post-date,
+body.dark-mode .comment-date,
+body.dark-mode .post-time {
+    color: #cccccc !important;
+}
+
+body.dark-mode .forum-description,
+body.dark-mode .post-preview {
+    color: #cccccc !important;
+}
+
+body.dark-mode .btn,
+body.dark-mode .interaction-btn,
+body.dark-mode .fab-button {
+    background: #81c784;
+    color: #181818;
+}
+
+body.dark-mode .btn:hover,
+body.dark-mode .interaction-btn:hover,
+body.dark-mode .fab-button:hover {
+    background: #4caf50;
+}
+
+body.dark-mode .new-post-form textarea,
+body.dark-mode .comment-form textarea,
+body.dark-mode .new-post-form input,
+body.dark-mode .comment-form input {
+    background: #232323;
+    color: #ffffff;
+    border-color: #555;
+}
+
+body.dark-mode .new-post-form textarea:focus,
+body.dark-mode .comment-form textarea:focus,
+body.dark-mode .new-post-form input:focus,
+body.dark-mode .comment-form input:focus {
+    border-color: #667eea;
+}
+
+body.dark-mode .modal-overlay {
+    background: rgba(0, 0, 0, 0.8);
+}
+
+body.dark-mode .modal-content {
+    background: #232323;
+    color: #ffffff;
+    border-color: #333;
+}
+
+body.dark-mode .modal-title {
+    color: #ffffff;
+}
+
+body.dark-mode .pagination-btn {
+    background: rgba(102, 126, 234, 0.2);
+    color: #ffffff;
+}
+
+body.dark-mode .pagination-btn.active {
+    background: #667eea;
+}
+
+body.dark-mode .pagination-btn:hover {
+    background: rgba(102, 126, 234, 0.4);
+}
+
+body.dark-mode .tabs-container {
+    background: rgba(35, 35, 35, 0.95);
+    box-shadow: 0 0.3em 1em rgba(0, 0, 0, 0.3);
+}
+
+body.dark-mode .tab-link {
+    color: #cccccc;
+}
+
+body.dark-mode .tab-link.active {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: #ffffff;
+}
+
+body.dark-mode .tab-link:hover {
+    background: rgba(102, 126, 234, 0.2);
+    color: #ffffff;
+}
+
+body.dark-mode .forum-toolbar .toolbar-group {
+    background: rgba(35, 35, 35, 0.95);
+    box-shadow: 0 0.3em 1em rgba(0, 0, 0, 0.3);
+}
+
+body.dark-mode .forum-toolbar label {
+    color: #ffffff;
+}
+
+body.dark-mode .forum-toolbar select {
+    background: rgba(102, 126, 234, 0.15);
+    color: #ffffff;
+    border-color: rgba(118, 75, 162, 0.4);
+}
+
+body.dark-mode .forum-toolbar select:focus {
+    background: rgba(35, 35, 35, 0.95);
+    border-color: rgba(118, 75, 162, 0.7);
+    box-shadow: 0 0.2em 0.6em rgba(118, 75, 162, 0.4);
+}
+
+body.dark-mode .categories-container {
+    background: rgba(35, 35, 35, 0.95);
+    box-shadow: 0 0.3em 1em rgba(0, 0, 0, 0.3);
+}
+
+body.dark-mode .category-btn {
+    background: rgba(35, 35, 35, 0.95);
+    color: #ffffff;
+    border-color: rgba(118, 75, 162, 0.4);
+    text-shadow: none;
+}
+
+body.dark-mode .category-btn:hover {
+    background: rgba(102, 126, 234, 0.2);
+    border-color: rgba(255, 255, 255, 0.4);
+}
+
+body.dark-mode .category-btn.active {
+    background: rgba(102, 126, 234, 0.4);
+    border-color: #667eea;
+}
+
+body.dark-mode .tip-item {
+    color: #ffffff !important;
+}
+
+body.dark-mode .stat-badge {
+    color: #ffffff !important;
+    background: rgba(102, 126, 234, 0.3) !important;
+}
+
+body.dark-mode .help-badge {
+    color: #ffffff !important;
+    background: rgba(40, 167, 69, 0.3) !important;
+}
+
+body.dark-mode .achievement-info strong {
+    color: #ffffff !important;
+}
+
+body.dark-mode .progress-label {
+    color: #ffffff !important;
+    background: rgba(40, 167, 69, 0.3) !important;
+}
+
+body.dark-mode .progress-arrow {
+    color: #81c784 !important;
+}
+
+body.dark-mode .post-image-placeholder {
+    color: #ffffff !important;
+    background: rgba(220, 53, 69, 0.2) !important;
+    border-color: rgba(220, 53, 69, 0.5) !important;
+}
+
+body.dark-mode .comments-title {
+    color: #ffffff !important;
 }

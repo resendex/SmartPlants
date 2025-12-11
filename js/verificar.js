@@ -1,5 +1,11 @@
 // @ts-nocheck
 
+// Função auxiliar para obter data de hoje no formato YYYY-MM-DD (sem problemas de fuso horário)
+function getTodayDateString() {
+    const now = new Date();
+    return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
+}
+
 document.addEventListener('DOMContentLoaded', () => {
     const plantsContainer = document.getElementById('plantsContainer');
     const saveButton = document.querySelector('.ButtonGuardar');
@@ -7,6 +13,16 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Renderizar plantas dinamicamente
     renderPlants();
+
+    // Event listener para botões de desfazer rega
+    document.addEventListener('click', function(e) {
+        if (e.target.classList.contains('btn-undo-watering')) {
+            e.preventDefault();
+            e.stopPropagation();
+            const plantId = e.target.getAttribute('data-plant-id');
+            undoWatering(plantId);
+        }
+    });
 
     function renderPlants() {
         if (plants.length === 0) {
@@ -25,6 +41,7 @@ document.addEventListener('DOMContentLoaded', () => {
         plants.forEach(plant => {
             const nextWatering = getNextWatering(plant.id);
             const irrigationWatering = getTodayIrrigationWatering(plant.id);
+            const wasWateredToday = wasPlantWateredToday(plant.id);
             
             let wateringInfo = '';
             
@@ -61,13 +78,22 @@ document.addEventListener('DOMContentLoaded', () => {
                 wateringInfo = '<span class="no-watering">Nenhuma rega agendada</span>';
             }
             
+            const regadaClass = wasWateredToday ? 'regada-hoje' : '';
+            const regadaText = wasWateredToday ? '<div class="regada-text">Já regou esta planta hoje</div>' : '';
+            const undoButton = wasWateredToday ? `<button type="button" class="btn-undo-watering" data-plant-id="${plant.id}" title="Desfazer rega de hoje">↶ Desfazer</button>` : '';
+            
+            // Se foi regada hoje, não mostrar info de rega agendada
+            const displayWateringInfo = wasWateredToday ? '' : wateringInfo;
+            
             html += `
-                <div class="opcao">
+                <div class="opcao ${regadaClass}">
                     <label>
-                        <input type="checkbox" name="plantas" value="${plant.id}" data-plant-name="${plant.name}">
+                        <input type="checkbox" name="plantas" value="${plant.id}" data-plant-name="${plant.name}" ${wasWateredToday ? 'disabled' : ''}>
                         <span class="plant-name">${plant.name}</span>
-                        ${wateringInfo}
+                        ${displayWateringInfo}
+                        ${regadaText}
                     </label>
+                    ${undoButton}
                 </div>
             `;
         });
@@ -252,7 +278,7 @@ document.addEventListener('DOMContentLoaded', () => {
         
         // Verificar agendamentos manuais e recorrentes
         const today = new Date();
-        const todayStr = today.toISOString().split('T')[0];
+        const todayStr = getTodayDateString();
         
         waterings
             .filter(w => !w.completed && w.date > todayStr && w.source !== 'irrigation_override')
@@ -279,7 +305,7 @@ document.addEventListener('DOMContentLoaded', () => {
         let completedCount = 0;
         let registeredTodayCount = 0;
         const today = new Date();
-        const todayStr = today.toISOString().split('T')[0];
+        const todayStr = getTodayDateString();
         const nowTime = today.toTimeString().slice(0, 5);
 
         wateredPlants.forEach(plant => {
@@ -328,6 +354,33 @@ document.addEventListener('DOMContentLoaded', () => {
             
             // Remover notificações de rega para esta planta
             removeWateringNotifications(plant.id, plant.name);
+            
+            // Adicionar atividade recente (antes da atualização das estatísticas)
+            const callAddWateringActivity = (name) => {
+                try {
+                    if (typeof adicionarAtividadeRega === 'function') {
+                        adicionarAtividadeRega(name);
+                        return true;
+                    }
+                    if (window.SmartPlantsActivities && typeof window.SmartPlantsActivities.adicionar === 'function') {
+                        window.SmartPlantsActivities.adicionar('success', `Regou <strong>${name}</strong> às ${new Date().toLocaleTimeString('pt-PT', { hour: '2-digit', minute: '2-digit' })}`);
+                        return true;
+                    }
+                } catch (e) {
+                    console.error('[verificar.js] Erro ao registar atividade de rega:', e);
+                }
+                return false;
+            };
+
+            if (!callAddWateringActivity(plant.name)) {
+                setTimeout(() => {
+                    if (!callAddWateringActivity(plant.name)) {
+                        console.warn('[verificar.js] Falha em registar atividade de rega após retry');
+                    } else {
+                        console.info('[verificar.js] Atividade de rega registada após retry');
+                    }
+                }, 300);
+            }
         });
         
         // Atualizar estatísticas de rega de hoje
@@ -362,7 +415,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
         
         const today = new Date();
-        const todayStr = today.toISOString().split('T')[0];
+        const todayStr = getTodayDateString();
         const dayOfWeek = today.getDay();
         
         // Verificar se hoje é dia de rega do sistema
@@ -409,7 +462,7 @@ document.addEventListener('DOMContentLoaded', () => {
         
         if (waterings.length === 0) return null;
 
-        const today = new Date().toISOString().split('T')[0];
+        const today = getTodayDateString();
 
         // Ordenar por data (mais próxima primeiro)
         const sorted = waterings
@@ -428,10 +481,12 @@ document.addEventListener('DOMContentLoaded', () => {
         return todayWatering || null;
     }
     
-    // NOVO: Verificar se data é hoje
-    function isDateToday(dateStr) {
-        const today = new Date().toISOString().split('T')[0];
-        return dateStr === today;
+    // NOVO: Verificar se a planta foi regada hoje
+    function wasPlantWateredToday(plantId) {
+        const key = `watering_history_${plantId}`;
+        const history = JSON.parse(localStorage.getItem(key) || '[]');
+        const today = getTodayDateString();
+        return history.some(entry => entry.date === today);
     }
     
     // NOVO: Remover agenda do calendário
@@ -444,7 +499,7 @@ document.addEventListener('DOMContentLoaded', () => {
             () => {
                 if (type === 'irrigation') {
                     // Adicionar exceção para o sistema de rega
-                    const todayStr = new Date().toISOString().split('T')[0];
+                    const todayStr = getTodayDateString();
                     const exceptions = JSON.parse(localStorage.getItem(`irrigation_exceptions_${plantId}`) || '[]');
                     if (!exceptions.includes(todayStr)) {
                         exceptions.push(todayStr);
@@ -513,7 +568,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const history = JSON.parse(localStorage.getItem(key) || '[]');
         
         history.push({
-            date: new Date().toISOString().split('T')[0],
+            date: getTodayDateString(),
             time: new Date().toTimeString().slice(0, 5)
         });
 
@@ -558,7 +613,7 @@ document.addEventListener('DOMContentLoaded', () => {
     
     // Função para atualizar estatísticas de rega no localStorage
     function atualizarEstatisticasRega(wateredPlants) {
-        const today = new Date().toISOString().split('T')[0];
+        const today = getTodayDateString();
         
         // Buscar estatísticas existentes ou criar nova estrutura
         let regasHoje = JSON.parse(localStorage.getItem('regasHoje') || '{}');
@@ -602,5 +657,31 @@ document.addEventListener('DOMContentLoaded', () => {
         if (window.SmartPlantsNotifications && typeof window.SmartPlantsNotifications.atualizarBadge === 'function') {
             window.SmartPlantsNotifications.atualizarBadge();
         }
+    }
+
+    // Atualizar plantas quando há mudanças no histórico de rega
+    window.addEventListener('regasAtualizadas', () => {
+        renderPlants();
+    });
+    
+    // Função para desfazer rega de hoje
+    function undoWatering(plantId) {
+        const historyKey = `watering_history_${plantId}`;
+        const history = JSON.parse(localStorage.getItem(historyKey) || '[]');
+        const today = getTodayDateString();
+        const updatedHistory = history.filter(entry => entry.date !== today);
+        localStorage.setItem(historyKey, JSON.stringify(updatedHistory));
+        
+        // Remover do calendário também
+        const wateringKey = `watering_${plantId}`;
+        const waterings = JSON.parse(localStorage.getItem(wateringKey) || '[]');
+        const updatedWaterings = waterings.filter(w => !(w.date === today && w.completed));
+        localStorage.setItem(wateringKey, JSON.stringify(updatedWaterings));
+        
+        // Disparar evento para atualizar outras páginas
+        window.dispatchEvent(new Event('regasAtualizadas'));
+        
+        // Re-renderizar plantas
+        renderPlants();
     }
 });

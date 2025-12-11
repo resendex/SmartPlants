@@ -1,4 +1,5 @@
 /* Regras para o footer */
+@import url('theme.css');
 
 .footer {
     width: 100%;
@@ -64,6 +65,7 @@ body {
     justify-content: space-between;
     align-items: center;
     position: relative;
+    z-index: 10;
 }
 
 .header-center {
@@ -129,6 +131,13 @@ body {
     background: rgba(255, 255, 255, 0.95);
     box-shadow: 0.2em 0 0.5em rgba(0, 0, 0, 0.1);
     padding: 2em 0;
+    position: fixed;
+    top: 0;
+    left: 0;
+    height: 100vh !important;
+    overflow-y: auto;
+    padding-top: 5em;
+    z-index: 5;
 }
 
 .menu {
@@ -180,6 +189,7 @@ body {
     padding: 2em;
     overflow-y: auto;
     padding-bottom: 80px;
+    margin-left: 250px;
 }
 
 .content-title {
@@ -219,7 +229,7 @@ body {
     border: 2px solid rgba(102, 126, 234, 0.3);
     border-radius: 10px;
     font-size: 1rem;
-    background: white;
+    background: linear-gradient(135deg, rgba(102, 126, 234, 0.9), rgba(118, 75, 162, 0.9));
     cursor: pointer;
     transition: all 0.3s;
 }
@@ -1075,4 +1085,109 @@ body {
     .header-title {
         font-size: 1.5em;
     }
+}
+
+/* Dark Mode Styles for sistema_rega.css */
+body.dark-mode {
+    background: #181818;
+}
+
+body.dark-mode .header {
+    background: rgba(35, 35, 35, 0.95);
+    box-shadow: 0 0.2em 0.5em rgba(0, 0, 0, 0.3);
+}
+
+body.dark-mode .header-title {
+    color: #ffffff;
+}
+
+body.dark-mode .sidebar {
+    background: rgba(35, 35, 35, 0.95);
+    box-shadow: 0.2em 0 0.5em rgba(0, 0, 0, 0.3);
+}
+
+body.dark-mode .menu-item {
+    color: #ffffff;
+}
+
+body.dark-mode .menu-item:hover {
+    background: rgba(102, 126, 234, 0.2);
+}
+
+body.dark-mode .menu-item.active {
+    background: rgba(102, 126, 234, 0.3);
+    border-left-color: #667eea;
+}
+
+body.dark-mode .menu-icon-placeholder {
+    background: rgba(102, 126, 234, 0.2);
+}
+
+body.dark-mode .content {
+    background: rgba(35, 35, 35, 0.95);
+}
+
+body.dark-mode .content-title {
+    color: #ffffff;
+}
+
+body.dark-mode .system-card,
+body.dark-mode .sensor-card,
+body.dark-mode .control-panel,
+body.dark-mode .status-display,
+body.dark-mode .config-panel {
+    background: rgba(35, 35, 35, 0.95);
+    color: #ffffff;
+    border-color: #333;
+}
+
+body.dark-mode .sensor-value,
+body.dark-mode .status-text,
+body.dark-mode .config-label,
+body.dark-mode .system-info {
+    color: #ffffff;
+}
+
+body.dark-mode .btn,
+body.dark-mode .control-btn,
+body.dark-mode .config-btn {
+    background: #81c784;
+    color: #181818;
+}
+
+body.dark-mode .btn:hover,
+body.dark-mode .control-btn:hover,
+body.dark-mode .config-btn:hover {
+    background: #4caf50;
+}
+
+body.dark-mode .sensor-display,
+body.dark-mode .config-input,
+body.dark-mode .config-select {
+    background: #232323;
+    color: #ffffff;
+    border-color: #555;
+}
+
+body.dark-mode .sensor-display:focus,
+body.dark-mode .config-input:focus,
+body.dark-mode .config-select:focus {
+    border-color: #667eea;
+}
+
+body.dark-mode .footer {
+    background-color: rgba(35, 35, 35, 0.8);
+    color: #ffffff;
+}
+
+body.dark-mode .footer a {
+    color: #81c784;
+}
+
+body.dark-mode .footer a:hover {
+    color: #4caf50;
+}
+
+body.dark-mode .divider {
+    background-color: #ffffff;
 }

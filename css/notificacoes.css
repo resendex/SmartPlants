@@ -1,3 +1,4 @@
+@import url('theme.css');
 body {
     font-family: Arial, sans-serif;
     margin: 0;
@@ -78,6 +79,13 @@ body {
     background: rgba(255, 255, 255, 0.95);
     box-shadow: 0.2em 0 0.5em rgba(0, 0, 0, 0.1);
     padding: 2em 0;
+    position: fixed;
+    top: -5em;
+    left: 0;
+    height: calc(100vh - 70px);
+    min-height: 100vh;
+    overflow-y: auto;
+    padding-top: 10em;
 }
 
 .menu {
@@ -156,6 +164,7 @@ body {
     flex: 1;
     padding: 2em;
     overflow-y: auto;
+    margin-left: 250px;
 }
 
 .notifications-header {
@@ -517,4 +526,151 @@ body {
     .notif-tabs {
         flex-direction: column;
     }
+}
+
+/* Dark Mode Styles for notificacoes.css */
+body.dark-mode {
+    background: #181818 !important;
+}
+
+body.dark-mode .header {
+    background: rgba(35, 35, 35, 0.95) !important;
+    box-shadow: 0 0.2em 0.5em rgba(0, 0, 0, 0.3) !important;
+}
+
+body.dark-mode .header-title {
+    color: #ffffff !important;
+}
+
+body.dark-mode .sidebar {
+    background: rgba(35, 35, 35, 0.95) !important;
+    box-shadow: 0.2em 0 0.5em rgba(0, 0, 0, 0.3) !important;
+}
+
+body.dark-mode .menu-item {
+    color: #ffffff !important;
+}
+
+body.dark-mode .menu-item:hover {
+    background: rgba(102, 126, 234, 0.2) !important;
+}
+
+body.dark-mode .menu-item.active {
+    background: rgba(102, 126, 234, 0.3) !important;
+    border-left-color: #667eea !important;
+}
+
+body.dark-mode .menu-icon-placeholder {
+    background: rgba(102, 126, 234, 0.2) !important;
+}
+
+body.dark-mode .content {
+    background: rgba(35, 35, 35, 0.95) !important;
+}
+
+body.dark-mode .content-title {
+    color: #ffffff !important;
+}
+
+body.dark-mode .notification-card,
+body.dark-mode .notification-settings,
+body.dark-mode .notification-filters {
+    background: rgba(35, 35, 35, 0.95) !important;
+    color: #ffffff !important;
+    border-color: #333 !important;
+}
+
+body.dark-mode .notification-title,
+body.dark-mode .notification-message,
+body.dark-mode .notification-time {
+    color: #ffffff !important;
+}
+
+body.dark-mode .notification-unread {
+    background: rgba(102, 126, 234, 0.2) !important;
+}
+
+body.dark-mode .notifications-list {
+    background: rgba(35, 35, 35, 0.95) !important;
+}
+
+body.dark-mode .notification-item {
+    background: rgba(35, 35, 35, 0.95) !important;
+    color: #ffffff !important;
+    border-color: #333 !important;
+}
+
+body.dark-mode .btn,
+body.dark-mode .notification-btn,
+body.dark-mode .filter-btn {
+    background: #81c784 !important;
+    color: #181818 !important;
+}
+
+body.dark-mode .btn:hover,
+body.dark-mode .notification-btn:hover,
+body.dark-mode .filter-btn:hover {
+    background: #4caf50 !important;
+}
+
+body.dark-mode .notification-settings input,
+body.dark-mode .notification-settings select {
+    background: #232323 !important;
+    color: #ffffff !important;
+    border-color: #555 !important;
+}
+
+body.dark-mode .notification-settings input:focus,
+body.dark-mode .notification-settings select:focus {
+    border-color: #667eea !important;
+}
+
+body.dark-mode .tab-link {
+    color: #cccccc !important;
+}
+
+body.dark-mode .tab-link.active {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
+    color: #ffffff !important;
+}
+
+body.dark-mode .tab-link:hover {
+    background: rgba(102, 126, 234, 0.2) !important;
+    color: #ffffff !important;
+}
+
+body.dark-mode .empty-state {
+    background: rgba(35, 35, 35, 0.95) !important;
+    color: #ffffff !important;
+}
+
+body.dark-mode .empty-state p {
+    color: #cccccc !important;
+}
+
+body.dark-mode .notifications-header {
+    background: rgba(35, 35, 35, 0.95) !important;
+    color: #ffffff !important;
+}
+
+body.dark-mode .notif-tabs {
+    background: rgba(35, 35, 35, 0.95) !important;
+}
+
+body.dark-mode .notif-tab {
+    color: #cccccc !important;
+}
+
+body.dark-mode .notif-tab.active {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
+    color: #ffffff !important;
+}
+
+body.dark-mode .notif-tab:hover {
+    background: rgba(102, 126, 234, 0.2) !important;
+    color: #ffffff !important;
+}
+
+body.dark-mode .notifications-actions {
+    background: rgba(35, 35, 35, 0.95) !important;
 }

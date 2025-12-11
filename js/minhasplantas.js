@@ -14,6 +14,94 @@ function escapeHtml(str) {
         .replace(/>/g, '&gt;');
 }
 
+// Função auxiliar para obter data de hoje no formato YYYY-MM-DD
+function getTodayDateString() {
+    const now = new Date();
+    return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
+}
+
+// Função auxiliar para formatar data como YYYY-MM-DD
+function toDateString(date) {
+    return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
+}
+
+// Verificar se uma planta tem sistema de rega automático ativo
+function isIrrigationDayForPlant(plantId, dateStr) {
+    const irrigationConfig = JSON.parse(localStorage.getItem(`irrigation_config_${plantId}`) || '{}');
+    if (!irrigationConfig.enabled || !irrigationConfig.weeklyWatering) {
+        return false;
+    }
+    
+    const dayOfWeek = new Date(dateStr).getDay();
+    return irrigationConfig.weeklyWatering.includes(dayOfWeek);
+}
+
+// Verificar se uma planta tem recorrência agendada para uma data
+function hasRecurrenceToday(plantId, dateStr) {
+    const recurrences = JSON.parse(localStorage.getItem(`recurrences_${plantId}`) || '[]');
+    const activeRecurrences = recurrences.filter(r => !r.stopped);
+    
+    for (const rec of activeRecurrences) {
+        // Lógica simplificada - verificar se a data está dentro do período da recorrência
+        if (rec.startDate <= dateStr && (!rec.endDate || rec.endDate >= dateStr)) {
+            // Verificar se é dia de rega baseado na frequência
+            const startDate = new Date(rec.startDate);
+            const checkDate = new Date(dateStr);
+            const daysDiff = Math.floor((checkDate - startDate) / (1000 * 60 * 60 * 24));
+            
+            if (rec.daysPerWeek === 7) {
+                // Diário
+                return true;
+            } else if (rec.daysPerWeek === 1) {
+                // Semanal
+                return daysDiff % 7 === 0;
+            } else {
+                // Outras frequências - cálculo aproximado
+                const interval = Math.floor(7 / rec.daysPerWeek);
+                const dayOfWeek = checkDate.getDay();
+                const irrigationDays = [];
+                for (let i = 0; i < rec.daysPerWeek; i++) {
+                    irrigationDays.push((i * interval) % 7);
+                }
+                return irrigationDays.includes(dayOfWeek);
+            }
+        }
+    }
+    return false;
+}
+
+// Obter status de agendamento de rega para uma planta
+function getWateringScheduleStatus(plantId) {
+    try {
+        // Verificar se há alguma rega agendada nos próximos 7 dias
+        const today = new Date();
+        
+        for (let i = 0; i < 7; i++) {
+            const checkDate = new Date(today);
+            checkDate.setDate(today.getDate() + i);
+            const dateStr = toDateString(checkDate);
+            
+            // Verificar regas manuais
+            const wateringKey = `watering_${plantId}`;
+            const wateringDataStr = localStorage.getItem(wateringKey);
+            if (wateringDataStr) {
+                const wateringData = JSON.parse(wateringDataStr);
+                if (Array.isArray(wateringData)) {
+                    const hasManualWatering = wateringData.some(w => w.date === dateStr && !w.completed);
+                    if (hasManualWatering) {
+                        return 'Agendada';
+                    }
+                }
+            }
+        }
+        
+        return 'Não Agendada';
+    } catch (error) {
+        console.error('Erro ao verificar status de rega:', error);
+        return 'Não Agendada';
+    }
+}
+
 // Carregar plantas do localStorage
 function loadPlants() {
     console.log('loadPlants() chamada');
@@ -44,7 +132,9 @@ function loadPlants() {
     container.innerHTML = '';
     
     plants.forEach((plant, index) => {
-        console.log(`Criando card para planta ${index}:`, plant.name);
+        console.log(`Criando card para planta ${index}:`, plant.name, 'ID:', plant.id);
+        // Atualizar status de rega dinamicamente
+        plant.wateringSchedule = getWateringScheduleStatus(plant.id);
         const card = createPlantCard(plant);
         container.appendChild(card);
     });
@@ -212,6 +302,9 @@ function viewPlantDetails(id) {
         showWarningPopup('Planta não encontrada.');
         return;
     }
+
+    // Atualizar status de rega dinamicamente
+    plant.wateringSchedule = getWateringScheduleStatus(plant.id);
 
     // Inicializar fotos de progresso se não existir
     if (!plant.progressPhotos) {

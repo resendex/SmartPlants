@@ -7,6 +7,7 @@ body {
     background: linear-gradient(135deg, #667eea 0%, green 100%);
     min-height: 100vh;
     height: 100vh;
+@import url('theme.css');
 }
 
 .header {
@@ -80,6 +81,13 @@ body {
     background: rgba(255, 255, 255, 0.95);
     box-shadow: 0.2em 0 0.5em rgba(0, 0, 0, 0.1);
     padding: 2em 0;
+    position: fixed;
+    top: -5em;
+    left: 0;
+    height: calc(100vh - 70px);
+    min-height: 100vh;
+    overflow-y: auto;
+    padding-top: 10em;
 }
 
 .menu {
@@ -188,6 +196,7 @@ body {
     flex-direction: column;
     overflow: hidden;
     min-height: 0;
+    margin-left: 250px;
 }
 
 /* Histórico de mensagens ajustado */
@@ -295,4 +304,86 @@ body {
         opacity: 1;
         transform: translateY(0);
     }
+}
+
+/* Dark Mode Styles for mensagemExemplo.css */
+body.dark-mode {
+    background: #181818;
+}
+
+body.dark-mode .header {
+    background: rgba(35, 35, 35, 0.95);
+    box-shadow: 0 0.2em 0.5em rgba(0, 0, 0, 0.3);
+}
+
+body.dark-mode .header-title {
+    color: #ffffff;
+}
+
+body.dark-mode .sidebar {
+    background: rgba(35, 35, 35, 0.95);
+    box-shadow: 0.2em 0 0.5em rgba(0, 0, 0, 0.3);
+}
+
+body.dark-mode .menu-item {
+    color: #ffffff;
+}
+
+body.dark-mode .menu-item:hover {
+    background: rgba(102, 126, 234, 0.2);
+}
+
+body.dark-mode .menu-item.active {
+    background: rgba(102, 126, 234, 0.3);
+    border-left-color: #667eea;
+}
+
+body.dark-mode .menu-icon-placeholder {
+    background: rgba(102, 126, 234, 0.2);
+}
+
+body.dark-mode .content {
+    background: rgba(35, 35, 35, 0.95);
+}
+
+body.dark-mode .content-title {
+    color: #ffffff;
+}
+
+body.dark-mode .message-container,
+body.dark-mode .message-card,
+body.dark-mode .message-form {
+    background: rgba(35, 35, 35, 0.95) !important;
+    color: #ffffff !important;
+    border-color: #333 !important;
+}
+
+body.dark-mode .message-text,
+body.dark-mode .message-author,
+body.dark-mode .message-time {
+    color: #ffffff !important;
+}
+
+body.dark-mode .message-input,
+body.dark-mode .message-textarea {
+    background: #232323 !important;
+    color: #ffffff !important;
+    border-color: #555 !important;
+}
+
+body.dark-mode .message-input:focus,
+body.dark-mode .message-textarea:focus {
+    border-color: #667eea !important;
+}
+
+body.dark-mode .enviar,
+body.dark-mode .message-btn {
+    background: #81c784 !important;
+    color: #181818 !important;
+}
+
+body.dark-mode .enviar:hover,
+body.dark-mode .message-btn:hover {
+    background: #4caf50 !important;
+    box-shadow: 0 0.3em 1em rgba(129, 199, 132, 0.4) !important;
 }

@@ -1,0 +1,37 @@
+::1 - - [11/Dec/2025 15:07:00] "GET /html/inicio.html HTTP/1.1" 200 -
+::1 - - [11/Dec/2025 15:07:05] "GET /html/inicio.html HTTP/1.1" 200 -
+::1 - - [11/Dec/2025 15:07:05] "GET /css/inicio.css HTTP/1.1" 200 -
+::1 - - [11/Dec/2025 15:07:05] "GET /js/darkmode.js HTTP/1.1" 200 -
+::1 - - [11/Dec/2025 15:07:05] "GET /css/copyright.css HTTP/1.1" 200 -
+::1 - - [11/Dec/2025 15:07:05] "GET /js/notifications-global.js HTTP/1.1" 200 -
+::1 - - [11/Dec/2025 15:07:05] "GET /js/user-avatar.js HTTP/1.1" 200 -
+::1 - - [11/Dec/2025 15:07:05] "GET /js/inicio.js HTTP/1.1" 200 -
+::1 - - [11/Dec/2025 15:07:05] "GET /css/theme.css HTTP/1.1" 200 -
+::1 - - [11/Dec/2025 15:07:05] code 404, message File not found
+::1 - - [11/Dec/2025 15:07:05] "GET /multimedia/image/user-icon-placeholder.png HTTP/1.1" 404 -
+::1 - - [11/Dec/2025 15:07:05] code 404, message File not found
+::1 - - [11/Dec/2025 15:07:05] "GET /multimedia/image/user-icon-placeholder.png HTTP/1.1" 404 -
+::1 - - [11/Dec/2025 15:07:05] "GET /multimedia/image/logo.png HTTP/1.1" 200 -
+::1 - - [11/Dec/2025 15:07:09] "GET /html/chat.html HTTP/1.1" 200 -
+::1 - - [11/Dec/2025 15:07:09] "GET /css/chat.css HTTP/1.1" 200 -
+::1 - - [11/Dec/2025 15:07:09] "GET /js/chat.js HTTP/1.1" 200 -
+::1 - - [11/Dec/2025 15:07:09] code 404, message File not found
+::1 - - [11/Dec/2025 15:07:09] "GET /multimedia/image/user-icon-placeholder.png HTTP/1.1" 404 -
+::1 - - [11/Dec/2025 15:07:12] "GET /html/notificacoes.html HTTP/1.1" 200 -
+::1 - - [11/Dec/2025 15:07:12] "GET /css/notificacoes.css HTTP/1.1" 200 -
+::1 - - [11/Dec/2025 15:07:12] "GET /js/notificacoes.js HTTP/1.1" 200 -
+::1 - - [11/Dec/2025 15:07:12] code 404, message File not found
+::1 - - [11/Dec/2025 15:07:12] "GET /multimedia/image/user-icon-placeholder.png HTTP/1.1" 404 -
+::1 - - [11/Dec/2025 15:07:13] code 404, message File not found
+::1 - - [11/Dec/2025 15:07:13] "GET /multimedia/image/user-icon-placeholder.png HTTP/1.1" 404 -
+::1 - - [11/Dec/2025 15:07:17] code 404, message File not found
+::1 - - [11/Dec/2025 15:07:17] "GET /multimedia/image/user-icon-placeholder.png HTTP/1.1" 404 -
+::1 - - [11/Dec/2025 15:07:20] "GET /html/mensagemExemplo.html HTTP/1.1" 200 -
+::1 - - [11/Dec/2025 15:07:21] "GET /css/mensagemExemplo.css HTTP/1.1" 200 -
+::1 - - [11/Dec/2025 15:07:21] "GET /js/mandamensagem.js HTTP/1.1" 200 -
+::1 - - [11/Dec/2025 15:07:21] "GET /js/message-simulator.js HTTP/1.1" 200 -
+::1 - - [11/Dec/2025 15:07:21] code 404, message File not found
+::1 - - [11/Dec/2025 15:07:21] "GET /multimedia/image/user-icon-placeholder.png HTTP/1.1" 404 -
+::1 - - [11/Dec/2025 15:07:26] "GET /js/inicio.js HTTP/1.1" 304 -
+::1 - - [11/Dec/2025 15:07:26] code 404, message File not found
+::1 - - [11/Dec/2025 15:07:26] "GET /multimedia/image/user-icon-placeholder.png HTTP/1.1" 404 -

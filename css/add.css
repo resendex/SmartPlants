@@ -1,3 +1,4 @@
+@import url('theme.css');
 body {
     font-family: Arial, sans-serif;
     margin: 0;
@@ -78,6 +79,13 @@ body {
     background: rgba(255, 255, 255, 0.95);
     box-shadow: 0.2em 0 0.5em rgba(0, 0, 0, 0.1);
     padding: 2em 0;
+    position: fixed;
+    top: -5em;
+    left: 0;
+    height: calc(100vh - 70px);
+    min-height: 100vh;
+    overflow-y: auto;
+    padding-top: 10em;
 }
 
 .menu {
@@ -126,6 +134,7 @@ body {
     display: flex;
     justify-content: center;
     align-items: center;
+    margin-left: 250px;
 }
 
 .add-container {
@@ -590,4 +599,151 @@ body {
         min-width: 280px;
         padding: 30px 35px;
     }
+}
+
+/* Dark Mode Styles for add.css */
+body.dark-mode {
+    background: #181818;
+}
+
+body.dark-mode .header {
+    background: rgba(35, 35, 35, 0.95);
+    box-shadow: 0 0.2em 0.5em rgba(0, 0, 0, 0.3);
+}
+
+body.dark-mode .header-title {
+    color: #ffffff;
+}
+
+body.dark-mode .sidebar {
+    background: rgba(35, 35, 35, 0.95);
+    box-shadow: 0.2em 0 0.5em rgba(0, 0, 0, 0.3);
+}
+
+body.dark-mode .menu-item {
+    color: #ffffff;
+}
+
+body.dark-mode .menu-item:hover {
+    background: rgba(102, 126, 234, 0.2);
+}
+
+body.dark-mode .menu-item.active {
+    background: rgba(102, 126, 234, 0.3);
+    border-left-color: #667eea;
+}
+
+body.dark-mode .menu-icon-placeholder {
+    background: rgba(102, 126, 234, 0.2);
+}
+
+body.dark-mode .add-container {
+    background: rgba(35, 35, 35, 0.95);
+    box-shadow: 0 0.5em 2em rgba(0, 0, 0, 0.5);
+}
+
+body.dark-mode .upload-area {
+    border-color: #667eea;
+    background: rgba(102, 126, 234, 0.1);
+}
+
+body.dark-mode .upload-area:hover {
+    border-color: #4169e1;
+    background: rgba(102, 126, 234, 0.2);
+}
+
+body.dark-mode .upload-area.dragover {
+    border-color: #28a745;
+    background: rgba(40, 167, 69, 0.2);
+}
+
+body.dark-mode .upload-text {
+    color: #ffffff;
+}
+
+body.dark-mode .question-text {
+    color: #ffffff;
+}
+
+body.dark-mode .plant-form-overlay {
+    background: rgba(0, 0, 0, 0.8);
+}
+
+body.dark-mode .plant-form-container {
+    background: #232323;
+    box-shadow: 0 0.5em 2em rgba(0, 0, 0, 0.5);
+}
+
+body.dark-mode .plant-form-container h2 {
+    color: #ffffff;
+}
+
+body.dark-mode .form-field-group {
+    background: rgba(102, 126, 234, 0.1);
+    border-color: rgba(102, 126, 234, 0.3);
+}
+
+body.dark-mode .field-instruction {
+    color: #667eea;
+}
+
+body.dark-mode .or-divider::before,
+body.dark-mode .or-divider::after {
+    background: rgba(102, 126, 234, 0.4);
+}
+
+body.dark-mode .or-divider span {
+    background: #232323;
+    color: #667eea;
+}
+
+body.dark-mode .field-hint {
+    color: #cccccc;
+}
+
+body.dark-mode .form-field label {
+    color: #ffffff;
+}
+
+body.dark-mode .form-field input,
+body.dark-mode .form-field textarea {
+    background: #232323;
+    color: #ffffff;
+    border-color: #555;
+}
+
+body.dark-mode .form-field input:focus,
+body.dark-mode .form-field textarea:focus {
+    border-color: #667eea;
+}
+
+body.dark-mode .form-field input:disabled {
+    background: #333;
+    color: #cccccc;
+}
+
+body.dark-mode .success-popup-overlay {
+    background-color: rgba(0, 0, 0, 0.7);
+}
+
+body.dark-mode .success-popup-container {
+    background-color: #232323;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+}
+
+body.dark-mode .success-message {
+    color: #ffffff;
+}
+
+body.dark-mode .warning-popup-overlay {
+    background-color: rgba(0, 0, 0, 0.7);
+}
+
+body.dark-mode .warning-popup-container {
+    background-color: #232323;
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.5);
+}
+
+body.dark-mode .warning-message {
+    color: #ffffff;
 }

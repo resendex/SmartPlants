@@ -102,7 +102,7 @@ function notificarRegaRealizada(nomePlanta) {
 function notificarEventoCalendario(titulo, data) {
     adicionarNotificacao(
         'calendario',
-        `📅 Evento agendado: "${titulo}" para ${data}`,
+        `Evento agendado: "${titulo}" para ${data}`,
         'calendario.html'
     );
 }
@@ -114,7 +114,7 @@ function notificarEventoCalendario(titulo, data) {
 function notificarNovaMensagem(usuario) {
     adicionarNotificacao(
         'chat',
-        `💬 Nova mensagem de ${usuario}`,
+        `Nova mensagem de ${usuario}`,
         'chat.html'
     );
 }
@@ -127,7 +127,7 @@ function notificarNovaMensagem(usuario) {
 function notificarNovoPost(autor, titulo) {
     adicionarNotificacao(
         'forum',
-        `📢 ${autor} publicou: "${titulo}"`,
+        `${autor} publicou: "${titulo}"`,
         'forum.html'
     );
 }
@@ -152,7 +152,7 @@ function notificarProgressoPlanta(nomePlanta) {
 function notificarComentarioForum(autor, postTitulo) {
     adicionarNotificacao(
         'forum',
-        `💬 ${autor} comentou no post: "${postTitulo}"`,
+        `${autor} comentou no post: "${postTitulo}"`,
         'forum.html'
     );
 }
@@ -165,7 +165,7 @@ function notificarComentarioForum(autor, postTitulo) {
 function notificarLembrete(titulo, mensagem) {
     adicionarNotificacao(
         'lembrete',
-        `🔔 Lembrete: ${titulo} - ${mensagem}`,
+        `Lembrete: ${titulo} - ${mensagem}`,
         'lembretes.html'
     );
 }

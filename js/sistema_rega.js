@@ -1,5 +1,11 @@
 // @ts-nocheck
 
+// Função auxiliar para obter data de hoje no formato YYYY-MM-DD (sem problemas de fuso horário)
+function getTodayDateString() {
+    const now = new Date();
+    return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
+}
+
 document.addEventListener('DOMContentLoaded', () => {
     const plantSelectBtn = document.getElementById('plantSelectBtn');
     const selectedPlantNameSpan = document.getElementById('selectedPlantName');
@@ -193,7 +199,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const recurrences = JSON.parse(localStorage.getItem(`recurrences_${plantId}`) || '[]');
         const irrigationConfig = JSON.parse(localStorage.getItem(`irrigation_config_${plantId}`) || '{}');
         
-        const futureWaterings = wateringData.filter(w => !w.completed && w.date >= new Date().toISOString().split('T')[0]);
+        const futureWaterings = wateringData.filter(w => !w.completed && w.date >= getTodayDateString());
         const activeRecurrences = recurrences.filter(r => !r.stopped);
         const hasActiveIrrigation = irrigationConfig.enabled && irrigationConfig.weeklyWatering;
         
@@ -206,7 +212,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const recurrences = JSON.parse(localStorage.getItem(`recurrences_${plantId}`) || '[]');
         const irrigationConfig = JSON.parse(localStorage.getItem(`irrigation_config_${plantId}`) || '{}');
         
-        const futureWaterings = wateringData.filter(w => !w.completed && w.date >= new Date().toISOString().split('T')[0]);
+        const futureWaterings = wateringData.filter(w => !w.completed && w.date >= getTodayDateString());
         const activeRecurrences = recurrences.filter(r => !r.stopped);
         const irrigationCount = (irrigationConfig.enabled && irrigationConfig.weeklyWatering) ? 1 : 0;
         
@@ -225,7 +231,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const recurrences = JSON.parse(localStorage.getItem(`recurrences_${plantId}`) || '[]');
         const irrigationConfig = JSON.parse(localStorage.getItem(`irrigation_config_${plantId}`) || '{}');
         
-        const futureWaterings = wateringData.filter(w => !w.completed && w.date >= new Date().toISOString().split('T')[0]);
+        const futureWaterings = wateringData.filter(w => !w.completed && w.date >= getTodayDateString());
         const activeRecurrences = recurrences.filter(r => !r.stopped);
         const hasActiveIrrigation = irrigationConfig.enabled && irrigationConfig.weeklyWatering;
         
@@ -323,14 +329,14 @@ document.addEventListener('DOMContentLoaded', () => {
     
     window.removeManualWaterings = function(plantId) {
         const wateringData = JSON.parse(localStorage.getItem(`watering_${plantId}`) || '[]');
-        const futureCount = wateringData.filter(w => !w.completed && w.date >= new Date().toISOString().split('T')[0]).length;
+        const futureCount = wateringData.filter(w => !w.completed && w.date >= getTodayDateString()).length;
         
         showConfirmModal(
             'Desmarcar Regas Manuais',
             `Tem certeza que deseja remover ${futureCount} rega(s) manual(is) agendada(s)?`,
             () => {
                 // Manter apenas regas completadas ou passadas
-                const updated = wateringData.filter(w => w.completed || w.date < new Date().toISOString().split('T')[0]);
+                const updated = wateringData.filter(w => w.completed || w.date < getTodayDateString());
                 localStorage.setItem(`watering_${plantId}`, JSON.stringify(updated));
                 
                 showModal('Sucesso', 'Regas manuais removidas.', 'success');
@@ -452,7 +458,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const wateringData = JSON.parse(localStorage.getItem(`watering_${plantId}`) || '[]');
         const recurrences = JSON.parse(localStorage.getItem(`recurrences_${plantId}`) || '[]');
         
-        const futureWaterings = wateringData.filter(w => !w.completed && w.date >= new Date().toISOString().split('T')[0] && !w.source);
+        const futureWaterings = wateringData.filter(w => !w.completed && w.date >= getTodayDateString() && !w.source);
         const activeRecurrences = recurrences.filter(r => !r.stopped);
         
         return futureWaterings.length > 0 || activeRecurrences.length > 0;
@@ -463,7 +469,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const wateringData = JSON.parse(localStorage.getItem(`watering_${plantId}`) || '[]');
         const recurrences = JSON.parse(localStorage.getItem(`recurrences_${plantId}`) || '[]');
         
-        const futureWaterings = wateringData.filter(w => !w.completed && w.date >= new Date().toISOString().split('T')[0] && !w.source);
+        const futureWaterings = wateringData.filter(w => !w.completed && w.date >= getTodayDateString() && !w.source);
         const activeRecurrences = recurrences.filter(r => !r.stopped);
         
         return futureWaterings.length + activeRecurrences.length;
@@ -585,7 +591,7 @@ document.addEventListener('DOMContentLoaded', () => {
     function clearPersonalizedWaterings(plantId) {
         // Remover regas manuais futuras
         const wateringData = JSON.parse(localStorage.getItem(`watering_${plantId}`) || '[]');
-        const filtered = wateringData.filter(w => w.completed || w.date < new Date().toISOString().split('T')[0] || w.source);
+        const filtered = wateringData.filter(w => w.completed || w.date < getTodayDateString() || w.source);
         localStorage.setItem(`watering_${plantId}`, JSON.stringify(filtered));
         
         // Remover recorrências

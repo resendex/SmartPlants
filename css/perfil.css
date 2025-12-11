@@ -16,6 +16,7 @@
     --text-secondary: #6b7280;
     --gradient-bg: linear-gradient(125deg, #4f46e5 0%, #22c55e 100%);
     --font-base: "Poppins", "Segoe UI", system-ui, -apple-system, sans-serif;
+@import url('theme.css');
 }
 
 * {
@@ -653,4 +654,122 @@ body {
         flex-direction: column;
         align-items: stretch;
     }
+}
+
+/* Dark Mode Styles for perfil.css */
+body.dark-mode .header {
+    background: rgba(35, 35, 35, 0.95);
+}
+
+body.dark-mode .header-title {
+    color: #ffffff;
+}
+
+body.dark-mode .profile-hero {
+    background: linear-gradient(135deg, #232323 0%, #333 100%);
+}
+
+body.dark-mode .hero-info,
+body.dark-mode .hero-highlight {
+    background: rgba(35, 35, 35, 0.95);
+}
+
+body.dark-mode .hero-title,
+body.dark-mode .hero-subtitle {
+    color: #ffffff;
+}
+
+body.dark-mode .hero-badge {
+    background: #81c784;
+    color: #181818;
+}
+
+body.dark-mode .highlight-card,
+body.dark-mode .highlight-card-acesso {
+    background: #0f5132 !important;
+    color: #ffffff;
+    border-color: #333;
+}
+
+body.dark-mode .highlight-label,
+body.dark-mode .highlight-value {
+    color: #ffffff;
+}
+
+body.dark-mode .photo-card,
+body.dark-mode .tips-card,
+body.dark-mode .preferences-card,
+body.dark-mode .security-card {
+    background: #1a1a1a;
+    color: #ffffff;
+    border-color: #333;
+}
+
+body.dark-mode .tips-card ul li,
+body.dark-mode .preferences-grid label,
+body.dark-mode .security-header p {
+    color: #ffffff;
+}
+
+body.dark-mode .toggle-label {
+    color: #000000 !important;
+}
+
+body.dark-mode .profile-meta li span {
+    color: #cccccc;
+}
+
+body.dark-mode .form-field label {
+    color: #ffffff;
+}
+
+body.dark-mode .btn.primary {
+    background: #81c784;
+    color: #181818;
+}
+
+body.dark-mode .btn.ghost {
+    background: transparent;
+    color: #81c784;
+    border-color: #81c784;
+}
+
+body.dark-mode .btn.small {
+    background: #81c784;
+    color: #181818;
+}
+
+body.dark-mode .delete-confirm-overlay {
+    background: rgba(0, 0, 0, 0.8);
+}
+
+body.dark-mode .delete-confirm-container {
+    background: #232323;
+    color: #ffffff;
+    border-color: #333;
+}
+
+body.dark-mode .delete-confirm-title,
+body.dark-mode .delete-confirm-message {
+    color: #ffffff;
+}
+
+body.dark-mode .delete-confirm-btn,
+body.dark-mode .delete-cancel-btn {
+    background: #81c784;
+    color: #181818;
+}
+
+body.dark-mode .profile-toast-message {
+    background: #232323;
+    color: #ffffff;
+    border-color: #333;
+}
+
+body.dark-mode .profile-toast-message strong {
+    color: #ffffff;
+}
+
+body.dark-mode .profile-toast-action {
+    color: #81c784;
 }

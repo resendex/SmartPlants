@@ -90,7 +90,6 @@ const conversationsData = [
     }
 ];
 
-let currentChatSortOrder = 'recent';
 let currentChatMediaFilter = 'all';
 let currentSearchTerm = '';
 
@@ -110,13 +109,33 @@ function applyConversationFilters() {
     const cards = Array.from(list.querySelectorAll('.conversation-card'));
     if (!cards.length) return;
 
+    // Sempre ordenar por mais recentes primeiro
     const sortedCards = cards.slice().sort((a, b) => {
         const aTime = Date.parse(a.dataset.timestamp || '') || 0;
         const bTime = Date.parse(b.dataset.timestamp || '') || 0;
-        return currentChatSortOrder === 'recent' ? bTime - aTime : aTime - bTime;
+        return bTime - aTime; // Sempre mais recentes primeiro
     });
 
-    sortedCards.forEach(card => list.appendChild(card));
+    console.log('Cards ordenados:', sortedCards.map(card => ({
+        id: card.dataset.conversationId,
+        timestamp: card.dataset.timestamp,
+        user: card.querySelector('.conversation-name')?.textContent,
+        time: card.querySelector('.conversation-time')?.textContent
+    })));
+
+    // Limpar a lista e readicionar na ordem correta
+    list.innerHTML = '';
+    sortedCards.forEach(card => {
+        // Remover destaque anterior
+        card.classList.remove('most-recent');
+        list.appendChild(card);
+    });
+
+    // Destacar a conversa mais recente (primeira da lista)
+    if (sortedCards.length > 0) {
+        sortedCards[0].classList.add('most-recent');
+        console.log('Conversa mais recente destacada:', sortedCards[0].dataset.conversationId);
+    }
 
     sortedCards.forEach(card => {
         const hasPhotos = card.dataset.hasPhotos === 'true';
@@ -137,19 +156,11 @@ function applyConversationFilters() {
 }
 
 function setupChatToolbar() {
-    const sortSelect = document.getElementById('chatSortSelect');
     const mediaSelect = document.getElementById('chatMediaFilter');
-
-    if (sortSelect) {
-        sortSelect.addEventListener('change', (event) => {
-            currentChatSortOrder = event.target.value === 'oldest' ? 'oldest' : 'recent';
-            applyConversationFilters();
-        });
-    }
 
     if (mediaSelect) {
         mediaSelect.addEventListener('change', (event) => {
-            currentChatMediaFilter = event.target.value || 'all';
+            currentChatMediaFilter = event.target.value;
             applyConversationFilters();
         });
     }
@@ -160,10 +171,13 @@ function openConversation(conversationId) {
     // Salva o ID da conversa atual
     localStorage.setItem('currentConversation', conversationId);
     
-    // Busca os dados da conversa
-    const conversation = conversationsData.find(c => c.id === conversationId);
+    // Busca os dados da conversa nos dados mesclados
+    const conversation = window.ChatSmartPlants.conversationsData.find(c => c.id == conversationId);
     
     if (conversation) {
+        // Salva o nome do usuário também
+        localStorage.setItem('currentConversationUser', conversation.user);
+        
         // Salva as mensagens para a página de mensagens
         localStorage.setItem('conversationData', JSON.stringify(conversation));
         
@@ -187,12 +201,81 @@ function setupConversationCards() {
     });
 }
 
-// Função para marcar mensagens como lidas
-function markAsRead(conversationId) {
-    const conversation = conversationsData.find(c => c.id === conversationId);
-    if (conversation) {
-        conversation.unread = 0;
-    }
+// Função para atualizar a exibição dos cards das conversas
+function updateConversationCards() {
+    const conversationCards = document.querySelectorAll('.conversation-card');
+    
+    conversationCards.forEach((card, index) => {
+        const conversationId = parseInt(card.getAttribute('data-conversation-id'), 10);
+        if (!conversationId) return;
+        
+        const conversation = window.ChatSmartPlants.conversationsData.find(c => c.id == conversationId);
+        if (!conversation) {
+            console.log(`[chat.js] Conversa ${conversationId} não encontrada nos dados`);
+            return;
+        }
+        
+        // Atualiza a última mensagem
+        const lastMessageElement = card.querySelector('.last-message');
+        if (lastMessageElement) {
+            lastMessageElement.textContent = conversation.lastMessage || 'Sem mensagens';
+        }
+        
+        // Atualiza o horário
+        const timeElement = card.querySelector('.conversation-time');
+        if (timeElement) {
+            timeElement.textContent = conversation.time || '';
+        }
+        
+        // Atualiza o timestamp do card para ordenação
+        if (conversation.time) {
+            // Converte o tempo relativo para timestamp absoluto
+            const now = new Date();
+            let timestamp;
+
+            if (conversation.time === 'Agora') {
+                timestamp = now.toISOString();
+                console.log(`[chat.js] Conversa ${conversationId} (${conversation.user}): "Agora" -> ${timestamp}`);
+            } else if (conversation.time.includes('Ontem')) {
+                const yesterday = new Date(now);
+                yesterday.setDate(yesterday.getDate() - 1);
+                timestamp = yesterday.toISOString();
+                console.log(`[chat.js] Conversa ${conversationId} (${conversation.user}): "Ontem" -> ${timestamp}`);
+            } else if (conversation.time.includes('dias')) {
+                const daysAgo = parseInt(conversation.time.split(' ')[0]);
+                const pastDate = new Date(now);
+                pastDate.setDate(pastDate.getDate() - daysAgo);
+                timestamp = pastDate.toISOString();
+                console.log(`[chat.js] Conversa ${conversationId} (${conversation.user}): "${conversation.time}" -> ${timestamp}`);
+            } else {
+                // Para horários como "10:30", assume hoje
+                const [hours, minutes] = conversation.time.split(':');
+                const today = new Date(now);
+                today.setHours(parseInt(hours), parseInt(minutes), 0, 0);
+                timestamp = today.toISOString();
+                console.log(`[chat.js] Conversa ${conversationId} (${conversation.user}): "${conversation.time}" -> ${timestamp}`);
+            }
+
+            card.setAttribute('data-timestamp', timestamp);
+        } else {
+            console.log(`[chat.js] Conversa ${conversationId} (${conversation.user}): sem tempo definido`);
+        }
+        
+        // Atualiza contador de não lidas
+        const unreadBadge = card.querySelector('.unread-badge');
+        if (conversation.unread > 0) {
+            if (!unreadBadge) {
+                const badge = document.createElement('span');
+                badge.className = 'unread-badge';
+                badge.textContent = conversation.unread;
+                card.appendChild(badge);
+            } else {
+                unreadBadge.textContent = conversation.unread;
+            }
+        } else if (unreadBadge) {
+            unreadBadge.remove();
+        }
+    });
 }
 
 // Função para adicionar animação ao FAB
@@ -277,32 +360,90 @@ document.head.appendChild(style);
 document.addEventListener('DOMContentLoaded', () => {
     console.log('💬 Chat do Smart Plants inicializado!');
     
-    // Configura pesquisa
-    const searchInput = document.getElementById('searchInput');
-    if (searchInput) {
-        searchInput.addEventListener('input', searchConversations);
-    }
-    
-    // Configura botão de pesquisa
-    const searchBtn = document.querySelector('.search-btn');
-    if (searchBtn) {
-        searchBtn.addEventListener('click', searchConversations);
-    }
+    // Carrega o histórico do chat primeiro
+    loadChatHistoryForChat().then(updatedConversations => {
+        // Atualiza os dados das conversas com o histórico
+        window.ChatSmartPlants.conversationsData = updatedConversations;
+        
+        // Pequeno delay para garantir que os elementos HTML estão prontos
+        setTimeout(() => {
+            // Atualiza a exibição dos cards
+            updateConversationCards();
+            
+            // Aguardar um pouco mais para garantir que os timestamps foram atualizados
+            setTimeout(() => {
+                applyConversationFilters();
+            }, 100);
+        }, 100);
+        
+        // Configura pesquisa
+        const searchInput = document.getElementById('searchInput');
+        if (searchInput) {
+            searchInput.addEventListener('input', searchConversations);
+        }
+        
+        // Configura botão de pesquisa
+        const searchBtn = document.querySelector('.search-btn');
+        if (searchBtn) {
+            searchBtn.addEventListener('click', searchConversations);
+        }
 
-    // Configura barra de ferramentas
-    setupChatToolbar();
+        // Configura barra de ferramentas
+        setupChatToolbar();
+        
+        // Configura cards de conversa
+        setupConversationCards();
+        
+        // Configura FAB
+        setupFAB();
+        
+        // Integra com sistema de plantas
+        integrateWithPlants();
+        
+        // Atualiza a lista de conversas periodicamente e quando a página ganha foco
+        setInterval(() => {
+            loadChatHistoryForChat().then(updatedConversations => {
+                window.ChatSmartPlants.conversationsData = updatedConversations;
+                updateConversationCards();
+                setTimeout(() => {
+                    applyConversationFilters();
+                }, 100);
+            });
+        }, 3000); // Atualiza a cada 3 segundos
+        
+        // Também atualiza quando a página ganha foco (usuário volta para a aba)
+        window.addEventListener('focus', () => {
+            console.log('[chat.js] Página ganhou foco, atualizando conversas...');
+            loadChatHistoryForChat().then(updatedConversations => {
+                window.ChatSmartPlants.conversationsData = updatedConversations;
+                updateConversationCards();
+                setTimeout(() => {
+                    applyConversationFilters();
+                }, 100);
+            });
+        });
+    }).catch(err => {
+        console.error('Erro ao carregar histórico do chat:', err);
+        // Fallback para dados simulados
+        window.ChatSmartPlants.conversationsData = conversationsData;
+        
+        // Mesmo código de inicialização
+        const searchInput = document.getElementById('searchInput');
+        if (searchInput) {
+            searchInput.addEventListener('input', searchConversations);
+        }
+        
+        const searchBtn = document.querySelector('.search-btn');
+        if (searchBtn) {
+            searchBtn.addEventListener('click', searchConversations);
+        }
 
-    // Aplica filtros/ordenação iniciais
-    applyConversationFilters();
-    
-    // Configura cards de conversa
-    setupConversationCards();
-    
-    // Configura FAB
-    setupFAB();
-    
-    // Integra com sistema de plantas
-    integrateWithPlants();
+        setupChatToolbar();
+        applyConversationFilters();
+        setupConversationCards();
+        setupFAB();
+        integrateWithPlants();
+    });
 });
 
 // Exporta funções para uso global
@@ -310,5 +451,110 @@ window.ChatSmartPlants = {
     openConversation,
     searchConversations,
     showNotification,
-    conversationsData
+    conversationsData,
+    updateConversationCards,
+    applyConversationFilters
 };
+
+/**
+ * Carrega o histórico completo do chat do servidor e mescla com dados simulados
+ */
+function loadChatHistoryForChat() {
+    console.log('[chat.js] Carregando histórico do chat...');
+
+    // Primeiro tenta carregar do localStorage (mensagens da sessão atual)
+    try {
+        const storedHistory = localStorage.getItem('chatHistory');
+        if (storedHistory) {
+            const parsedHistory = JSON.parse(storedHistory);
+            if (Object.keys(parsedHistory).length > 0) {
+                console.log('[chat.js] Histórico carregado do localStorage:', Object.keys(parsedHistory).length, 'conversas');
+
+                // Mescla com dados simulados, dando prioridade aos dados reais
+                const mergedConversations = conversationsData.map(simulated => {
+                    const realConversation = parsedHistory[simulated.id];
+                    if (realConversation && realConversation.messages && realConversation.messages.length > 0) {
+                        // Usa dados reais com última mensagem atualizada
+                        const lastMessage = realConversation.messages[realConversation.messages.length - 1];
+                        return {
+                            ...simulated,
+                            ...realConversation,
+                            messages: realConversation.messages,
+                            lastMessage: lastMessage.text,
+                            time: lastMessage.time,
+                            unread: realConversation.unread || 0
+                        };
+                    }
+                    return simulated;
+                });
+
+                // Adiciona conversas reais que não existem nos dados simulados
+                Object.keys(parsedHistory).forEach(id => {
+                    if (!mergedConversations.find(c => c.id == id)) {
+                        const realConv = parsedHistory[id];
+                        if (realConv.messages && realConv.messages.length > 0) {
+                            const lastMessage = realConv.messages[realConv.messages.length - 1];
+                            mergedConversations.push({
+                                ...realConv,
+                                lastMessage: lastMessage.text,
+                                time: lastMessage.time
+                            });
+                        }
+                    }
+                });
+
+                console.log('[chat.js] Conversas mescladas:', mergedConversations.length);
+                return Promise.resolve(mergedConversations);
+            }
+        }
+    } catch (err) {
+        console.warn('[chat.js] Erro ao carregar do localStorage:', err);
+    }
+
+    // Fallback: tenta carregar do servidor
+    return fetch('http://localhost:8080/chat_history')
+        .then(response => response.json())
+        .then(data => {
+            console.log('[chat.js] Histórico carregado do servidor:', Object.keys(data).length, 'conversas');
+
+            // Mescla com dados simulados, dando prioridade aos dados reais
+            const mergedConversations = conversationsData.map(simulated => {
+                const realConversation = data[simulated.id];
+                if (realConversation && realConversation.messages && realConversation.messages.length > 0) {
+                    // Usa dados reais com última mensagem atualizada
+                    const lastMessage = realConversation.messages[realConversation.messages.length - 1];
+                    return {
+                        ...simulated,
+                        ...realConversation,
+                        messages: realConversation.messages,
+                        lastMessage: lastMessage.text,
+                        time: lastMessage.time,
+                        unread: realConversation.unread || 0
+                    };
+                }
+                return simulated;
+            });
+
+            // Adiciona conversas reais que não existem nos dados simulados
+            Object.keys(data).forEach(id => {
+                if (!mergedConversations.find(c => c.id == id)) {
+                    const realConv = data[id];
+                    if (realConv.messages && realConv.messages.length > 0) {
+                        const lastMessage = realConv.messages[realConv.messages.length - 1];
+                        mergedConversations.push({
+                            ...realConv,
+                            lastMessage: lastMessage.text,
+                            time: lastMessage.time
+                        });
+                    }
+                }
+            });
+
+            console.log('[chat.js] Conversas mescladas:', mergedConversations.length);
+            return mergedConversations;
+        })
+        .catch(err => {
+            console.error('[chat.js] Erro ao carregar histórico:', err);
+            return conversationsData;
+        });
+}

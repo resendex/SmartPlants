@@ -2,6 +2,12 @@
 // MÓDULO DE GESTÃO DE CONFLITOS
 // ========================================
 
+// Função auxiliar para obter data de hoje no formato YYYY-MM-DD (sem problemas de fuso horário)
+function getTodayDateString() {
+    const now = new Date();
+    return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
+}
+
 // Verificar se uma data específica tem conflito
 function hasConflictOnDate(plantId, dateStr, excludeSource = null) {
     // Verificar sistema automático
@@ -377,20 +383,28 @@ document.addEventListener('DOMContentLoaded', () => {
     infoPanel.className = 'info-panel';
     mainContent.appendChild(infoPanel);
 
-    // Botão voltar
-    const backButton = document.createElement('div');
-    backButton.className = 'back-to-system';
-    backButton.innerHTML = `
-        <button id="backToSystemBtn" class="btn btn-back">
-            <span class="btn-icon">←</span>
-            Voltar
-        </button>
-    `;
-    mainContent.appendChild(backButton);
+    // Removido: Botão voltar dinâmico - usando apenas o botão HTML
+    // const backButton = document.createElement('div');
+    // backButton.className = 'back-to-system';
+    // backButton.innerHTML = `
+    //     <button id="backToSystemBtn" class="btn btn-back">
+    //         <span class="btn-icon">←</span>
+    //         Voltar
+    //     </button>
+    // `;
+    // mainContent.appendChild(backButton);
 
     // Eventos
     document.getElementById('plantSelectBtn').addEventListener('click', () => {
         openPlantSelectionModal();
+    });
+
+    // Listener para atualizações de regas
+    window.addEventListener('regasAtualizadas', () => {
+        if (selectedPlantId) {
+            renderCalendar();
+            updateInfoPanel();
+        }
     });
 
     document.getElementById('recurrenceBtn').addEventListener('click', () => {
@@ -401,13 +415,14 @@ document.addEventListener('DOMContentLoaded', () => {
         openRecurrenceModal();
     });
 
-    document.getElementById('backToSystemBtn').addEventListener('click', () => {
-        if (selectedPlantId) {
-            sessionStorage.setItem('selectedPlant', selectedPlantId);
-        }
-        // Voltar para a página anterior
-        window.history.back();
-    });
+    // Removido: Event listener do botão voltar dinâmico
+    // document.getElementById('backToSystemBtn').addEventListener('click', () => {
+    //     if (selectedPlantId) {
+    //         sessionStorage.setItem('selectedPlant', selectedPlantId);
+    //     }
+    //     // Voltar para a página anterior
+    //     window.history.back();
+    // });
 
     // Inicial
     renderCalendar();
@@ -610,6 +625,10 @@ document.addEventListener('DOMContentLoaded', () => {
                     chk.className = 'check-badge';
                     chk.textContent = '✓';
                     dayEl.appendChild(chk);
+                    const t = document.createElement('span');
+                    t.className = 'time-badge completed-time';
+                    t.textContent = wateringInfo.time;
+                    dayEl.appendChild(t);
                     dayEl.addEventListener('click', () => openDayModal(dateStr, wateringInfo));
                 } else {
                     // Se for irrigation_override, aplicar estilo de sistema de rega
@@ -1158,8 +1177,22 @@ document.addEventListener('DOMContentLoaded', () => {
         localStorage.setItem(`watering_${plantId}`, JSON.stringify(data));
     }
     function removeWatering(plantId, date) {
-        const data = getWateringData(plantId).filter(w=>w.date!==date);
-        localStorage.setItem(`watering_${plantId}`, JSON.stringify(data));
+        const data = getWateringData(plantId);
+        const wateringToRemove = data.find(w => w.date === date);
+        
+        // Se está removendo um registro completado para hoje, remover também do histórico
+        if (wateringToRemove && wateringToRemove.completed && date === getTodayDateString()) {
+            const historyKey = `watering_history_${plantId}`;
+            const history = JSON.parse(localStorage.getItem(historyKey) || '[]');
+            const updatedHistory = history.filter(entry => entry.date !== date);
+            localStorage.setItem(historyKey, JSON.stringify(updatedHistory));
+        }
+        
+        const filteredData = data.filter(w => w.date !== date);
+        localStorage.setItem(`watering_${plantId}`, JSON.stringify(filteredData));
+        
+        // Disparar evento para atualizar dashboard
+        window.dispatchEvent(new Event('regasAtualizadas'));
     }
     // NOVO: atualizar hora de um registo existente
     function updateWateringTime(plantId, date, newTime) {

@@ -43,8 +43,11 @@ document.addEventListener('DOMContentLoaded', () => {
       users = [];
     }
 
+    // Função para normalizar string (remover acentos e converter para minúsculas)
+    const normalize = (str) => str.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+
     // allow login by username OR email
-  const userIndex = users.findIndex((u) => (u.username === identifier || u.email === identifier.toLowerCase()) && u.password === password);
+    const userIndex = users.findIndex((u) => (normalize(u.username) === normalize(identifier) || u.email === identifier.toLowerCase()) && u.password === password);
     const user = userIndex >= 0 ? users[userIndex] : null;
 
     if (!user) {

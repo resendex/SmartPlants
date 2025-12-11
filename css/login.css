@@ -6,6 +6,7 @@ body {
     padding: 0;
     display: flex;
     flex-direction: column;
+@import url('theme.css');
 }
 
 .header {
@@ -244,4 +245,67 @@ body {
     .form-feedback {
         width: 100%;
     }
+}
+
+/* Dark Mode Styles for login.css */
+body.dark-mode {
+    background: #181818;
+}
+
+body.dark-mode .header {
+    background: rgba(35, 35, 35, 0.95);
+    box-shadow: 0 0.2em 0.5em rgba(0, 0, 0, 0.3);
+}
+
+body.dark-mode .header-title {
+    color: #ffffff;
+}
+
+body.dark-mode .container {
+    background: rgba(35, 35, 35, 0.95);
+    box-shadow: 0 0.5em 2em rgba(0, 0, 0, 0.5);
+}
+
+body.dark-mode .page-title {
+    color: #ffffff;
+}
+
+body.dark-mode .form-group label {
+    color: #ffffff;
+}
+
+body.dark-mode .form-group input[type="text"],
+body.dark-mode .form-group input[type="password"],
+body.dark-mode .form-group input[type="email"] {
+    background: #232323;
+    color: #ffffff;
+    border-color: #555;
+}
+
+body.dark-mode .form-group input:focus {
+    border-color: #667eea;
+}
+
+body.dark-mode .forgot-password a {
+    color: #667eea;
+}
+
+body.dark-mode .forgot-password a:hover {
+    color: #4169e1;
+}
+
+body.dark-mode .page-subtitle {
+    color: #cccccc;
+}
+
+body.dark-mode .form-feedback {
+    background: rgba(40, 167, 69, 0.2);
+    color: #81c784;
+    border-color: rgba(40, 167, 69, 0.5);
+}
+
+body.dark-mode .form-feedback--error {
+    background: rgba(255, 0, 0, 0.2);
+    color: #ef5350;
+    border-color: rgba(192, 57, 43, 0.5);
 }

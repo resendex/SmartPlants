@@ -9,6 +9,7 @@ body {
     color: #f4f4f4;
     text-align: center;
     padding: 2em;
+@import url('theme.css');
 }
 
 .container {
@@ -103,4 +104,20 @@ body {
 .btn:active {
     transform: translateY(0);
     box-shadow: 0 0.15em 0.3em rgba(0, 0, 0, 0.2);
+}
+
+/* Dark Mode Styles for home.css */
+body.dark-mode {
+    background: #181818;
+    color: #ffffff;
+}
+
+body.dark-mode .container {
+    background: rgba(35, 35, 35, 0.95);
+    box-shadow: 0 0.5em 2em rgba(0, 0, 0, 0.5);
+}
+
+body.dark-mode .title,
+body.dark-mode .welcome-title {
+    color: #ffffff;
 }

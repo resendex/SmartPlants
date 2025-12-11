@@ -30,6 +30,14 @@ function getTodayDateString() {
     return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
 }
 
+// Função auxiliar para verificar se uma planta foi regada hoje (baseado no histórico)
+function wasPlantWateredToday(plantId) {
+    const key = `watering_history_${plantId}`;
+    const history = JSON.parse(localStorage.getItem(key) || '[]');
+    const today = getTodayDateString();
+    return history.some(entry => entry.date === today);
+}
+
 // Função auxiliar para verificar se é dia de rega do sistema automático
 function isIrrigationDayForPlant(plantId, dateStr) {
     const config = JSON.parse(localStorage.getItem(`irrigation_config_${plantId}`) || '{}');
@@ -93,17 +101,19 @@ function obterEstatisticasReais() {
     // Usar formato de data correto (sem problemas de fuso horário)
     const today = getTodayDateString();
     
-    // Contar plantas regadas hoje (dados reais do sistema de rega)
+    // Contar plantas regadas hoje (baseado no histórico)
     let plantasRegadasHoje = 0;
-    if (regasHoje.data === today && regasHoje.plantas) {
-        plantasRegadasHoje = regasHoje.plantas.length;
-    }
+    plants.forEach(plant => {
+        if (wasPlantWateredToday(plant.id)) {
+            plantasRegadasHoje++;
+        }
+    });
     
     // Contar plantas que precisam de rega hoje
     // Verifica: 1) regas manuais agendadas, 2) sistema automático, 3) recorrências
     let precisamRegar = 0;
     plants.forEach((plant) => {
-        const wasWateredToday = regasHoje.plantas && regasHoje.plantas.includes(plant.id);
+        const wasWateredToday = wasPlantWateredToday(plant.id);
         
         // Se já foi regada hoje, não precisa
         if (wasWateredToday) return;
@@ -128,7 +138,7 @@ function obterEstatisticasReais() {
     // Se não há agendamentos para hoje, usar heurística (plantas não regadas há mais de 3 dias)
     if (precisamRegar === 0) {
         plants.forEach((plant) => {
-            const wasWateredToday = regasHoje.plantas && regasHoje.plantas.includes(plant.id);
+            const wasWateredToday = wasPlantWateredToday(plant.id);
             if (wasWateredToday) return;
             
             /** @type {WateringEntry[]} */
@@ -408,16 +418,65 @@ function atualizarGraficoAtividade() {
     });
 }
 
+// Função para carregar plantas reais no dashboard
+function carregarPlantasDashboard() {
+    const plantsGrid = document.querySelector('.plants-grid');
+    if (!plantsGrid) return;
+
+    const plants = JSON.parse(localStorage.getItem('myPlants') || '[]');
+    
+    // Se não há plantas, mostrar mensagem
+    if (plants.length === 0) {
+        plantsGrid.innerHTML = `
+            <div class="plant-item empty">
+                <div class="plant-image">🌱</div>
+                <div class="plant-name">Nenhuma planta</div>
+                <div class="plant-status">Adicione plantas</div>
+            </div>
+        `;
+        return;
+    }
+
+    // Mostrar até 4 plantas (limite do dashboard)
+    const plantsToShow = plants.slice(0, 4);
+    
+    plantsGrid.innerHTML = '';
+    
+    plantsToShow.forEach(plant => {
+        // Determinar status da planta
+        let statusClass = 'healthy';
+        let statusText = 'Saudável';
+        
+        if (plant.healthStatus === 'needs-water') {
+            statusClass = 'needs-water';
+            statusText = 'Precisa água';
+        } else if (plant.healthStatus === 'unhealthy') {
+            statusClass = 'unhealthy';
+            statusText = 'Sob stress';
+        }
+        
+        const plantItem = document.createElement('div');
+        plantItem.className = 'plant-item';
+        plantItem.onclick = () => {
+            window.location.href = `minhasplantas.html?planta=${encodeURIComponent(plant.name)}`;
+        };
+        
+        plantItem.innerHTML = `
+            <div class="plant-image"><img src="${plant.image || ''}" alt="${plant.name}" style="width:3em;height:3em;object-fit:cover;border-radius:0.5em;" onerror="this.parentElement.innerHTML='🌱'"></div>
+            <div class="plant-name">${plant.name}</div>
+            <div class="plant-status ${statusClass}">${statusText}</div>
+        `;
+        
+        plantsGrid.appendChild(plantItem);
+    });
+}
+
 // Função para adicionar interatividade aos cards de planta
 function configurarPlantas() {
-    const plantItems = document.querySelectorAll('.plant-item');
+    // Carregar plantas reais primeiro
+    carregarPlantasDashboard();
     
-    plantItems.forEach(item => {
-        item.addEventListener('click', () => {
-            const nomePlanta = item.querySelector('.plant-name').textContent;
-            window.location.href = `minhasplantas.html?planta=${encodeURIComponent(nomePlanta)}`;
-        });
-    });
+    // Adicionar event listeners (já feito na carregarPlantasDashboard)
 }
 
 // Função para rotacionar dicas do dia
@@ -670,7 +729,105 @@ async function atualizarTemperatura() {
 // Inicializa tudo quando a página carregar
 document.addEventListener('DOMContentLoaded', () => {
     console.log('🌱 Smart Plants Dashboard inicializado!');
-    
+
+    // ✅ NOVA: Notificação de nova mensagem no chat ao carregar a página
+    setTimeout(() => {
+        if (window.notificarNovaMensagem) {
+            // Escolhe um usuário aleatório para simular nova mensagem (usando usuários que existem no chat)
+            const usuariosAleatorios = [
+                { name: 'PedroFlores328', avatar: '🌸', meta: '💦 Regou 3 vezes esta semana' },
+                { name: 'MariaVerde', avatar: '🌿', meta: '🌱 12 plantas' },
+                { name: 'CactoLover', avatar: '🌵', meta: '🏆 Especialista em Cactos' },
+                { name: 'OrquideasPT', avatar: '🌺', meta: '📸 Compartilhou 8 fotos' },
+                { name: 'JardimUrbano', avatar: '🪴', meta: '📍 Lisboa' },
+                { name: 'SunflowerFan', avatar: '🌻', meta: '☀️ Plantas de exterior' }
+            ];
+
+            const usuarioEscolhido = usuariosAleatorios[Math.floor(Math.random() * usuariosAleatorios.length)];
+
+            // Cria uma conversa real no localStorage
+            const chatHistory = JSON.parse(localStorage.getItem('chatHistory') || '{}');
+            const conversationId = `welcome_${usuarioEscolhido.name.toLowerCase()}`;
+
+            // Verifica se já existe uma conversa de boas-vindas recente (últimas 24h)
+            const existingConversation = chatHistory[conversationId];
+            const now = new Date();
+            const shouldCreateNew = !existingConversation ||
+                !existingConversation.messages ||
+                existingConversation.messages.length === 0 ||
+                (now - new Date(existingConversation.createdAt || 0)) > (24 * 60 * 60 * 1000); // 24 horas
+
+            if (shouldCreateNew) {
+                // Cria conversa de boas-vindas
+                const welcomeMessages = [
+                    "Olá! Bem-vindo ao SmartPlants! 🌱 Vi que você está interessado em plantas.",
+                    "Oi! Que bom ter você aqui! Quer dicas sobre jardinagem? 🌿",
+                    "Olá! Sou apaixonado por plantas também! Vamos conversar? 🌸",
+                    "Ei! Vi que você entrou no SmartPlants. Alguma dúvida sobre plantas? 🌵",
+                    "Olá! Bem-vindo à comunidade! Que tipo de plantas você gosta? 🍎",
+                    "Oi! Que bom ver você aqui! Vamos trocar experiências sobre plantas? 🌺"
+                ];
+
+                const randomMessage = welcomeMessages[Math.floor(Math.random() * welcomeMessages.length)];
+                const messageTime = now.toLocaleTimeString('pt-PT', { hour: '2-digit', minute: '2-digit' });
+
+                chatHistory[conversationId] = {
+                    id: conversationId,
+                    user: usuarioEscolhido.name,
+                    avatar: usuarioEscolhido.avatar,
+                    meta: usuarioEscolhido.meta,
+                    messages: [{
+                        sender: usuarioEscolhido.name,
+                        text: randomMessage,
+                        time: messageTime
+                    }],
+                    createdAt: now.toISOString(),
+                    unread: 1
+                };
+
+                // Salva no localStorage
+                localStorage.setItem('chatHistory', JSON.stringify(chatHistory));
+
+                // Atualiza o conversationsData se existir
+                if (window.ChatSmartPlants && window.ChatSmartPlants.conversationsData) {
+                    const conversationIndex = window.ChatSmartPlants.conversationsData.findIndex(c => c.id == conversationId);
+                    if (conversationIndex >= 0) {
+                        window.ChatSmartPlants.conversationsData[conversationIndex] = {
+                            ...window.ChatSmartPlants.conversationsData[conversationIndex],
+                            ...chatHistory[conversationId],
+                            lastMessage: randomMessage,
+                            time: messageTime,
+                            unread: 1
+                        };
+                    } else {
+                        window.ChatSmartPlants.conversationsData.push({
+                            ...chatHistory[conversationId],
+                            lastMessage: randomMessage,
+                            time: messageTime,
+                            unread: 1
+                        });
+                    }
+
+                    // Atualiza a interface
+                    if (typeof window.ChatSmartPlants.updateConversationCards === 'function') {
+                        window.ChatSmartPlants.updateConversationCards();
+                    }
+                    if (typeof window.ChatSmartPlants.applyConversationFilters === 'function') {
+                        setTimeout(() => {
+                            window.ChatSmartPlants.applyConversationFilters();
+                        }, 100);
+                    }
+                }
+
+                console.log(`[inicio.js] Conversa de boas-vindas criada para ${usuarioEscolhido.name}`);
+            }
+
+            // Dispara a notificação
+            window.notificarNovaMensagem(usuarioEscolhido.name);
+            console.log(`[inicio.js] Notificação de nova mensagem simulada de ${usuarioEscolhido.name}`);
+        }
+    }, 2000); // Delay de 2 segundos para dar tempo da página carregar
+
     // Atualizar saudação e temperatura
     atualizarSaudacao();
     atualizarTemperatura();
@@ -699,15 +856,153 @@ document.addEventListener('DOMContentLoaded', () => {
     
     // Atualiza estatísticas quando há mudanças no localStorage (de outras abas)
     window.addEventListener('storage', (e) => {
-        if (e.key === 'myPlants' || e.key === 'notificacoes') {
+        if (e.key === 'myPlants' || e.key === 'regasHoje' || e.key === 'notificacoes' || e.key === 'atividades_recentes' || e.key === 'atividades_recentes_last_update') {
+            console.info('[inicio.js] storage event:', e.key, e.newValue);
             atualizarEstatisticas();
+            renderizarAtividadesRecentes();
         }
     });
+    
+    // Atualiza quando a página volta ao foco (útil quando volta de outras páginas)
+    window.addEventListener('focus', () => {
+        atualizarEstatisticas();
+        renderizarAtividadesRecentes();
+    });
+    
+    // Atualiza quando a página fica visível novamente
+    document.addEventListener('visibilitychange', () => {
+        if (!document.hidden) {
+            atualizarEstatisticas();
+            renderizarAtividadesRecentes();
+        }
+    });
+    
+    // Renderizar atividades recentes inicialmente
+    renderizarAtividadesRecentes();
+
+    // Fallback: checar timestamp de última atualização de atividades (caso storage event falhe)
+    let lastActivitiesUpdate = localStorage.getItem('atividades_recentes_last_update');
+    setInterval(() => {
+        const ts = localStorage.getItem('atividades_recentes_last_update');
+        console.info('[inicio.js] Polling - ts:', ts, 'last:', lastActivitiesUpdate);
+        if (ts && ts !== lastActivitiesUpdate) {
+            console.info('[inicio.js] Timestamp de atividades alterado, atualizando (interval)');
+            lastActivitiesUpdate = ts;
+            renderizarAtividadesRecentes();
+        }
+    }, 1000); // Mais frequente para testar
+    
+    // Escutar eventos customizados de atividades adicionadas (legado)
+    window.addEventListener('atividadeAdicionada', (e) => {
+        renderizarAtividadesRecentes();
+    });
+
+    // NOVO: Escutar evento customizado para atualização imediata
+    window.addEventListener('atividadesRecentesAtualizadas', function () {
+        console.info('[inicio.js] Evento customizado atividadesRecentesAtualizadas recebido, re-renderizando atividades.');
+        renderizarAtividadesRecentes();
+    });
+
+    // NOVO: Escutar BroadcastChannel para cross-tab
+    if (typeof BroadcastChannel !== 'undefined') {
+        const bc = new BroadcastChannel('smartplants-atividades');
+        bc.onmessage = function (e) {
+            console.info('[inicio.js] BroadcastChannel message recebido:', e.data);
+            if (e.data && e.data.type === 'atividadeAdicionada') {
+                console.info('[inicio.js] BroadcastChannel atividadeAdicionada recebido com atividades:', e.data.atividades ? e.data.atividades.length : 'undefined');
+                if (e.data.atividades) {
+                    localStorage.setItem('atividades_recentes', JSON.stringify(e.data.atividades));
+                    localStorage.setItem('atividades_recentes_last_update', Date.now().toString());
+                }
+                renderizarAtividadesRecentes();
+            }
+        };
+        console.info('[inicio.js] BroadcastChannel listener adicionado');
+    } else {
+        console.warn('[inicio.js] BroadcastChannel não suportado');
+    }
 });
 
-// Exporta funções para uso em outras partes do código
-window.SmartPlantsDashboard = {
-    atualizarEstatisticas,
-    mostrarNotificacao,
-    dashboardData
-};
+// Função para renderizar atividades recentes
+function renderizarAtividadesRecentes() {
+    const activityList = document.querySelector('.activity-list');
+    if (!activityList) return;
+
+    // Usar localStorage diretamente
+    let raw = localStorage.getItem('atividades_recentes');
+    console.info('[inicio.js] Conteúdo bruto localStorage.atividades_recentes:', raw);
+    let atividades = [];
+    try {
+        atividades = JSON.parse(raw || '[]');
+    } catch (e) {
+        console.error('Erro ao obter atividades recentes:', e);
+    }
+    console.info('[inicio.js] renderizarAtividadesRecentes -> atividades lidas:', atividades.length);
+    renderizarAtividadesHTML(atividades);
+
+    // Renderizar atividades reais (prevalecem sobre exemplos estáticos)
+    let html = '';
+    if (atividades && atividades.length > 0) {
+        console.info('[inicio.js] renderizarAtividadesRecentes - total:', atividades.length);
+        atividades.forEach(atividade => {
+            const iconeClass = atividade.icone || 'success';
+            const iconeMap = {
+                'add': '+',
+                'success': '✓',
+                'message': '💬'
+            };
+            const icone = iconeMap[iconeClass] || '✓';
+
+            html += `
+                <div class="activity-item">
+                    <div class="activity-icon ${iconeClass}">${icone}</div>
+                    <div class="activity-content">
+                        <div class="activity-text">${atividade.texto}</div>
+                        <div class="activity-time">${atividade.hora}</div>
+                    </div>
+                </div>
+            `;
+        });
+    } else {
+        // Não mostrar exemplos pré-definidos — mostrar mensagem limpa
+        html = `
+            <div class="no-activities">
+                <div class="activity-empty">Sem atividades recentes</div>
+            </div>
+        `;
+    }
+
+    activityList.innerHTML = html;
+}
+
+function renderizarAtividadesHTML(atividades) {
+    const activityList = document.querySelector('.activity-list');
+    if (!activityList) return;
+    // Renderizar
+    let html = '';
+    if (atividades && atividades.length > 0) {
+        atividades.forEach(atividade => {
+            const iconeClass = atividade.icone || 'success';
+            const iconeMap = {
+                'add': '+',
+                'success': '✓',
+                'message': '💬'
+            };
+            const icone = iconeMap[iconeClass] || '✓';
+
+            html += `
+                <div class="activity-item">
+                    <div class="activity-icon ${iconeClass}">${icone}</div>
+                    <div class="activity-content">
+                        <div class="activity-text">${atividade.texto}</div>
+                        <div class="activity-time">${atividade.hora}</div>
+                    </div>
+                </div>
+            `;
+        });
+    } else {
+        html = '<div class="activity-item empty"><div class="activity-content"><div class="activity-text">Sem atividades recentes</div></div></div>';
+    }
+
+    activityList.innerHTML = html;
+}

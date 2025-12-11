@@ -1,3 +1,5 @@
+@import url('theme.css');
+
 /* Regras para o footer */
 
 .footer {
@@ -36,4 +38,22 @@
     height: 0.8em;
     background-color: #f4f4f4;
     margin: 0 0.5em;
+}
+
+/* Dark Mode Styles for copyright.css */
+body.dark-mode .footer {
+    background-color: rgba(35, 35, 35, 0.8);
+    color: #ffffff;
+}
+
+body.dark-mode .footer a {
+    color: #81c784;
+}
+
+body.dark-mode .footer a:hover {
+    color: #4caf50;
+}
+
+body.dark-mode .divider {
+    background-color: #ffffff;
 }

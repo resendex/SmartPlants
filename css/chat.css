@@ -1,3 +1,4 @@
+@import url('theme.css');
 body {
     font-family: Arial, sans-serif;
     margin: 0;
@@ -78,6 +79,13 @@ body {
     background: rgba(255, 255, 255, 0.95);
     box-shadow: 0.2em 0 0.5em rgba(0, 0, 0, 0.1);
     padding: 2em 0;
+    position: fixed;
+    top: -5em;
+    left: 0;
+    height: calc(100vh - 70px);
+    min-height: 100vh;
+    overflow-y: auto;
+    padding-top: 10em;
 }
 
 .menu {
@@ -123,6 +131,7 @@ body {
     flex: 1;
     padding: 2em;
     overflow-y: auto;
+    margin-left: 250px;
 }
 
 .content-title {
@@ -352,6 +361,16 @@ body {
     opacity: 1;
 }
 
+.conversation-card.most-recent {
+    background: white;
+    border-left: 0.3em solid #4CAF50;
+}
+
+.conversation-card.most-recent::before {
+    background: linear-gradient(135deg, #4CAF50, #8BC34A);
+    opacity: 0.8;
+}
+
 /* Avatar */
 .conversation-avatar {
     width: 3.5em;
@@ -471,4 +490,167 @@ body {
     .conversation-meta {
         display: none;
     }
+}
+
+/* Dark Mode Styles for chat.css */
+body.dark-mode {
+    background: #181818;
+}
+
+body.dark-mode .header {
+    background: rgba(35, 35, 35, 0.95);
+    box-shadow: 0 0.2em 0.5em rgba(0, 0, 0, 0.3);
+}
+
+body.dark-mode .header-title {
+    color: #ffffff;
+}
+
+body.dark-mode .sidebar {
+    background: rgba(35, 35, 35, 0.95);
+    box-shadow: 0.2em 0 0.5em rgba(0, 0, 0, 0.3);
+}
+
+body.dark-mode .menu-item {
+    color: #ffffff;
+}
+
+body.dark-mode .menu-item:hover {
+    background: rgba(102, 126, 234, 0.2);
+}
+
+body.dark-mode .menu-item.active {
+    background: rgba(102, 126, 234, 0.3);
+    border-left-color: #667eea;
+}
+
+body.dark-mode .menu-icon-placeholder {
+    background: rgba(102, 126, 234, 0.2);
+}
+
+body.dark-mode .content-title {
+    color: #ffffff;
+}
+
+body.dark-mode .tabs-container {
+    background: rgba(35, 35, 35, 0.95);
+    box-shadow: 0 0.3em 1em rgba(0, 0, 0, 0.3);
+}
+
+body.dark-mode .tab-link {
+    color: #cccccc;
+}
+
+body.dark-mode .tab-link:hover {
+    background: rgba(102, 126, 234, 0.2);
+    color: #ffffff;
+}
+
+body.dark-mode .tab-link.active {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: #ffffff;
+}
+
+body.dark-mode .search-container {
+    background: linear-gradient(135deg, rgba(102, 126, 234, 0.8) 0%, rgba(40, 167, 69, 0.8) 100%);
+    box-shadow: 0 0.6em 1.6em rgba(102, 126, 234, 0.4), 0 0.3em 1.2em rgba(40, 167, 69, 0.3);
+}
+
+body.dark-mode .search-container::before {
+    background: linear-gradient(135deg, rgba(118, 75, 162, 0.5) 0%, rgba(102, 126, 234, 0.5) 50%, rgba(40, 167, 69, 0.4) 100%);
+}
+
+body.dark-mode .search-input {
+    background: rgba(35, 35, 35, 0.9);
+    color: #ffffff;
+    border-color: rgba(118, 75, 162, 0.6);
+    box-shadow: inset 0 0.2em 0.65em rgba(0, 0, 0, 0.3), 0 0.15em 0.4em rgba(118, 75, 162, 0.4);
+}
+
+body.dark-mode .search-input:focus {
+    background: #232323;
+    border-color: rgba(118, 75, 162, 0.8);
+    box-shadow: inset 0 0.35em 0.95em rgba(0, 0, 0, 0.4), 0 0.2em 0.45em rgba(118, 75, 162, 0.5);
+}
+
+body.dark-mode .search-input::placeholder {
+    color: rgba(102, 126, 234, 0.7);
+}
+
+body.dark-mode .search-btn {
+    background: rgba(102, 126, 234, 0.8);
+    border-color: rgba(102, 126, 234, 0.3);
+    box-shadow: 0 0.4em 1.1em rgba(102, 126, 234, 0.5);
+}
+
+body.dark-mode .search-btn:hover {
+    background: rgba(102, 126, 234, 0.9);
+    border-color: rgba(255, 255, 255, 0.7);
+    box-shadow: 0 0.5em 1.3em rgba(102, 126, 234, 0.6);
+}
+
+body.dark-mode .chat-toolbar .toolbar-group {
+    background: rgba(35, 35, 35, 0.95);
+    box-shadow: 0 0.3em 1em rgba(0, 0, 0, 0.3);
+}
+
+body.dark-mode .chat-toolbar label {
+    color: #ffffff;
+}
+
+body.dark-mode .chat-toolbar select {
+    background: rgba(102, 126, 234, 0.15);
+    color: #ffffff;
+    border-color: rgba(118, 75, 162, 0.4);
+}
+
+body.dark-mode .chat-toolbar select:focus {
+    background: rgba(35, 35, 35, 0.95);
+    border-color: rgba(118, 75, 162, 0.7);
+    box-shadow: 0 0.2em 0.6em rgba(118, 75, 162, 0.4);
+}
+
+body.dark-mode .conversation-card {
+    background: rgba(35, 35, 35, 0.95);
+    color: #ffffff;
+    box-shadow: 0 0.2em 0.8em rgba(0, 0, 0, 0.3);
+}
+
+body.dark-mode .conversation-card:hover {
+    box-shadow: 0 0.4em 1.2em rgba(0, 0, 0, 0.4);
+}
+
+body.dark-mode .conversation-card.unread {
+    background: rgba(35, 35, 35, 1);
+    box-shadow: 0 0.3em 1em rgba(102, 126, 234, 0.3);
+}
+
+body.dark-mode .conversation-card.most-recent {
+    border-left: 0.3em solid #4CAF50;
+}
+
+body.dark-mode .conversation-name {
+    color: #ffffff;
+}
+
+body.dark-mode .conversation-time {
+    color: #cccccc;
+}
+
+body.dark-mode .last-message {
+    color: #cccccc;
+}
+
+body.dark-mode .unread .last-message {
+    color: #ffffff;
+}
+
+body.dark-mode .unread-badge {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: #ffffff;
+}
+
+body.dark-mode .meta-item {
+    color: #667eea;
+    background: rgba(102, 126, 234, 0.2);
 }

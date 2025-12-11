@@ -22,6 +22,8 @@ window.SmartPlantsNotifications = {
         };
 
         notificacoes.unshift(novaNotificacao);
+            // Log para depuração
+            console.info('[SmartPlantsNotifications] Notificação adicionada:', novaNotificacao);
         localStorage.setItem('notificacoes', JSON.stringify(notificacoes));
         
         this.atualizarBadge();
@@ -130,7 +132,7 @@ window.SmartPlantsNotifications = {
         const notificacoes = JSON.parse(localStorage.getItem('notificacoes') || '[]');
         const naoLidas = notificacoes.filter(n => !n.lida).length;
         
-        const menuItems = document.querySelectorAll('a[href="notificacoes.html"]');
+        const menuItems = document.querySelectorAll('a[href="notificacoes.html"].menu-item');
         menuItems.forEach(item => {
             let badge = item.querySelector('.notification-badge');
             
@@ -596,7 +598,7 @@ window.notificarHorarioRega = function(nomePlanta) {
 window.notificarEventoCalendario = function(titulo, data) {
     window.SmartPlantsNotifications.adicionar(
         'calendario',
-        `📅 Evento agendado: "${titulo}" para ${data}`,
+        `Evento agendado: "${titulo}" para ${data}`,
         'calendario.html'
     );
 };
@@ -604,7 +606,7 @@ window.notificarEventoCalendario = function(titulo, data) {
 window.notificarNovaMensagem = function(usuario) {
     window.SmartPlantsNotifications.adicionar(
         'chat',
-        `💬 Nova mensagem de ${usuario}`,
+        `Nova mensagem de ${usuario}`,
         'chat.html'
     );
 };
@@ -612,7 +614,7 @@ window.notificarNovaMensagem = function(usuario) {
 window.notificarNovoPost = function(autor, titulo) {
     window.SmartPlantsNotifications.adicionar(
         'forum',
-        `📢 ${autor} publicou: "${titulo}"`,
+        `${autor} publicou: "${titulo}"`,
         'forum.html'
     );
 };
@@ -620,7 +622,7 @@ window.notificarNovoPost = function(autor, titulo) {
 window.notificarProgressoPlanta = function(nomePlanta) {
     window.SmartPlantsNotifications.adicionar(
         'planta',
-        `📸 Nova foto de progresso adicionada: "${nomePlanta}"`,
+        `Nova foto de progresso adicionada: "${nomePlanta}"`,
         'minhasplantas.html'
     );
 };
@@ -628,7 +630,7 @@ window.notificarProgressoPlanta = function(nomePlanta) {
 window.notificarComentarioForum = function(autor, postTitulo) {
     window.SmartPlantsNotifications.adicionar(
         'forum',
-        `💬 ${autor} comentou no post: "${postTitulo}"`,
+        `${autor} comentou no post: "${postTitulo}"`,
         'forum.html'
     );
 };
@@ -636,7 +638,7 @@ window.notificarComentarioForum = function(autor, postTitulo) {
 window.notificarLembrete = function(titulo, mensagem) {
     window.SmartPlantsNotifications.adicionar(
         'lembrete',
-        `🔔 Lembrete: ${titulo} - ${mensagem}`,
+        `Lembrete: ${titulo} - ${mensagem}`,
         'lembretes.html'
     );
 };
@@ -645,7 +647,7 @@ window.notificarLembrete = function(titulo, mensagem) {
 window.notificarExcessoRega = function(nomePlanta) {
     window.SmartPlantsNotifications.adicionar(
         'alerta',
-        `⚠️ ATENÇÃO: "${nomePlanta}" pode estar a receber água em excesso! Aguarde alguns dias antes de regar novamente.`,
+        `ATENÇÃO: "${nomePlanta}" pode estar a receber água em excesso! Aguarde alguns dias antes de regar novamente.`,
         'minhasplantas.html'
     );
 };
@@ -691,6 +693,114 @@ window.verificarCuidadosPlantas = function() {
     localStorage.setItem('myPlants', JSON.stringify(plantas));
 };
 
+// Sistema de Atividades Recentes
+window.SmartPlantsActivities = {
+    
+    // Adicionar atividade recente
+    adicionar: function(icone, texto, link = null) {
+        console.info('[SmartPlantsActivities] adicionar chamado com icone:', icone, 'texto:', texto);
+        // Ler atividades atuais do localStorage
+        let atividades = [];
+        try {
+            atividades = JSON.parse(localStorage.getItem('atividades_recentes') || '[]');
+        } catch (e) {
+            console.error('[SmartPlantsActivities] Erro ao ler atividades:', e);
+        }
+
+        const agora = new Date();
+
+        const novaAtividade = {
+            id: Date.now(),
+            icone: icone,
+            texto: texto,
+            data: agora.toLocaleDateString('pt-PT'),
+            hora: agora.toLocaleTimeString('pt-PT', { hour: '2-digit', minute: '2-digit' }),
+            link: link
+        };
+
+        atividades.unshift(novaAtividade);
+
+        // Manter apenas as 10 mais recentes
+        if (atividades.length > 10) {
+            atividades.splice(10);
+        }
+
+        localStorage.setItem('atividades_recentes', JSON.stringify(atividades));
+        console.info('[SmartPlantsActivities] Atividade adicionada:', novaAtividade);
+
+        // Disparar evento
+        window.dispatchEvent(new Event('atividadesRecentesAtualizadas'));
+        console.info('[SmartPlantsActivities] Evento atividadesRecentesAtualizadas disparado');
+
+        // BroadcastChannel
+        if (typeof BroadcastChannel !== 'undefined') {
+            const bc = new BroadcastChannel('smartplants-atividades');
+            bc.postMessage({ type: 'atividadeAdicionada', atividades: atividades });
+            console.info('[SmartPlantsActivities] BroadcastChannel postMessage enviado');
+            bc.close();
+        }
+    },
+
+    // Obter atividades recentes
+    obter: function() {
+        try {
+            const stored = localStorage.getItem('atividades_recentes');
+            return stored ? JSON.parse(stored) : [];
+        } catch (e) {
+            console.error('Erro ao obter atividades do localStorage:', e);
+            return [];
+        }
+    },
+
+    // Limpar atividades antigas (mais de 30 dias)
+    limparAntigas: function() {
+        const atividades = this.obter();
+        const agora = new Date();
+        const trintaDiasAtras = new Date(agora.getTime() - (30 * 24 * 60 * 60 * 1000));
+        
+        const atividadesFiltradas = atividades.filter(atividade => {
+            const dataAtividade = new Date(atividade.data + ' ' + atividade.hora);
+            return dataAtividade > trintaDiasAtras;
+        });
+        
+        window.smartPlantsActivitiesData = atividadesFiltradas;
+        try {
+            localStorage.setItem('atividades_recentes', JSON.stringify(atividadesFiltradas));
+        } catch (e) {
+            // Ignorar erros do localStorage
+        }
+    }
+};
+
+// Funções de atalho para tipos específicos de atividades
+window.adicionarAtividadeNovaPlanta = function(nomePlanta) {
+    const agora = new Date();
+    const horaFormatada = agora.toLocaleTimeString('pt-PT', { hour: '2-digit', minute: '2-digit' });
+    window.SmartPlantsActivities.adicionar(
+        'add',
+        `Adicionou <strong>${nomePlanta}</strong> às ${horaFormatada}`
+    );
+};
+
+window.adicionarAtividadeRega = function(nomePlanta) {
+    const agora = new Date();
+    const horaFormatada = agora.toLocaleTimeString('pt-PT', { hour: '2-digit', minute: '2-digit' });
+    window.SmartPlantsActivities.adicionar(
+        'success',
+        `Regou <strong>${nomePlanta}</strong> às ${horaFormatada}`
+    );
+};
+
+window.adicionarAtividadeMensagem = function(destinatario = null) {
+    const agora = new Date();
+    const horaFormatada = agora.toLocaleTimeString('pt-PT', { hour: '2-digit', minute: '2-digit' });
+    const nomeDestinatario = destinatario || 'alguém';
+    window.SmartPlantsActivities.adicionar(
+        'message',
+        `Enviou mensagem a <strong>${nomeDestinatario}</strong> às ${horaFormatada}`
+    );
+};
+
 // Inicializar quando a página carregar
 document.addEventListener('DOMContentLoaded', () => {
     // Injetar estilos CSS
@@ -704,4 +814,7 @@ document.addEventListener('DOMContentLoaded', () => {
     
     // Verificar cuidados das plantas
     window.verificarCuidadosPlantas();
+    
+    // Limpar atividades antigas
+    window.SmartPlantsActivities.limparAntigas();
 });

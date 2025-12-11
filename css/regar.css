@@ -5,6 +5,7 @@
     box-sizing: border-box;
 }
 
+@import url('theme.css');
 body {
     font-family: Arial, sans-serif;
     margin: 0;
@@ -23,6 +24,7 @@ body {
     justify-content: space-between;
     align-items: center;
     position: relative;
+    z-index: 10;
 }
 
 .header-center {
@@ -85,6 +87,13 @@ body {
     background: rgba(255, 255, 255, 0.95);
     box-shadow: 0.2em 0 0.5em rgba(0, 0, 0, 0.1);
     padding: 2em 0;
+    position: fixed;
+    top: 0;
+    left: 0;
+    height: 100vh !important;
+    overflow-y: auto;
+    padding-top: 5em;
+    z-index: 5;
 }
 
 .menu {
@@ -140,6 +149,7 @@ body {
     flex: 1;
     padding: 2em;
     overflow-y: auto;
+    margin-left: 250px;
 }
 
 /* Page Header */
@@ -561,6 +571,92 @@ body {
 .regar_menu .menu-item span {
     font-size: 1.05rem;
     line-height: 1.2;
+}
+
+/* Dark Mode Styles for regar.css */
+body.dark-mode {
+    background: #181818;
+}
+
+body.dark-mode .header {
+    background: rgba(35, 35, 35, 0.95);
+    box-shadow: 0 0.2em 0.5em rgba(0, 0, 0, 0.3);
+}
+
+body.dark-mode .header-title {
+    color: #ffffff;
+}
+
+body.dark-mode .sidebar,
+body.dark-mode .regar_menu {
+    background: rgba(35, 35, 35, 0.95);
+    box-shadow: 0.2em 0 0.5em rgba(0, 0, 0, 0.3);
+}
+
+body.dark-mode .menu-item {
+    color: #ffffff;
+}
+
+body.dark-mode .menu-item:hover {
+    background: rgba(102, 126, 234, 0.2);
+}
+
+body.dark-mode .menu-item.active {
+    background: rgba(102, 126, 234, 0.3);
+    border-left-color: #667eea;
+}
+
+body.dark-mode .menu-icon-placeholder {
+    background: rgba(102, 126, 234, 0.2);
+}
+
+body.dark-mode .content {
+    background: rgba(35, 35, 35, 0.95);
+}
+
+body.dark-mode .content-title {
+    color: #ffffff;
+}
+
+body.dark-mode .watering-card,
+body.dark-mode .plant-selector,
+body.dark-mode .watering-controls,
+body.dark-mode .watering-history {
+    background: rgba(35, 35, 35, 0.95);
+    color: #ffffff;
+    border-color: #333;
+}
+
+body.dark-mode .plant-name,
+body.dark-mode .watering-status,
+body.dark-mode .watering-info,
+body.dark-mode .history-item {
+    color: #ffffff;
+}
+
+body.dark-mode .btn,
+body.dark-mode .watering-btn,
+body.dark-mode .control-btn {
+    background: #81c784;
+    color: #181818;
+}
+
+body.dark-mode .btn:hover,
+body.dark-mode .watering-btn:hover,
+body.dark-mode .control-btn:hover {
+    background: #4caf50;
+}
+
+body.dark-mode .watering-slider,
+body.dark-mode .watering-input {
+    background: #232323;
+    color: #ffffff;
+    border-color: #555;
+}
+
+body.dark-mode .watering-slider:focus,
+body.dark-mode .watering-input:focus {
+    border-color: #667eea;
 }
 
 

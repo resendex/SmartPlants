@@ -1,3 +1,4 @@
+@import url('theme.css');
 body {
     font-family: Arial, sans-serif;
     margin: 0;
@@ -78,6 +79,13 @@ body {
     background: rgba(255, 255, 255, 0.95);
     box-shadow: 0.2em 0 0.5em rgba(0, 0, 0, 0.1);
     padding: 2em 0;
+    position: fixed;
+    top: -5em;
+    left: 0;
+    height: calc(100vh - 70px);
+    min-height: 100vh;
+    overflow-y: auto;
+    padding-top: 10em;
 }
 
 .menu {
@@ -123,6 +131,7 @@ body {
     flex: 1;
     padding: 2em;
     overflow-y: auto;
+    margin-left: 250px;
 }
 
 .content-title {
@@ -1510,4 +1519,113 @@ body {
     .confidence-circle span {
         font-size: 0.8em;
     }
+}
+
+/* Dark Mode Styles for minhasplantas.css */
+body.dark-mode .plant-card,
+body.dark-mode .add-plant-card,
+body.dark-mode .plant-details-card,
+body.dark-mode .watering-history-card,
+body.dark-mode .irrigation-config-card,
+body.dark-mode .recurrence-card,
+body.dark-mode .diagnosis-card {
+    background: #232323;
+    color: #ffffff;
+    border-color: #333;
+}
+
+body.dark-mode .plant-name,
+body.dark-mode .plant-species,
+body.dark-mode .plant-info,
+body.dark-mode .watering-info,
+body.dark-mode .irrigation-status,
+body.dark-mode .recurrence-info,
+body.dark-mode .diagnosis-result,
+body.dark-mode .confidence-label {
+    color: #ffffff;
+}
+
+body.dark-mode .plant-image {
+    border-color: #333;
+}
+
+body.dark-mode .watering-btn,
+body.dark-mode .config-btn,
+body.dark-mode .add-btn,
+body.dark-mode .edit-btn,
+body.dark-mode .delete-btn,
+body.dark-mode .diagnose-btn {
+    background: #81c784;
+    color: #181818;
+}
+
+body.dark-mode .watering-btn:hover,
+body.dark-mode .config-btn:hover,
+body.dark-mode .add-btn:hover,
+body.dark-mode .edit-btn:hover,
+body.dark-mode .delete-btn:hover,
+body.dark-mode .diagnose-btn:hover {
+    background: #4caf50;
+}
+
+body.dark-mode .delete-confirm-overlay {
+    background: rgba(0, 0, 0, 0.8);
+}
+
+body.dark-mode .delete-confirm-container {
+    background: #232323;
+    color: #ffffff;
+    border-color: #333;
+}
+
+body.dark-mode .delete-confirm-title,
+body.dark-mode .delete-confirm-message {
+    color: #ffffff;
+}
+
+body.dark-mode .delete-confirm-btn,
+body.dark-mode .delete-cancel-btn {
+    background: #81c784;
+    color: #181818;
+}
+
+body.dark-mode .modal-overlay {
+    background: rgba(0, 0, 0, 0.8);
+}
+
+body.dark-mode .modal-content {
+    background: #232323;
+    color: #ffffff;
+    border-color: #333;
+}
+
+body.dark-mode .modal-title,
+body.dark-mode .modal-label {
+    color: #ffffff;
+}
+
+body.dark-mode .modal-input,
+body.dark-mode .modal-select,
+body.dark-mode .modal-textarea {
+    background: #232323;
+    color: #ffffff;
+    border-color: #333;
+}
+
+body.dark-mode .modal-btn {
+    background: #81c784;
+    color: #181818;
+}
+
+body.dark-mode .modal-btn:hover {
+    background: #4caf50;
+}
+
+body.dark-mode .confidence-circle {
+    background: #333;
+    color: #ffffff;
+}
+
+body.dark-mode .confidence-circle::before {
+    background: #232323;
 }
